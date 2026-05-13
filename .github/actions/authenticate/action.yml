@@ -1,0 +1,23 @@
+name: Authenticate to Azure Artifacts
+description: |
+  Set up authentication for Azure Artifacts.
+
+outputs:
+  access-token:
+    description: a temporary access token generated with the azure cli
+    value: ${{ steps.get-access-token.outputs.access-token }}
+
+runs:
+  using: composite
+  steps:
+    - id: azure-login
+      shell: bash
+      run: |
+        az login --identity
+
+    - id: get-access-token
+      shell: bash
+      run: |
+        ACCESS_TOKEN=$(az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 --output tsv)
+        echo "::add-mask::$ACCESS_TOKEN"
+        echo "access-token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT

@@ -1,0 +1,10 @@
+\subsection{Weather Forecasting Experimental Setup}\label{sec:sevir_additional_details}
+
+For SEVIR, we use the VIL modality \cite{veillette2020sevir} and construct a benchmark protocol from 25-frame clips taken from the 2019 radar sequences, with a center clip start at frame 12. This yields 13 context frames and 12 forecast frames per clip. We split events at 2019-06-01, reserve 10\% of the pre-cutoff events for validation, and obtain 2,729 training events, 334 validation events, and 847 test events. Training is performed on resized $128\times128$ single-channel VIL fields, while evaluation is reported at native resolution by upsampling predictions before scoring.
+% When the model is evaluated at a lower spatial resolution, predictions are upsampled to the native SEVIR resolution before scoring.
+We train for 20 epochs at a constant learning rate of $10^{-4}$, with a batch size of 4, on a single GPU: this takes around three hours. We gradient clip the norms to maximum $1$, and use EMA 0.999.
+
+We compare four methods: ABC Non-Causal, ABC Causal, Conditional Diffusion Bridge, and Noise-to-Data Diffusion. For the SEVIR experiments mentioned in the main text and the qualitative figure (Table \ref{tab:sevir_main_metrics}, %\ref{tab:sevir_detection_metrics},
+Figure \ref{fig:sevir_timelapse_comparison}), all the benchmarked methods used the same constant volatility schedule of $\sigma=1.0$. For completeness, we also try different hyperparameters (Section \ref{sec:more_sevir_hyperparameters}).
+
+In the pinned non-causal protocol, the model conditions on the first, every 8th, and final frame of the clip and predicts the remaining frames; in the causal protocol, it conditions on the first 13 frames and predicts the final 12. All SEVIR results use 250 sampling steps and one sample per test example. We report MAE, MSE, RMSE, and thresholded CSI, POD, FAR, and bias at VIL thresholds $\{16,74,133,160\}$, computed only on the unobserved/forecast frames.

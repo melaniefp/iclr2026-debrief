@@ -1,0 +1,39 @@
+\subsection{Exploring Impact of Scaling}
+
+We also investigate whether increasing computational resources can improve model performance.
+We launched another training run on CelebV-HQ, this time with a 594,067,472 parameter model (depth=20, hidden\_size=1024, num\_heads=16). We increased the number of scheduled cosine decay steps to 380K, with 20K warmup steps; and increased the total number of training steps to 320K. We used 8 A100 80GB GPUs for this.
+
+See Tables \ref{tab:scaling_ablation_fid_score}, \ref{tab:scaling_ablation_fvd_score}.
+The experiments are done with the infilling setting. We see that on FVD (Table \ref{tab:scaling_ablation_fvd_score}), increasing parameter count and training time boosts the performance, especially as the prompting gets sparser. With respect to FID (Table \ref{tab:scaling_ablation_fid_score}), while the model with the most resources is not always the best, we note that all the FIDs are low to begin with, and the differences between FIDs are much smaller than those between FVDs.
+
+% ===== FVD (fvd_score.json) =====
+\begin{table}[h]
+\centering
+\caption{Model-scaling ablation, FVD (lower is better) on CelebV-HQ. We fix the video length to 32 frames and use 250 diffusion steps. Best per column in \textbf{bold}.}
+\label{tab:scaling_ablation_fvd_score}
+\begin{tabular}{lccc}
+\toprule
+Model & pin\_every\_4 & pin\_every\_8 & pin\_every\_16 \\
+\midrule
+Base (202M params, 240K steps) & 37.75 & 99.69 & 315.49 \\
+Medium (594M params, 240K steps) & 36.40 & 94.17 & 268.67 \\
+Medium (594M params, 320K steps) & \textbf{35.02} & \textbf{88.47} & \textbf{238.77} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===== FID (fid_score.json) =====
+\begin{table}[h]
+\centering
+\caption{Model-scaling ablation, FID (lower is better) on CelebV-HQ. We fix the video length to 32 frames and use 250 diffusion steps. Best per column in \textbf{bold}.}
+\label{tab:scaling_ablation_fid_score}
+\begin{tabular}{lccc}
+\toprule
+Model & pin\_every\_4 & pin\_every\_8 & pin\_every\_16 \\
+\midrule
+Base (202M params, 240K steps) & 1.29 & \textbf{2.62} & \textbf{5.91} \\
+Medium (594M params, 240K steps) & 1.26 & 2.73 & 6.12 \\
+Medium (594M params, 320K steps) & \textbf{1.21} & 2.67 & 6.51 \\
+\bottomrule
+\end{tabular}
+\end{table}

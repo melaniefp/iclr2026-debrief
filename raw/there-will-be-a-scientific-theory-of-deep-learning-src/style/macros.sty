@@ -1,0 +1,201 @@
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs} % for professional tables
+\usepackage{hyperref}
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{etoolbox}
+\usepackage{nccmath}
+\usepackage{bbm}
+\usepackage[shortlabels]{enumitem}
+\usepackage{mdframed}
+\usepackage{relsize}
+\usepackage{empheq}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{tablefootnote}
+% \usepackage[normalem]{ulem}
+
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{ragged2e}
+
+% spacing
+\usepackage{parskip}
+\setlist{nosep}
+\usepackage{abstract}
+\usepackage{scalefnt} % enables \scalefont{<scale>}
+\renewcommand{\abstractnamefont}{\normalfont\bfseries}
+\renewcommand{\abstracttextfont}{\normalfont\scalefont{0.85}} % <-- knob: 0.90–0.98 typical
+\setlength{\absleftindent}{50pt}
+\setlength{\absrightindent}{50pt}
+\setlength{\absparindent}{0pt}
+% \setlength{\absparskip}{0.6em} % line space between paragraphs
+
+\newcommand{\numberlessfootnote}[1]{%
+  \begingroup
+  \renewcommand{\thefootnote}{}%
+  \footnotetext{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+% INCREASE ABSTRACT WIDTH
+\newlength{\abstractmargin}
+\setlength{\abstractmargin}{0.2in}   % bigger = narrower abstract
+\renewenvironment{abstract}
+  {\quotation\small\noindent\par\vspace{2pt}}
+  {\par\vspace{2pt}\noindent\endquotation}
+\renewcommand{\quotation}{\list{}{\leftmargin\abstractmargin \rightmargin\abstractmargin}\item\relax}
+
+
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newmdtheoremenv{boxedtheorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SPECIAL MATH NOTATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand\E[2]{\mathbb{E}_{#1} \! \left[ #2 \right]}
+\newcommand\Var[2]{\mathrm{Var}_{#1} \! \left[ #2 \right]}
+\newcommand\Cov[2]{\mathrm{Cov}_{#1} \! \left[ #2 \right]}
+\newcommand{\diag}[1]{\text{diag}{#1}}
+\newcommand{\Tr}[1]{\text{Tr}\left[{#1}\right]}
+\newcommand{\norm}[1]{\left| \! \left| #1 \right| \! \right|}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\T}{^\top}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BOLD LETTERS FOR VECTORS AND MATRICES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Vectors
+\def\vzero{{\bm{0}}}
+\def\vone{{\bm{1}}}
+\def\vmu{{\bm{\mu}}}
+\def\vtheta{{\bm{\theta}}}
+\def\va{{\bm{a}}}
+\def\vb{{\bm{b}}}
+\def\vc{{\bm{c}}}
+\def\vd{{\bm{d}}}
+\def\ve{{\bm{e}}}
+\def\vf{{\bm{f}}}
+\def\vg{{\bm{g}}}
+\def\vh{{\bm{h}}}
+\def\vi{{\bm{i}}}
+\def\vj{{\bm{j}}}
+\def\vk{{\bm{k}}}
+\def\vl{{\bm{l}}}
+\def\vm{{\bm{m}}}
+\def\vn{{\bm{n}}}
+\def\vo{{\bm{o}}}
+\def\vp{{\bm{p}}}
+\def\vq{{\bm{q}}}
+\def\vr{{\bm{r}}}
+\def\vs{{\bm{s}}}
+\def\vt{{\bm{t}}}
+\def\vu{{\bm{u}}}
+\def\vv{{\bm{v}}}
+\def\vw{{\bm{w}}}
+\def\vx{{\bm{x}}}
+\def\vy{{\bm{y}}}
+\def\vz{{\bm{z}}}
+\def\vphi{\boldsymbol{\phi}}
+\def\vpsi{\boldsymbol{\psi}}
+
+% Matrices
+\def\mA{{\bm{A}}}
+\def\mB{{\bm{B}}}
+\def\mC{{\bm{C}}}
+\def\mD{{\bm{D}}}
+\def\mE{{\bm{E}}}
+\def\mF{{\bm{F}}}
+\def\mG{{\bm{G}}}
+\def\mH{{\bm{H}}}
+\def\mI{{\bm{I}}}
+\def\mJ{{\bm{J}}}
+\def\mK{{\bm{K}}}
+\def\mL{{\bm{L}}}
+\def\mM{{\bm{M}}}
+\def\mN{{\bm{N}}}
+\def\mO{{\bm{O}}}
+\def\mP{{\bm{P}}}
+\def\mQ{{\bm{Q}}}
+\def\mR{{\bm{R}}}
+\def\mS{{\bm{S}}}
+\def\mT{{\bm{T}}}
+\def\mU{{\bm{U}}}
+\def\mV{{\bm{V}}}
+\def\mW{{\bm{W}}}
+\def\mX{{\bm{X}}}
+\def\mY{{\bm{Y}}}
+\def\mZ{{\bm{Z}}}
+\def\mDelta{{\bm{\Delta}}}
+\def\mGamma{{\bm{\Gamma}}}
+\def\mLambda{{\bm{\Lambda}}}
+\def\mPhi{{\bm{\Phi}}}
+\def\mPsi{{\bm{\Psi}}}
+\def\mSigma{{\bm{\Sigma}}}
+
+\def\e{\mathcal{E}}
+\def\L{\mathcal{L}}
+\def\N{\mathcal{N}}
+
+
+% \newcommand{\alex}[1]{{\color{OliveGreen} AA: #1}}
+% \newcommand{\arthur}[1]{{\color{Magenta} AJ: #1}}
+% \newcommand{\berkan}[1]{{\color{BrickRed} BO: #1}}
+% \newcommand{\blake}[1]{{\color{Cerulean} BB: #1}}
+% \newcommand{\dan}[1]{{\color{Blue} DKun: #1}}
+% \newcommand{\dhruva}[1]{{\color{ForestGreen} DKar: #1}}
+% \newcommand{\dhruvaedit}[1]{{\color{ForestGreen}#1}}
+% \newcommand{\enric}[1]{{\color{Emerald} EB: #1}}
+% \newcommand{\eric}[1]{{\color{Violet} EM: #1}}
+% \newcommand{\florentin}[1]{{\color{BurntOrange} FG: #1}}
+% \newcommand{\jamie}[1]{{\color{Purple} JS: #1}}
+% \newcommand{\jamieedit}[1]{{\color{Purple}#1}}
+% \newcommand{\jeremy}[1]{{\color{Brown} JC: #1}}
+% \newcommand{\joey}[1]{{\color{RoyalBlue} JT: #1}}
+% \newcommand{\mason}[1]{{\color{TealBlue} MK: #1}}
+% \newcommand{\nikhil}[1]{{\color{MidnightBlue} NG: #1}}
+
+% \newcommand{\alex}[1]{}
+% \newcommand{\arthur}[1]{}
+% \newcommand{\berkan}[1]{}
+% \newcommand{\blake}[1]{}
+% \newcommand{\dan}[1]{}
+% \newcommand{\dhruva}[1]{}
+% \newcommand{\dhruvaedit}[1]{}
+% \newcommand{\enric}[1]{}
+% \newcommand{\eric}[1]{}
+% \newcommand{\florentin}[1]{}
+% \newcommand{\jamie}[1]{}
+% \newcommand{\jamieedit}[1]{}
+% \newcommand{\jeremy}[1]{}
+% \newcommand{\joey}[1]{}
+% \newcommand{\mason}[1]{}
+% \newcommand{\nikhil}[1]{}
+
+\newcommand{\websiteurl}{\url{learningmechanics.pub}}

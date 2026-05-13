@@ -1,0 +1,60 @@
+\newcommand{\authorpt}{10.5}
+\newcommand{\authorlead}{12.2}
+
+\newcommand{\authorgap}{2em}
+\newcommand{\authortopgap}{2em}
+\newcommand{\authorshift}{5mm}        %
+
+\newcommand{\authortopwidth}{0.30\linewidth}
+\newcommand{\authortopcolgap}{0.6em}
+
+\newcommand{\authorcolwidth}{0.26\linewidth}
+\newcommand{\authorcolgap}{3em}
+
+\newcommand{\authornameaffilvspace}{-0.05em}
+
+\newcommand{\authorxshift}{-4mm}      %
+
+\newcommand{\authorfont}{\fontsize{\authorpt}{\authorlead}\selectfont}
+
+\newcommand{\TopAuthor}[2]{%
+  \parbox[t]{\authortopwidth}{\centering
+    {\bfseries #1}\\[\authornameaffilvspace]
+    {\itshape #2}%
+  }%
+}
+\newcommand{\AuthorCell}[2]{%
+  \parbox[t]{\authorcolwidth}{\centering
+    {\bfseries #1}\\[\authornameaffilvspace]
+    {\itshape #2}%
+  }%
+}
+
+\newcommand{\CenteredLine}[1]{\makebox[\linewidth][c]{\hspace*{\authorxshift}#1}}
+
+\author{%
+\authorfont%
+\begin{minipage}{\linewidth}\centering
+\vspace*{\authorshift}%
+\CenteredLine{%
+\begin{tabular}{@{}c@{\hspace{\authortopcolgap}}c@{}}
+\TopAuthor{Jamie Simon$^*$}{UC Berkeley and Imbue} &
+\TopAuthor{Daniel Kunin}{UC Berkeley}
+\end{tabular}}\\[\authortopgap]
+\CenteredLine{%
+\begin{tabular}{@{}c@{\hspace{\authorcolgap}}c@{\hspace{\authorcolgap}}c@{}}
+\AuthorCell{Alexander Atanasov}{Harvard University} &
+\AuthorCell{Enric Boix-Adser\`a}{University of Pennsylvania} &
+\AuthorCell{Blake Bordelon}{Harvard University}\\[\authorgap]
+\AuthorCell{Jeremy Cohen}{Flatiron Institute} &
+\AuthorCell{Nikhil Ghosh}{Flatiron Institute} &
+\AuthorCell{Florentin Guth}{NYU \& Flatiron Institute}\\[\authorgap]
+\AuthorCell{Arthur Jacot}{New York University} &
+\AuthorCell{Mason Kamb}{Stanford University} &
+\AuthorCell{Dhruva Karkada}{UC Berkeley}\\[\authorgap]
+\AuthorCell{Eric J. Michaud}{Astera Institute} &
+\AuthorCell{Berkan Ottlik}{University of Pennsylvania} &
+\AuthorCell{Joseph Turnbull}{UC Berkeley}\\
+\end{tabular}}%
+\end{minipage}%
+}

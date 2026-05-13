@@ -1,0 +1,90 @@
+\section{Infrastructure Design}
+\label{sec:system}
+\subsection{Bottleneck Analysis}
+
+The main challenge in \textbf{SSO} implementation comes from the \textbf{bracket-and-bisect} root solver that runs at every update. To satisfy the tangent-space constraint, we must find a Lagrange multiplier $\lambda$ such that $h(\lambda)=0$. We first expand the search interval by \textbf{bracketing}, and then we run \textbf{bisection} inside the bracket to obtain a $\lambda^{\star}$ that meets a target tolerance. This solver introduces non-trivial overhead:
+\begin{enumerate}[left=0pt]
+    \item \textbf{Workload Imbalance:} different bracketing range and tolerance settings can change the number of search and bisection steps, leading to unstable runtime and workload imbalance between devices.
+    \item \textbf{Computational Cost:} Each step in the search also evaluates $h(\lambda)$, which calls $\operatorname{msign}(\widehat{\mM}+\lambda\mTheta)$; these extra matrix computations accumulate and add noticeable cost to every optimizer step.
+    \item \textbf{Synchronization Overhead:} Iterative search creates frequent synchronization between the GPU and the CPU, because the algorithm must finish each evaluation and then check a scalar condition before choosing the next $\lambda$ and continuing.
+\end{enumerate}
+
+\subsection{Optimization Pipeline}
+
+We introduce a holistic optimization pipeline designed to mitigate these overheads while preserving numerical precision. \textbf{All performance statistics are collected from Dense 1.7B model pretraining.}
+
+\paragraph{Atomic Module Sharding.}
+We employ a fine-grained, parameter-wise sharding strategy \citep{emergeing_optimizer}. As noted by \citep{liu2025muonscalablellmtraining}, while standard ZeRO-1 is efficient for element-wise optimizers (e.g. AdamW), its flat-buffer sharding approach is incompatible with spectral methods that require full gradient matrices to compute updates. To reconcile this, we shard parameters as \emph{atomic modules} rather than flattened buffers. An atomic module is defined as the minimal independent weight matrix required to remain intact for spectral operations (see~\cref{sec:module_gran}).
+
+\paragraph{Load Balancing Strategy.}
+To resolve the workload imbalance caused by variable solver depths, we employ a ``ping-pong'' load balancing strategy adapted from \citep{emergeing_optimizer}. Empirical results indicate this method outperforms both greedy size-descent sorting and default round-robin allocation. We sort atomic modules by size and assign them to DP ranks in an alternating zigzag pattern. This heuristic effectively balancing the solver workload without complex runtime scheduling.
+Finally, we synchronize the updated params using iterative All-Gather collective from \cite{emergeing_optimizer}.
+\paragraph{Adaptive Kernel Selection.}
+We observe that the optimal implementation for Matrix Sign computation is highly sensitive to matrix dimensions. As shown in~\cref{tab:perf_breakdown}, applying specialized kernels indiscriminately can degrade performance. We therefore implement an Adaptive Dispatcher:
+\begin{itemize}[left=0pt]
+    \item \textbf{Small Matrices (\(<512\))}: We use a JIT-compiled PyTorch implementation built on \texttt{torch.addmm}. This avoids the launch overhead of specialized kernels.
+    \item \textbf{Large Matrices ($\ge512$)}: We dispatch to a custom Triton kernel implementing the SYmmetric Rank-K (SYRK)  \cite{emergeing_optimizer} update, which exploits the symmetry of Newton--Schulz iterations to halve memory reads.
+\end{itemize}
+
+\paragraph{Multi-Stream Parallelism.}
+For layers composed of many small independent matrices (e.g. per head attention split), single-stream execution suffers from kernel launch latency bubbles. We exploit this independence by dispatching spectral updates across multiple CUDA streams.
+
+\paragraph{Mixed-Precision.}
+The Power Iteration for spectral norm estimation is performed in BFloat16, while the sensitive \textbf{msign remains in FP32 with 8 iterations}.
+
+\paragraph{Cache Top Singular Vectors.}
+The singular vectors of model weights evolve slowly during training. Leveraging this temporal locality, we initialize the current Power Iteration using the cached singular vectors $u$ and $v$ from the previous step. This reuse mechanism drastically accelerates convergence, requiring only a few iterations to maintain approximation accuracy.
+
+\begin{table}[hbt!]
+\centering
+\caption{Optimization breakdown on end-to-end latency
+for 4M tokens/step on NVIDIA B200.
+\goodarrow~denotes improvement, while~\badarrow~denotes regression. Note there is still room for improvement.}
+\label{tab:perf_breakdown}
+\resizebox{0.9\columnwidth}{!}{
+
+\begin{tabular}{l r r r}
+\toprule
+   & \multicolumn{1}{c}{Time (ms)} & \multicolumn{1}{c}{$\Delta$ vs Baseline} & \multicolumn{1}{c}{$\Delta$ vs Prev.} \\
+% Fully Optimized & 7666.32  & -3262.16 (-29.85\%)~\goodarrow & -     \\
+\midrule
+Naive Baseline (No opt.) & 10928.5  & \multicolumn{1}{c}{-}                              & \multicolumn{1}{c}{-}                           \\
++ Load balance \& All Gather   & 9365.5 & -1563.0 (-14.3\%)~\goodarrow & -1563.0 (-14.3\%)~\goodarrow \\
++ Triton SYRK Kernel      & 10284.2  & -644.3 \hspace{0.5em}(-5.9\%)~\goodarrow   & +918.7 \hspace{0.3em}(+9.8\%)~\badarrow \\
++ Adaptive \& Multi-stream       & 9383.4   & -1545.1 (-14.2\%)~\goodarrow & -900.8 \hspace{0.5em}(-8.8\%)~\goodarrow \\
++ BF16 \& Torch.compile (\textbf{Final}) & \textbf{7666.3}   & \textbf{-3262.2 (-29.9\%)}~\goodarrow & \textbf{-1717.1 (-18.3\%)}~\goodarrow \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{End-to-end per-step latency for 4M tokens/step on NVIDIA B200.  \textcolor{MuonColor}{Muon} as baseline.}
+\label{tab:perf_end2end}
+\resizebox{0.9\columnwidth}{!}{%
+\begin{tabular}{ccccc}
+\toprule
+ & \textcolor{AdamWColor}{AdamW}
+ & \textcolor{MuonColor}{Muon}
+ & \textcolor{MuonSphereColor}{MuonSphere}
+ & \textcolor{SpectralSphereColor}{Spectral Sphere} \\
+\midrule
+Time (ms) & 6734.15 (-2.10\%) & 6878.83 & 6949.85 (+1.03\%) & 7666.32 (+11.45\%) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Future Improvements}
+\label{sec:infra_future}
+\begin{itemize}[left=0pt]
+    \item \textbf{GPU-Native Solver.}
+    Profiling indicates that the current CPU-based bisection solver introduces latency due to frequent device-host synchronization. Although the bracketing phase converges rapidly ($<2$ steps), the bisection phase averages 5--7 steps, creating synchronization bubbles. Future work will prioritize implementing a pure GPU-native solver to eliminate these overheads. Additionally, we plan to adopt higher convergence algorithms,  such as Brent's method or $n$-section search, and optimize initial bracketing intervals to minimize msign calls.
+
+    \item \textbf{Kernel Optimization.}
+    The theoretical advantage of SSO relies on the accuracy of the tangent space projection; when errors are high, the update direction may degrade to the ``worst-case'' Muon update. Currently, we ensure precision via 8 iterations of msign in FP32. To follow standard Muon practices, we plan to use msign in BFloat16 within 5 steps. Furthermore, we intend to replace current JIT-compiled operations with custom, fully optimized kernels (e.g. for batched msign and Power Iterations) to better exploit the hardware features of next-generation GPUs.
+
+    \item \textbf{Low-precision Training.}
+    While weight matrics are spectral constrained, we find the residual stream remains the primary source of outliers. We aim to explore ``fully manifold constrained'' architectures, i.e. using mHC \citep{xie2025mhcmanifoldconstrainedhyperconnections}. Additionally, given SSO's demonstrated stability, we plan to explore low-precision training (e.g. FP8/NVFP4) to leverage the high throughput of low-bit arithmetic for better training efficiency.
+\end{itemize}

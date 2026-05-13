@@ -1,0 +1,86 @@
+\section{Background}
+\label{sec:background}
+
+\paragraph{Diffusion Models}
+Diffusion models are used to learn arbitrary distributions. Whereas continuous variables are often modeled with Gaussian noise diffusion, discrete variables are typically modeled with Uniform diffusion \citep{hoogeboom2021argmaxflows} or Masked diffusion \citep{austin2021structured}. The model learns to generate by approximating small sub-steps of the reverse process, often assuming dimensional independence.
+
+\begin{algorithm}[t]
+\begin{algorithmic}
+\Require Student generator $\hat{x}_\eta$, teacher model $\hat{x}_\theta$, auxiliary model $\hat{x}_\phi$, training step $i$, sampling steps $k$, dataset $\mathcal{D}$, weighting function $w(s)$, Loss function $L(\cdot, \cdot, \cdot)$.
+\State $s, \delta_t\sim\mathcal{U}(0, 1), \mathcal{U}(0, \tfrac{1}{k})$
+\State $t=\min(1, s+\delta_t)$
+
+\State Sample from dataset $\mathcal{D}$ and diffuse to produce $z_t$.
+\State Generate probability vector $\hat{x}_\eta(z_{t})$
+\State Sample $x \sim \mathrm{Categorical}(p=\hat{x}_\eta(z_{t}))$.
+\State Use sampler to draw sample $z_{s} | x, z_t$, for example using posterior $q(z_s|z_{t}, x)$, stopgrad on $z_{s}$.
+\If{$i$ is even}
+\State Minimize $\mathcal{L}_{\text{GEN}}(\eta) = L_s(\hat{x}_\eta(z_{t}), \hat{x}_\theta(z_s), z_s) - L_s(\hat{x}_\eta(z_{t}), \hat{x}_\phi(z_s), z_s) \text{ w.r.t. } \eta$.
+\Else
+  \State \textit{Optional} use soft target $x \leftarrow \hat{x}_\eta(z_t)$ (only possible for masked diffusion)
+  \State Minimize $\mathcal{L}_\mathrm{AUX}(\phi) =  L_s(x, \hat{x}_\phi(z_s), z_s) + L_s(\hat{x}_{\theta}(z_s), \hat{x}_\phi(z_s), z_s)  \text{ w.r.t. } \phi$.
+  %\Comment{update auxiliary model}
+\EndIf
+\caption{Discrete MMD Training}
+\label{alg:mmd}
+\end{algorithmic}
+\end{algorithm}
+
+Assume the data distribution $q(x)$ and diffusion process $z_t \sim q(z_t | x)$ for $t \in [0, 1]$, often implemented as a stochastic function $z_t = \operatorname{diffuse}(x, t)$. Optimizing diffusion models can be viewed as minimizing the following KL-divergence:
+\begin{align}
+\begin{split}
+    \mathrm{KL} \left[ q(x) \big{|} p_\theta(x) \right] &\stackrel{c}{\leq} \mathrm{KL} \left[ q(z_0, \ldots, z_1 | x) \big{|} p_\theta(z_0, \ldots, z_1) \right] \\
+    &\stackrel{c}{=} \mathbb{E}_{t \sim \mathcal{U}(0, 1)} \mathrm{KL} \left[q(z_{t-dt}|x, z_t) || p_\theta(z_{t-dt}|z_t) \right] dt^{-1}\,.
+\end{split}
+\label{eq:diffusion_elbo}
+\end{align}
+where the unknown entropy of the data $H_q(x)$ is omitted and constant with respect to $\theta$ and equality holds in the limit $dt \to 0$.
+
+Many diffusion objectives simplify down to finding the conditional expectation under data, meaning that the optimal solution is:
+\begin{align}
+    \mathbb{E}_q[x|z_t] = \hat{x}_\theta(z_t), \text{ under } q(x, t, z_t) \,. \label{eq:diffusion_l_star}
+\end{align}
+
+In practice one does not have direct access to $\mathbb{E}_q[x|z_t]$. Therefore the objective is learned through a loss on samples drawn from a dataset referred to as $q(x, z_t, t)$, where $z_t$ is the diffusion of datapoint $x$.
+A typical diffusion loss has the form:
+\begin{align}
+    \mathcal{L}(\theta) = \mathbb{E}_{q(x, t, z_t)}\left[w(t) L_t(x, \hat{x}_\theta(z_t), z_t)\right], \label{eq:diffusion_l}
+\end{align}
+
+In the continuous case, this formulation includes score matching \citep{song2021scorebasedsde} or \emph{probability flow} \citep{lipman2023flowmatching} in which case $L_t$ will simplify to a weighted squared error between $x$ and $\hat{x}_\theta(z_t)$: $L_t^{\mathrm{cont}}(x, \hat{x}_\theta(z_t), z_t) = \lVert x - \hat{x}_\theta(z_t) \rVert^2 \,.$
+\paragraph{Discrete Diffusion}
+In this work we consider both \emph{masked discrete diffusion} \citep{austin2021structured}, where the destruction process gradually transforms tokens into a special masking token, and  \emph{uniform diffusion} \citep{hoogeboom2021argmaxflows}, which transforms tokens into a uniform distribution.
+Both of these can also be formulated as discrete flow matching \citep{gat2024discreteflowmatching}.
+
+
+In particular, we have a discrete process that interpolates from data $x$ to a factorized stationary distribution $\pi$ so that $z_t \sim \mathrm{Cat}\left(\alpha_t x + (1 - \alpha_t) \pi\right)$, $t \in [0,1]$ and $\alpha_t$ is a suitable noise schedule. Let $\alpha_{t|s} = \alpha_t / \alpha_s$. The posterior of this process given $x, z_t$ equals \citep{Sahoo2024simpleandeffective}:
+\begin{equation}
+    q(z_s|z_t,x)=\text{Cat}\left(z_s| \frac{[\alpha_{t|s}z_t+(1-\alpha_{t|s})1\pi^\top z_t]\odot[\alpha_s x+(1-\alpha_s)\pi]}{\alpha_t z_t^\top x+(1-\alpha_t)z_t^\top\pi}\right)\,.
+\end{equation}
+
+
+While multiple losses can be considered, we limit ourselves to a simple weighted data cross-entropy loss of the form
+\begin{align}
+     L_t^{\mathrm{disc}}(x, \hat{x}_\theta(z_t), z_t) = \left[w(t) \, \mathrm{CE}\left(x| \hat{x}_\theta(z_t)\right) \right]\, \label{eq:discrete_l}
+\end{align}
+with the cross-entropy loss $\mathrm{CE}(x| \hat{x}) = -\sum_c x_c \log \hat{x}_c$.
+In this case, the model still approximates $E_q[x | z_t]$.
+
+
+\paragraph{Multistep Moment Matching}
+In moment matching distillation \citep{salimans2024multistep} continuous diffusion models are distilled to few-step generators $g_\eta$ that can outperform their teacher diffusion models.
+The MMD algorithm states that the conditional expectation of clean data should be identical between the data distribution $q$ and the sampling distribution $g_{\eta}$ of the distilled loss.
+The MMD loss is formulated as:
+\begin{align}
+    \mathcal{L}_{\text{MMD}}^\star(\eta) = \mathbb{E}_{g_\eta(x, t, z_t)} \left[w(t) \lVert \mathbb{E}_{q}[x|z_t] - \mathbb{E}_{g_\eta}[x|z_t] \rVert^2 \right]\,, \label{eq:mmd_l_star}
+\end{align}
+for which several approximations are made to realize a practical algorithm,
+since the conditional expectation of the generator is not analytically available.
+In their work the best performing method is an alternating optimization algorithm.
+The expectations are replaced by the output of the teacher model $\hat{x}_\theta$ and with the output of an auxiliary model $\hat{x}_\phi$. While the teacher model is fixed, the generator $g_\eta$ and the auxiliary model $\hat{x}_\phi$ are optimized with the objectives:
+\begin{align}
+    \mathcal{L}_{\text{MMD}}(\eta) &= \mathbb{E}_{g_\eta(z_t, s, z_s)}\left[w(s) \, \hat{x}_\eta(z_t)^\top \mathrm{sg}( \hat{x}_\phi(z_s) - \hat{x}_\theta(z_s)) \right]\,, \label{eq:mmd_alternating_1} \\
+    % &&
+    \mathcal{L}_\mathrm{AUX}(\phi) &= \mathbb{E}_{g_\eta(z_t, s, z_s)}\left[w(s) \left( \lVert \hat{x}_\eta(z_t) - \hat{x}_\phi(z_s) \rVert^2 + \lVert  \hat{x}_\phi(z_s) - \hat{x}_\theta(z_s) \rVert^2\right)\right]\,,
+    \label{eq:mmd_alternating_2}
+\end{align}

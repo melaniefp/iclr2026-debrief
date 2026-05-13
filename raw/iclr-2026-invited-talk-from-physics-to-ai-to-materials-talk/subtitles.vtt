@@ -1,0 +1,4501 @@
+WEBVTT
+
+00:12:46.232 --> 00:12:48.701
+Very, very happy to introduce our
+
+00:12:48.701 --> 00:12:50.712
+next keynote speaker, Max Welling.
+
+00:12:51.062 --> 00:12:52.662
+And he's one of the people
+
+00:12:53.087 --> 00:12:55.112
+who really needs no introduction. So I'll
+
+00:12:55.112 --> 00:12:57.512
+keep it very brief. But I can share
+
+00:12:57.772 --> 00:13:00.032
+that as many of you probably know, Max
+
+00:13:00.032 --> 00:13:02.332
+is a professor at University of Amsterdam and actually
+
+00:13:02.571 --> 00:13:04.731
+is now running a startup called Cusp AI which I think
+
+00:13:04.732 --> 00:13:06.742
+he'll be talking about today. And I'm
+
+00:13:06.742 --> 00:13:08.822
+excited to hear his talk because Max has actually
+
+00:13:08.822 --> 00:13:10.972
+had a very long history in the Eichler
+
+00:13:10.972 --> 00:13:13.052
+community. You know, one of our first test of
+
+00:13:13.052 --> 00:13:15.242
+time awards was given to auto
+
+00:13:15.242 --> 00:13:17.321
+encoding variational base, which was an early
+
+00:13:17.322 --> 00:13:19.421
+ICARE paper I think really
+
+00:13:19.422 --> 00:13:21.572
+helped establish iCLEAR as a
+
+00:13:21.632 --> 00:13:23.871
+front a a really one of the major conferences
+
+00:13:23.872 --> 00:13:25.951
+in machine learning and since then
+
+00:13:25.951 --> 00:13:27.771
+Max has done a lot of incredible work
+
+00:13:28.116 --> 00:13:29.922
+on graph neural networks,
+
+00:13:30.201 --> 00:13:32.282
+in addition to a lot of work on AI for science which
+
+00:13:32.282 --> 00:13:34.402
+is what he'll be talking about today. So
+
+00:13:34.642 --> 00:13:36.512
+leave it at that and let's welcome Max up the stage.
+
+00:13:46.502 --> 00:13:48.292
+Can I have the slides? Yes. Great.
+
+00:13:48.532 --> 00:13:50.472
+It's super nice to be here.
+
+00:13:50.582 --> 00:13:52.292
+You for the kind introduction.
+
+00:13:53.392 --> 00:13:55.372
+And, yeah. The talk is gonna be about
+
+00:13:55.612 --> 00:13:57.782
+from physics to AI to materials
+
+00:13:58.102 --> 00:14:00.122
+a journey from foundations to impact.
+
+00:14:00.542 --> 00:14:02.622
+And indeed, it is true that I've been here
+
+00:14:02.622 --> 00:14:04.680
+before as I'll say in a minute. To talk
+
+00:14:04.681 --> 00:14:06.522
+the menu for today is
+
+00:14:06.842 --> 00:14:08.782
+I'll, have first a word on science,
+
+00:14:09.501 --> 00:14:11.740
+then I'll talk a bit about from physics to AI
+
+00:14:11.741 --> 00:14:13.811
+making waves, then I'll talk a
+
+00:14:13.811 --> 00:14:15.802
+bit from physics to AI and thermodynamics
+
+00:14:16.022 --> 00:14:18.152
+of AI, then I'll
+
+00:14:18.371 --> 00:14:20.532
+talk about from AI to materials, which is a start
+
+00:14:20.532 --> 00:14:22.682
+up, and then I'll have an app
+
+00:14:22.682 --> 00:14:24.782
+and epilogue. So he goes
+
+00:14:24.782 --> 00:14:25.522
+to prologue.
+
+00:14:26.912 --> 00:14:29.032
+First it is indeed true
+
+00:14:29.032 --> 00:14:31.232
+that I was giving a keynote at the first
+
+00:14:31.232 --> 00:14:34.232
+ever iCLEAR in 2013.
+
+00:14:36.612 --> 00:14:38.851
+This was when you know
+
+00:14:38.871 --> 00:14:41.032
+the size of the group was you know, you would
+
+00:14:41.032 --> 00:14:43.042
+know everyone in in the in the room. It was a
+
+00:14:43.042 --> 00:14:45.192
+small room with maybe 50 to a 100
+
+00:14:45.192 --> 00:14:47.222
+people. And you
+
+00:14:47.442 --> 00:14:49.501
+all here are definitely a testament
+
+00:14:49.502 --> 00:14:51.692
+to how this field has
+
+00:14:52.462 --> 00:14:53.422
+completely exploded.
+
+00:14:56.272 --> 00:14:58.472
+So as the field has
+
+00:14:58.472 --> 00:15:00.552
+exploded, also has
+
+00:15:00.552 --> 00:15:02.851
+the way we are doing science. And it's
+
+00:15:02.852 --> 00:15:04.472
+good to think about this for a moment.
+
+00:15:05.472 --> 00:15:07.232
+In the old days, like way back,
+
+00:15:08.362 --> 00:15:10.682
+you had researchers write each other letters.
+
+00:15:10.682 --> 00:15:12.741
+Right? They thought about something long and hard and then
+
+00:15:12.741 --> 00:15:14.821
+they wrote a letter and then they physically mailed it
+
+00:15:14.821 --> 00:15:16.932
+to their to their colleague, and it took
+
+00:15:16.932 --> 00:15:18.541
+weeks before a response came back.
+
+00:15:18.942 --> 00:15:21.042
+So so science was slow.
+
+00:15:22.312 --> 00:15:24.412
+It did it did actually result in
+
+00:15:24.412 --> 00:15:26.672
+paradigm shifts. Like general
+
+00:15:26.722 --> 00:15:29.112
+relativity. Modern research
+
+00:15:29.112 --> 00:15:31.131
+is fast. It means
+
+00:15:31.352 --> 00:15:33.051
+it's incremental, usually
+
+00:15:34.182 --> 00:15:36.342
+and it is highly coupled. Every one of you is
+
+00:15:36.342 --> 00:15:38.412
+highly to the rest. Everybody wants to work
+
+00:15:38.412 --> 00:15:39.472
+on LLMs. Right?
+
+00:15:40.792 --> 00:15:42.870
+Okay. So but the side effect of
+
+00:15:42.871 --> 00:15:45.131
+that is that principle strange
+
+00:15:45.131 --> 00:15:47.212
+new ideas are suppressed in this
+
+00:15:47.212 --> 00:15:49.482
+environment. Basically, because
+
+00:15:49.482 --> 00:15:51.962
+you cannot produce the bold numbers. Everybody's chasing
+
+00:15:51.962 --> 00:15:54.022
+bold numbers, If it's hard to produce
+
+00:15:54.082 --> 00:15:56.152
+bold numbers in your first paper, it is a
+
+00:15:56.152 --> 00:15:58.142
+bit hard to get published. And I think this
+
+00:15:58.362 --> 00:15:59.892
+is bad. We need to think about that.
+
+00:16:00.691 --> 00:16:02.931
+So I propose that we really need to go to boldly
+
+00:16:02.931 --> 00:16:05.272
+go where no one has won gone before,
+
+00:16:05.431 --> 00:16:07.702
+Not everyone has to do that. But those who
+
+00:16:07.702 --> 00:16:09.782
+do think should be rewarded and
+
+00:16:09.782 --> 00:16:12.201
+not have reviewer two write a very
+
+00:16:12.201 --> 00:16:12.752
+bad review.
+
+00:16:14.592 --> 00:16:16.832
+And so where has this taken us? Right? The bitter
+
+00:16:16.832 --> 00:16:18.912
+lesson really is the
+
+00:16:18.912 --> 00:16:21.012
+lesson that we should scale. And it's nice
+
+00:16:21.012 --> 00:16:23.172
+and predictable if you throw x amount more
+
+00:16:23.172 --> 00:16:25.672
+compute at it, your model
+
+00:16:25.892 --> 00:16:27.662
+will y become better. Right?
+
+00:16:28.302 --> 00:16:30.462
+So it's predictable. Companies like it a lot.
+
+00:16:30.462 --> 00:16:32.632
+And so, I call this scale your way out.
+
+00:16:32.712 --> 00:16:35.071
+We're now talking about building
+
+00:16:35.071 --> 00:16:36.532
+data centers into space.
+
+00:16:38.602 --> 00:16:40.872
+The other side is innovate your way out.
+
+00:16:41.032 --> 00:16:43.512
+Think hard about the problem. Shift the paradigm,
+
+00:16:44.482 --> 00:16:45.862
+and here we have a researcher
+
+00:16:46.642 --> 00:16:48.672
+researching the brain. And
+
+00:16:48.672 --> 00:16:50.832
+figuring out that the brain actually uses 20
+
+00:16:50.832 --> 00:16:53.012
+watt in order to
+
+00:16:53.261 --> 00:16:55.342
+operate at about the same level of intelligence
+
+00:16:55.342 --> 00:16:57.352
+as what we currently have. Which is
+
+00:16:57.352 --> 00:16:59.772
+about a million to a billion. Times more efficient
+
+00:16:59.772 --> 00:17:01.812
+than current hardware. So that I
+
+00:17:01.812 --> 00:17:03.891
+would think if we figure out how the brain work, why
+
+00:17:03.892 --> 00:17:06.101
+would we shoot data centers into space if
+
+00:17:06.102 --> 00:17:08.072
+there is something in here
+
+00:17:08.472 --> 00:17:10.641
+which would actually do the job for
+
+00:17:10.642 --> 00:17:12.337
+us. And
+
+00:17:12.812 --> 00:17:14.891
+this actually I presented this curve. I think it
+
+00:17:14.892 --> 00:17:17.392
+was the first of its kind actually in 2018.
+
+00:17:17.562 --> 00:17:19.532
+It's a log
+
+00:17:19.592 --> 00:17:21.542
+linear curve. About the increase of
+
+00:17:22.472 --> 00:17:24.812
+energy consumption or the increase of parameters
+
+00:17:24.812 --> 00:17:27.242
+in your models, over time,
+
+00:17:27.461 --> 00:17:29.772
+you can nicely see the bend
+
+00:17:29.772 --> 00:17:31.952
+here when GPUs were invented, and
+
+00:17:31.952 --> 00:17:33.732
+so we got on a faster exponential
+
+00:17:34.352 --> 00:17:36.421
+acceleration. I predicted
+
+00:17:36.422 --> 00:17:38.842
+then that in 2025, we would reach
+
+00:17:38.872 --> 00:17:41.032
+a 100,000,000,000,000 parameter models, which
+
+00:17:41.032 --> 00:17:43.372
+is about the number of synapses in our brain.
+
+00:17:43.872 --> 00:17:45.622
+Actually don't know if we have reached that
+
+00:17:46.637 --> 00:17:48.882
+number. This may be into trillions,
+
+00:17:49.101 --> 00:17:51.581
+but maybe one or two orders of magnitude
+
+00:17:51.581 --> 00:17:53.741
+off still. But we
+
+00:17:53.742 --> 00:17:55.642
+are closing in on AGI for short.
+
+00:17:57.642 --> 00:17:59.802
+And so that was the, introduction and I'll
+
+00:17:59.802 --> 00:18:01.932
+now go to, Physics part one.
+
+00:18:01.932 --> 00:18:04.012
+This is making waves. I'll
+
+00:18:04.012 --> 00:18:06.252
+start first with celebrating ten years of symmetries
+
+00:18:06.252 --> 00:18:08.032
+in AI. My student,
+
+00:18:08.332 --> 00:18:10.372
+Takao Cohen, even at his when he did
+
+00:18:10.372 --> 00:18:12.702
+his master's thesis and
+
+00:18:12.762 --> 00:18:14.922
+after after his his PhD he wrote this paper in
+
+00:18:14.922 --> 00:18:17.012
+2016 group equivariant
+
+00:18:17.222 --> 00:18:19.282
+convolutional neural networks. And if
+
+00:18:19.282 --> 00:18:20.642
+you want to learn about this,
+
+00:18:21.612 --> 00:18:23.772
+now there is this book by written by Maurice Wyler
+
+00:18:23.772 --> 00:18:25.851
+who was also in my group which is
+
+00:18:25.851 --> 00:18:27.312
+a really nice introduction
+
+00:18:28.562 --> 00:18:30.817
+in the field of if equivariance
+
+00:18:31.132 --> 00:18:32.432
+lots of nice illustrations
+
+00:18:33.192 --> 00:18:35.002
+and getting more and more mathy
+
+00:18:35.242 --> 00:18:36.212
+towards the end.
+
+00:18:38.052 --> 00:18:40.102
+And so to remind you, what is
+
+00:18:40.182 --> 00:18:42.251
+equivarius again, it is
+
+00:18:42.252 --> 00:18:44.512
+and you can read it here in this book and in fact
+
+00:18:44.762 --> 00:18:46.761
+you know, these illustrations are from this book.
+
+00:18:47.002 --> 00:18:49.081
+So if you start with an input image, which is
+
+00:18:49.081 --> 00:18:51.122
+kind of a gecko on the plane, and
+
+00:18:51.122 --> 00:18:53.242
+you know that a gecko doesn't really change
+
+00:18:53.242 --> 00:18:55.432
+if you move the gecko from one place to the
+
+00:18:55.432 --> 00:18:56.872
+other or you move the camera.
+
+00:18:57.532 --> 00:18:59.692
+Then you want to hardwire that in your neural
+
+00:18:59.692 --> 00:19:01.812
+net. And it's not given that your neural
+
+00:19:01.812 --> 00:19:03.992
+network understands that. In fact, only convolutional
+
+00:19:04.292 --> 00:19:05.482
+neural networks understand that.
+
+00:19:06.652 --> 00:19:08.912
+So you what you want mathematically is
+
+00:19:09.152 --> 00:19:11.392
+that if you filter the image, you get a filtered
+
+00:19:11.392 --> 00:19:13.642
+image. And then
+
+00:19:13.642 --> 00:19:16.062
+do the translation in your filtered space.
+
+00:19:16.692 --> 00:19:18.852
+That should come out to be the same as
+
+00:19:18.852 --> 00:19:20.942
+first translating the image and
+
+00:19:20.942 --> 00:19:22.952
+then filtering. So this is a commutation
+
+00:19:23.252 --> 00:19:25.332
+relation that you hold. If it holds, you're
+
+00:19:25.332 --> 00:19:27.608
+in business, because now your neural
+
+00:19:27.609 --> 00:19:29.922
+network is equivariant. And of course, it represents
+
+00:19:29.922 --> 00:19:32.062
+a constraint on the parameters of your model.
+
+00:19:33.382 --> 00:19:35.321
+An equivirance has made it into my
+
+00:19:35.562 --> 00:19:37.722
+so the field that I really like, which is a r
+
+00:19:37.722 --> 00:19:39.747
+for science. So
+
+00:19:39.747 --> 00:19:41.892
+here's two ways in which, you know, my students
+
+00:19:41.892 --> 00:19:44.061
+have worked on it. One of
+
+00:19:44.062 --> 00:19:46.282
+them is building equivariance into graph
+
+00:19:46.342 --> 00:19:48.572
+neural networks. And those can then be used
+
+00:19:48.997 --> 00:19:51.262
+to learn force fields or machine
+
+00:19:51.262 --> 00:19:52.722
+learning interatomic potentials
+
+00:19:53.752 --> 00:19:55.292
+to be able to simulate
+
+00:19:56.172 --> 00:19:58.292
+molecules. Much faster than if you would have
+
+00:19:58.292 --> 00:19:59.992
+to do the quantum mechanical calculation.
+
+00:20:00.982 --> 00:20:03.062
+They also made it into generative models, so
+
+00:20:03.062 --> 00:20:05.132
+you can generate molecules from
+
+00:20:05.132 --> 00:20:07.052
+noise. And those
+
+00:20:07.692 --> 00:20:09.362
+also, have this equivariance
+
+00:20:10.142 --> 00:20:10.942
+prior in them.
+
+00:20:12.562 --> 00:20:14.342
+I'll now talk about a new
+
+00:20:14.982 --> 00:20:17.022
+bold new proposal without bold
+
+00:20:17.226 --> 00:20:19.282
+numbers, which is about
+
+00:20:19.282 --> 00:20:21.091
+the wall of waves
+
+00:20:21.332 --> 00:20:23.352
+in computation, in neural computation.
+
+00:20:24.172 --> 00:20:26.592
+And this has been a journey for maybe
+
+00:20:27.591 --> 00:20:29.852
+five to seven years or something like this. And
+
+00:20:29.852 --> 00:20:32.192
+many people accompanied me on this journey.
+
+00:20:32.412 --> 00:20:34.182
+It started with Andy Keller,
+
+00:20:34.742 --> 00:20:37.002
+and, you know, and all these people here
+
+00:20:37.481 --> 00:20:39.481
+have contributed to it. As
+
+00:20:39.482 --> 00:20:41.572
+well. I I know Nabil
+
+00:20:42.212 --> 00:20:44.242
+is here today. Who has contributed
+
+00:20:44.242 --> 00:20:45.472
+to this particular,
+
+00:20:46.262 --> 00:20:48.542
+project. So feel free to to
+
+00:20:48.542 --> 00:20:49.392
+talk to him as well.
+
+00:20:50.992 --> 00:20:53.221
+So in these days we build agents. Right?
+
+00:20:53.382 --> 00:20:55.242
+And agents need to reason.
+
+00:20:55.842 --> 00:20:58.002
+In order to reason, you need to hold things
+
+00:20:58.002 --> 00:20:58.662
+in memory.
+
+00:21:00.282 --> 00:21:02.662
+But how do we build systems that naturally
+
+00:21:02.662 --> 00:21:04.522
+hold things in memory is the question.
+
+00:21:04.892 --> 00:21:07.132
+And need to hold things in memory over long
+
+00:21:07.132 --> 00:21:09.231
+spatial temporal time scales
+
+00:21:09.232 --> 00:21:11.291
+or scales. Now the universe has solved
+
+00:21:11.292 --> 00:21:12.911
+this problem. I will argue.
+
+00:21:13.472 --> 00:21:15.812
+The way it solved it is by creating waves
+
+00:21:16.192 --> 00:21:18.262
+or you know. Communicating with waves.
+
+00:21:18.502 --> 00:21:20.581
+You look out to the stars, the reason you can even
+
+00:21:20.581 --> 00:21:22.422
+see stars, because
+
+00:21:22.882 --> 00:21:25.042
+electromagnetic waves hit your retina. Right?
+
+00:21:25.652 --> 00:21:27.892
+In fact, even the brain turns
+
+00:21:27.892 --> 00:21:30.091
+out to use waves and I'll go into
+
+00:21:30.092 --> 00:21:30.991
+that a little bit more.
+
+00:21:32.912 --> 00:21:35.131
+So first, I'll go do a little bit of history.
+
+00:21:35.132 --> 00:21:36.222
+This is old work
+
+00:21:37.282 --> 00:21:39.441
+mostly by This this is led
+
+00:21:39.441 --> 00:21:41.662
+by Andy Keller. Where
+
+00:21:41.662 --> 00:21:43.202
+we started to play around
+
+00:21:43.907 --> 00:21:45.992
+with RNNs. We structured the
+
+00:21:45.992 --> 00:21:48.012
+RNNs in such a way that they would naturally
+
+00:21:48.072 --> 00:21:50.312
+create waves in their eternal
+
+00:21:51.092 --> 00:21:53.281
+internal latent spaces. And so
+
+00:21:53.282 --> 00:21:55.782
+we studied two tasks where you need memory
+
+00:21:55.972 --> 00:21:58.432
+the copy task and the adding
+
+00:21:58.652 --> 00:22:01.052
+task which make basically means you read something
+
+00:22:01.052 --> 00:22:03.091
+at some time and then you have to hold it
+
+00:22:03.091 --> 00:22:05.512
+in memory and regurgitate it at some time.
+
+00:22:05.822 --> 00:22:08.062
+Could be a random time. Similar for the
+
+00:22:08.062 --> 00:22:10.302
+adding time you have to sort of hold for
+
+00:22:10.302 --> 00:22:12.582
+a number get another number, add them up, and then
+
+00:22:13.062 --> 00:22:15.212
+add, you know, provide the sum. And if you look
+
+00:22:15.212 --> 00:22:17.372
+at these latent representations, which are the
+
+00:22:17.372 --> 00:22:19.462
+channels here, what you'll
+
+00:22:19.462 --> 00:22:21.532
+find is that in the
+
+00:22:21.532 --> 00:22:23.692
+sort of the one that creates waves, you
+
+00:22:23.692 --> 00:22:25.772
+get like channels and it will
+
+00:22:25.772 --> 00:22:27.931
+create an activation, and it will then hand it to
+
+00:22:27.932 --> 00:22:29.702
+the next channel, and it will hand it to the next
+
+00:22:29.942 --> 00:22:32.082
+hand it to the next channel, And so what happens is
+
+00:22:32.082 --> 00:22:34.342
+this information spins around in these channels.
+
+00:22:35.622 --> 00:22:37.802
+And the beauty is that that structure
+
+00:22:38.102 --> 00:22:40.172
+really helped solve these
+
+00:22:40.902 --> 00:22:43.402
+these problems where you need a long time memory.
+
+00:22:44.392 --> 00:22:46.471
+Here's another work, we did with,
+
+00:22:46.632 --> 00:22:48.922
+Takiro Miyato. He
+
+00:22:48.922 --> 00:22:51.231
+worked on a neural network based
+
+00:22:51.231 --> 00:22:53.172
+on so called Kuromoto oscillators.
+
+00:22:54.252 --> 00:22:56.032
+These are models where you have
+
+00:22:56.272 --> 00:22:58.592
+circles or complex numbers.
+
+00:22:59.072 --> 00:23:01.312
+Every neuron has a direction, a phase as
+
+00:23:01.312 --> 00:23:03.452
+well. They are coupled together
+
+00:23:03.452 --> 00:23:05.632
+next to each other and they want to synchronize,
+
+00:23:06.012 --> 00:23:08.122
+like actually, and this has is basis
+
+00:23:08.122 --> 00:23:10.042
+in neuroscience because in neuroscience,
+
+00:23:11.472 --> 00:23:13.812
+neurons binds together to create
+
+00:23:14.492 --> 00:23:16.672
+representations for objects, and they do this
+
+00:23:16.672 --> 00:23:18.202
+by synchronizing their waves.
+
+00:23:19.322 --> 00:23:21.482
+Their oscillations. And so here you
+
+00:23:21.482 --> 00:23:23.882
+can see how if you build a model
+
+00:23:23.942 --> 00:23:26.182
+and you train it well, it will actually create these
+
+00:23:26.182 --> 00:23:28.682
+nice traveling waves. Through these networks.
+
+00:23:30.012 --> 00:23:32.351
+And then he did some tests and it worked surprisingly
+
+00:23:32.492 --> 00:23:34.052
+well. I would say state of the art. Art.
+
+00:23:34.932 --> 00:23:37.071
+And there was a few things that caught my eye
+
+00:23:37.071 --> 00:23:38.802
+which were very interesting about this.
+
+00:23:39.362 --> 00:23:41.132
+The first thing one the first one is if you
+
+00:23:41.372 --> 00:23:43.552
+try to adversarially attack these now
+
+00:23:43.612 --> 00:23:45.691
+these images, you'll find
+
+00:23:45.692 --> 00:23:47.771
+that the smallest change you can
+
+00:23:47.772 --> 00:23:49.942
+make to the input in order to change
+
+00:23:49.942 --> 00:23:51.881
+the class of the of the input
+
+00:23:52.522 --> 00:23:54.601
+actually created an image that looked
+
+00:23:54.601 --> 00:23:56.792
+like the class you were trying to you know,
+
+00:23:56.792 --> 00:23:58.802
+bring into. Which is very different
+
+00:23:58.802 --> 00:24:01.002
+from the normal neural networks where you couldn't even
+
+00:24:01.242 --> 00:24:02.892
+see the change in the input image
+
+00:24:03.782 --> 00:24:05.842
+to get to get it to predict
+
+00:24:05.842 --> 00:24:07.872
+a new class. And so, you know, if you
+
+00:24:07.872 --> 00:24:09.912
+go from plane to bird, I can see a bird
+
+00:24:10.072 --> 00:24:12.221
+If you could go from car to frog, you'll have
+
+00:24:12.221 --> 00:24:14.382
+to squint a bit, but you see a frog.
+
+00:24:14.382 --> 00:24:16.252
+Here's the head. Here's the here's the paw.
+
+00:24:17.292 --> 00:24:19.652
+Shipped to horse. Frog to dog.
+
+00:24:19.652 --> 00:24:21.731
+So to me this means that the input space is
+
+00:24:21.731 --> 00:24:23.842
+smooth. If you take two inputs, and
+
+00:24:23.842 --> 00:24:26.062
+you change them a little bit, what happens
+
+00:24:26.062 --> 00:24:27.772
+is that, the
+
+00:24:28.196 --> 00:24:30.381
+the prediction is smooth. Is it won't
+
+00:24:30.382 --> 00:24:32.502
+change abruptly. He
+
+00:24:32.502 --> 00:24:34.682
+also applied this to solving Sudoku
+
+00:24:34.742 --> 00:24:36.782
+puzzles, which is clearly a reasoning task,
+
+00:24:36.782 --> 00:24:38.402
+where you have to integrate information
+
+00:24:39.082 --> 00:24:41.242
+over the entire image, and he found actually
+
+00:24:41.242 --> 00:24:43.342
+that he could create state
+
+00:24:43.342 --> 00:24:45.422
+of the art, on these Sudoku puzzles.
+
+00:24:45.422 --> 00:24:47.212
+So I thought we were in the right direction.
+
+00:24:48.492 --> 00:24:50.522
+And so more recently, I've been thinking about
+
+00:24:51.082 --> 00:24:53.322
+is there a physics principle behind this?
+
+00:24:53.322 --> 00:24:55.382
+Can we understand these kind of
+
+00:24:55.382 --> 00:24:57.582
+more empirical intuitive ideas
+
+00:24:57.582 --> 00:24:59.721
+better? And in order to illustrate this,
+
+00:24:59.721 --> 00:25:01.372
+I brought a stick
+
+00:25:02.172 --> 00:25:04.591
+and the stick is going to do a little experiment.
+
+00:25:06.062 --> 00:25:08.562
+So if I put the stick here, the stick is beautifully
+
+00:25:09.432 --> 00:25:11.472
+rotation invariant. Well, it's not quite rotational invariant. But
+
+00:25:11.472 --> 00:25:13.652
+if you squint, you know, if you rotate it
+
+00:25:13.652 --> 00:25:15.182
+like this, it doesn't change.
+
+00:25:16.382 --> 00:25:18.442
+And now I'm gonna do an experiment.
+
+00:25:18.522 --> 00:25:20.762
+I'm gonna break the symmetry So I can do
+
+00:25:20.762 --> 00:25:21.821
+this by pushing here.
+
+00:25:23.152 --> 00:25:25.252
+Okay. Like this. I can do this by pushing
+
+00:25:25.252 --> 00:25:27.052
+here but that's clearly
+
+00:25:27.351 --> 00:25:29.372
+is a, I am breaking the symmetry
+
+00:25:29.432 --> 00:25:31.452
+because I decide to do this. Right?
+
+00:25:32.012 --> 00:25:34.492
+There's another way to break the symmetry which is I'm gonna
+
+00:25:34.492 --> 00:25:36.732
+push down remember if I push down it's
+
+00:25:36.732 --> 00:25:38.822
+purely symmetric. Because you
+
+00:25:38.822 --> 00:25:41.082
+know, if I rotate, it's still the same force. If I do this,
+
+00:25:41.142 --> 00:25:43.622
+then you know, this happens. Right?
+
+00:25:43.862 --> 00:25:46.022
+So the symmetry is still broken, but
+
+00:25:46.022 --> 00:25:48.042
+now it's spontaneously broke. I
+
+00:25:48.042 --> 00:25:50.222
+didn't do anything myself to break the symmetry.
+
+00:25:50.481 --> 00:25:52.032
+But the natural stable state
+
+00:25:52.592 --> 00:25:54.792
+has broken the symmetry. Alright.
+
+00:25:55.112 --> 00:25:55.662
+My experiment.
+
+00:25:57.822 --> 00:25:59.982
+Oh no. It's not actually. So there's two more things I wanna say
+
+00:25:59.982 --> 00:26:02.102
+about this. So once you've done that,
+
+00:26:02.502 --> 00:26:04.662
+you can get two kinds of oscillations. This is
+
+00:26:04.662 --> 00:26:06.352
+the first oscillation. Right?
+
+00:26:06.732 --> 00:26:08.832
+And I have to put energy in that oscillation.
+
+00:26:09.252 --> 00:26:11.462
+That's called a Higgs mode. And yes,
+
+00:26:11.782 --> 00:26:14.022
+that is the if you do this in quantum field theory,
+
+00:26:14.022 --> 00:26:16.041
+you get Higgs particles, which create the mass
+
+00:26:16.042 --> 00:26:18.471
+in the universe. That's pretty deep,
+
+00:26:18.612 --> 00:26:20.622
+isn't it? The other one is, I can
+
+00:26:20.622 --> 00:26:22.971
+do this. Now that doesn't
+
+00:26:23.802 --> 00:26:26.132
+require me any energy. But
+
+00:26:26.132 --> 00:26:28.152
+it's still a wave of a kind. And
+
+00:26:28.152 --> 00:26:30.212
+that's called the Goldstone mode, these
+
+00:26:30.212 --> 00:26:32.252
+are also modes, you know,
+
+00:26:32.492 --> 00:26:34.342
+things in in physics. Okay.
+
+00:26:35.142 --> 00:26:37.382
+So these are actually very the symmetry breaking is
+
+00:26:37.382 --> 00:26:39.392
+very fundamental concept in
+
+00:26:39.392 --> 00:26:41.492
+physics. If you take a liquid and a liquid if
+
+00:26:41.492 --> 00:26:43.862
+you squint is definitely translation
+
+00:26:44.562 --> 00:26:46.332
+invariant, And you
+
+00:26:46.632 --> 00:26:48.641
+you lower the temperature at some
+
+00:26:48.642 --> 00:26:50.662
+point that liquid will turn into a crystal.
+
+00:26:51.231 --> 00:26:53.292
+Right? It's like water turns
+
+00:26:53.512 --> 00:26:56.012
+into ice. And you've broken the symmetry
+
+00:26:56.312 --> 00:26:58.362
+because the continuous symmetry, the
+
+00:26:58.362 --> 00:27:00.542
+translation symmetry turn into a discrete
+
+00:27:01.377 --> 00:27:02.902
+symmetry. Translation symmetry.
+
+00:27:03.462 --> 00:27:05.882
+And that's a phase transition. So it's a very fundamental
+
+00:27:05.942 --> 00:27:08.082
+concept in physics. And then
+
+00:27:08.082 --> 00:27:10.162
+you have these goldstone modes. Right? Which are
+
+00:27:10.162 --> 00:27:12.192
+these modes which I talked about. So
+
+00:27:12.192 --> 00:27:14.432
+these modes are gold stone modes.
+
+00:27:14.592 --> 00:27:16.292
+The equivalent of that Goldstone
+
+00:27:16.672 --> 00:27:18.682
+mode, in fact, is what
+
+00:27:18.682 --> 00:27:20.942
+we call phonons. In
+
+00:27:21.182 --> 00:27:23.252
+crystals. So these are you
+
+00:27:23.252 --> 00:27:25.492
+know, oscillations of all these atoms
+
+00:27:25.492 --> 00:27:27.592
+that are moving, and they create travelling waves.
+
+00:27:28.542 --> 00:27:30.962
+Also, we thought that should be a good candidate
+
+00:27:31.557 --> 00:27:33.622
+for you know, trying to get those
+
+00:27:33.622 --> 00:27:35.232
+things into our neural networks.
+
+00:27:36.272 --> 00:27:38.351
+And the and the argument I want to make is that
+
+00:27:38.352 --> 00:27:40.171
+they are useful because they can sort of act
+
+00:27:40.572 --> 00:27:42.832
+memory. So here is a particular
+
+00:27:43.322 --> 00:27:45.642
+evolution equation that physicists really like.
+
+00:27:45.722 --> 00:27:48.032
+If you don't understand it's fine, it's it
+
+00:27:48.172 --> 00:27:50.201
+creates waves. And there's a potential and
+
+00:27:50.201 --> 00:27:52.521
+the potential, if you choose the potential to be this nice
+
+00:27:52.522 --> 00:27:54.742
+Mexican hat, you have exactly the
+
+00:27:54.742 --> 00:27:56.782
+situation that I described, The
+
+00:27:56.782 --> 00:27:58.862
+symmetry that the system likes to sit in
+
+00:27:58.862 --> 00:28:01.011
+this blue region and in order to get there
+
+00:28:01.012 --> 00:28:03.032
+it needs to break the symmetry. And you have
+
+00:28:03.032 --> 00:28:05.112
+these oscillations which go back and forth here, which
+
+00:28:05.112 --> 00:28:07.441
+are the hex oscillations, and the ones that go around
+
+00:28:07.602 --> 00:28:09.112
+which are the gold stone modes.
+
+00:28:10.231 --> 00:28:12.471
+And then if you look at the at the waves that
+
+00:28:12.471 --> 00:28:14.562
+you create, the waves you know,
+
+00:28:14.562 --> 00:28:16.602
+of the ones that are you're flipping back
+
+00:28:16.602 --> 00:28:18.642
+and forth here are like this.
+
+00:28:18.642 --> 00:28:20.882
+And, what happens is that the different
+
+00:28:20.882 --> 00:28:22.981
+frequencies start to mix. There is a dispersion
+
+00:28:23.702 --> 00:28:25.712
+relation that involves kind of this
+
+00:28:25.712 --> 00:28:27.820
+kind of mass term. And all the frequencies start
+
+00:28:27.821 --> 00:28:30.321
+to mix together, and it's very hard to hold the information.
+
+00:28:31.042 --> 00:28:33.122
+Where if you look at the one that that moves around
+
+00:28:33.122 --> 00:28:35.312
+like this, you get these beautiful
+
+00:28:35.312 --> 00:28:37.402
+waves that hold their shape
+
+00:28:37.402 --> 00:28:38.432
+and move outward.
+
+00:28:39.952 --> 00:28:41.172
+So here's that particular
+
+00:28:43.442 --> 00:28:45.772
+movie made by Nabil. That
+
+00:28:46.231 --> 00:28:48.261
+shows that very nicely these
+
+00:28:48.502 --> 00:28:50.132
+the structure of the of the
+
+00:28:50.532 --> 00:28:52.691
+of the wavefront is the same, which means you can store
+
+00:28:52.692 --> 00:28:54.492
+information those wavefronts.
+
+00:28:54.972 --> 00:28:57.052
+And Now I just mentioned that these things
+
+00:28:57.052 --> 00:28:59.312
+are actually, discussed a lot in neuroscience.
+
+00:29:01.112 --> 00:29:03.191
+And especially Terry Sanowski and Lyle
+
+00:29:03.191 --> 00:29:05.461
+Miller which we whom we have been
+
+00:29:05.522 --> 00:29:07.582
+working on this they're a big proponent
+
+00:29:07.582 --> 00:29:09.982
+of actually understanding the
+
+00:29:11.072 --> 00:29:13.312
+function of, of these waves in the brain.
+
+00:29:13.312 --> 00:29:15.287
+And it's an interesting story because
+
+00:29:15.612 --> 00:29:17.772
+the old days, people had only one electrode and you
+
+00:29:17.772 --> 00:29:20.112
+could stick it somewhere in the brain course, you wouldn't
+
+00:29:20.112 --> 00:29:22.161
+see any waves. But now they have
+
+00:29:22.162 --> 00:29:24.502
+many multiple electrodes and many hundreds
+
+00:29:24.962 --> 00:29:27.032
+of these electrodes they can put in. And now they can actually
+
+00:29:27.192 --> 00:29:29.322
+see the waves that are going through the brain. So this
+
+00:29:29.322 --> 00:29:31.282
+is a whole new developing field. And,
+
+00:29:31.442 --> 00:29:33.642
+we wrote a paper together four
+
+00:29:33.642 --> 00:29:35.622
+of us, on the relationship
+
+00:29:35.681 --> 00:29:37.742
+between the neuroscience and the machine
+
+00:29:37.742 --> 00:29:39.952
+learning and the symmetries. It's hopefully,
+
+00:29:39.952 --> 00:29:41.652
+it's it's coming out soon in
+
+00:29:41.971 --> 00:29:42.792
+nature perspective.
+
+00:29:43.992 --> 00:29:46.231
+Okay. So how are we gonna build neural networks
+
+00:29:46.231 --> 00:29:48.241
+that have this particular property? Right? So that
+
+00:29:48.242 --> 00:29:50.007
+is not the the challenge.
+
+00:29:50.652 --> 00:29:52.812
+And the way to do it is to go back to actually an
+
+00:29:52.812 --> 00:29:54.802
+old idea maybe I think,
+
+00:29:54.942 --> 00:29:56.972
+in the Jeff Hinton called this capsules.
+
+00:29:57.732 --> 00:29:59.892
+Everything goes back to Jeff Hinton one way or the other.
+
+00:29:59.892 --> 00:30:02.132
+So, you know, here's capsules. And
+
+00:30:02.132 --> 00:30:04.302
+what we do is we create a neuron
+
+00:30:04.782 --> 00:30:07.022
+and the neuron has an internal structure.
+
+00:30:07.022 --> 00:30:08.482
+So it could be a doughnut,
+
+00:30:09.072 --> 00:30:11.272
+or it could be a or an
+
+00:30:11.272 --> 00:30:13.442
+end dimensional sphere with a little
+
+00:30:13.442 --> 00:30:15.462
+vector in it. And the vector can move around. So
+
+00:30:15.462 --> 00:30:17.682
+you can think of this as a spin in some sense.
+
+00:30:17.682 --> 00:30:19.842
+And the equivariance in
+
+00:30:19.842 --> 00:30:22.262
+these networks is if I start to spin around
+
+00:30:22.562 --> 00:30:24.642
+these vectors in the in the input
+
+00:30:24.642 --> 00:30:26.681
+layer, all the other
+
+00:30:26.682 --> 00:30:28.652
+vectors in the internal and the output
+
+00:30:28.731 --> 00:30:31.012
+will have to spin with the same phase.
+
+00:30:31.172 --> 00:30:33.301
+And you can make these networks such that
+
+00:30:33.302 --> 00:30:35.512
+they have this property. You have to you can't just bake it in.
+
+00:30:37.512 --> 00:30:39.752
+And so the theory behind
+
+00:30:39.752 --> 00:30:41.952
+it is this idea that we want to create
+
+00:30:41.952 --> 00:30:43.812
+networks where information propagates
+
+00:30:44.032 --> 00:30:46.262
+to many many hundreds or thousands
+
+00:30:46.262 --> 00:30:47.787
+of layers of
+
+00:30:48.292 --> 00:30:50.502
+either an RNN or a deep neural network.
+
+00:30:50.902 --> 00:30:52.981
+And then you can study these networks as
+
+00:30:52.981 --> 00:30:54.832
+a map, as an iterated map or
+
+00:30:55.072 --> 00:30:56.292
+maybe even as dynamics.
+
+00:30:57.422 --> 00:30:59.581
+And that we and there's this paper, by these
+
+00:30:59.582 --> 00:31:01.282
+authors called deep information
+
+00:31:02.082 --> 00:31:04.212
+they studied this. And they found that if the
+
+00:31:04.212 --> 00:31:06.142
+networks live on the edge of chaos,
+
+00:31:06.302 --> 00:31:08.582
+which I'll explain in a minute, they will perform
+
+00:31:08.882 --> 00:31:11.242
+best. What does that mean? Well, there's a number of
+
+00:31:11.242 --> 00:31:13.552
+phases. Like you know, phases in physics.
+
+00:31:13.632 --> 00:31:15.701
+There's a phase where any two
+
+00:31:15.702 --> 00:31:17.862
+inputs or any two inputs actually collapse
+
+00:31:17.862 --> 00:31:19.882
+to the same point. This is a stable fixed point.
+
+00:31:20.841 --> 00:31:22.972
+Or sort of an ordered phase, you'd call it.
+
+00:31:23.612 --> 00:31:25.492
+There's another phase where any two
+
+00:31:25.811 --> 00:31:27.882
+input, even if there are infinite testimony
+
+00:31:27.962 --> 00:31:30.162
+close, they will eventually, and exponentially
+
+00:31:30.702 --> 00:31:32.931
+fast, diverge they completely
+
+00:31:32.932 --> 00:31:35.352
+decorrelate. And you can it becomes basically random.
+
+00:31:36.341 --> 00:31:38.422
+You can best describe this as a as
+
+00:31:38.422 --> 00:31:40.551
+a random iterate.
+
+00:31:41.372 --> 00:31:43.452
+And that is you also lose information
+
+00:31:43.452 --> 00:31:45.601
+about the input. Right? If it collapses or as
+
+00:31:45.601 --> 00:31:47.942
+it becomes chaos, you all lose information
+
+00:31:47.942 --> 00:31:50.272
+about the input. But it's something the
+
+00:31:50.272 --> 00:31:52.162
+middle that you can fine tune to
+
+00:31:52.722 --> 00:31:55.092
+which is called edge of chaos, where the
+
+00:31:55.092 --> 00:31:56.962
+information propagates through the whole neural network.
+
+00:31:57.362 --> 00:31:59.371
+And in fact, right before this, I
+
+00:31:59.772 --> 00:32:01.932
+I Googled for you know,
+
+00:32:01.932 --> 00:32:04.191
+if this actually I've heard that this actually
+
+00:32:04.191 --> 00:32:06.271
+the brain is also on the edge of chaos, so you'll find
+
+00:32:06.272 --> 00:32:08.412
+it very quickly. And it says the human
+
+00:32:08.412 --> 00:32:10.541
+brain is on the edge of chaos. And since it's
+
+00:32:10.542 --> 00:32:12.782
+by the University of Cambridge, it must be true. So that's
+
+00:32:12.782 --> 00:32:13.062
+good.
+
+00:32:15.062 --> 00:32:17.002
+Okay. So let's dig a little bit into
+
+00:32:18.162 --> 00:32:20.461
+the mathematics of this. So what we are doing
+
+00:32:20.702 --> 00:32:22.402
+is we create a neural net and we
+
+00:32:22.862 --> 00:32:24.652
+randomly put weights on the
+
+00:32:25.532 --> 00:32:27.652
+we draw random weights and we put them in the neural net.
+
+00:32:28.292 --> 00:32:30.692
+Now because the activations are a function of
+
+00:32:30.692 --> 00:32:33.012
+the weights, the activations also become
+
+00:32:33.012 --> 00:32:35.112
+random. Right? Now
+
+00:32:35.112 --> 00:32:37.112
+if we take the initial distribution
+
+00:32:37.332 --> 00:32:39.512
+of the weights to be have small variance,
+
+00:32:40.132 --> 00:32:41.932
+get through this thing where my my little
+
+00:32:42.582 --> 00:32:44.752
+vector on my sphere will
+
+00:32:44.752 --> 00:32:46.832
+collapse to a point. I don't want
+
+00:32:46.832 --> 00:32:48.922
+that. But now if I take
+
+00:32:48.922 --> 00:32:51.097
+it larger than certain threshold, it goes
+
+00:32:51.097 --> 00:32:53.192
+through a phase transition. And you will
+
+00:32:53.192 --> 00:32:55.351
+now get that your your sphere
+
+00:32:55.352 --> 00:32:57.082
+gets mapped to a bigger sphere.
+
+00:32:58.362 --> 00:33:00.442
+And we don't have to find you anything here. We just
+
+00:33:00.442 --> 00:33:02.612
+have to get over this threshold. And that's very good.
+
+00:33:03.091 --> 00:33:05.331
+The information can be encoded in the the the
+
+00:33:05.331 --> 00:33:07.112
+various phases of these spins.
+
+00:33:07.772 --> 00:33:09.932
+And they and the aquivaryance make sure that
+
+00:33:09.932 --> 00:33:12.152
+I can propagate that information
+
+00:33:12.212 --> 00:33:14.492
+all the way through my neural network. And the important
+
+00:33:14.492 --> 00:33:16.612
+pieces that we don't have to fine tune And
+
+00:33:16.612 --> 00:33:18.782
+you can see with a small experiment that
+
+00:33:18.782 --> 00:33:20.812
+the theoretically know,
+
+00:33:20.942 --> 00:33:23.012
+derived transition between these
+
+00:33:23.012 --> 00:33:24.792
+two phases also is the is
+
+00:33:25.367 --> 00:33:27.382
+where where neural networks starts to
+
+00:33:27.382 --> 00:33:27.882
+work.
+
+00:33:29.492 --> 00:33:31.561
+And then, so I'll I'll close
+
+00:33:31.561 --> 00:33:32.941
+this particular section with some
+
+00:33:33.721 --> 00:33:35.672
+preliminary results. I should say,
+
+00:33:35.912 --> 00:33:38.072
+thank you to Andy, because I think he worked through the
+
+00:33:38.072 --> 00:33:39.532
+night to produce these results.
+
+00:33:40.802 --> 00:33:42.501
+And so Andy, wherever you are,
+
+00:33:42.902 --> 00:33:45.211
+you are a hero. Now I can actually show these
+
+00:33:45.212 --> 00:33:47.422
+particular results. Well he did
+
+00:33:47.742 --> 00:33:49.982
+was he looked at the number of parameters in your
+
+00:33:49.982 --> 00:33:52.152
+neural network. And then he trained both
+
+00:33:52.152 --> 00:33:54.501
+RNNs and GRU. RNNs with
+
+00:33:54.981 --> 00:33:57.101
+GRU functions. And then you had
+
+00:33:57.101 --> 00:33:59.231
+versions of that which had this
+
+00:33:59.232 --> 00:34:01.382
+internal structure, either a sphere with
+
+00:34:01.382 --> 00:34:03.431
+k dimensions or k to
+
+00:34:03.432 --> 00:34:05.511
+minus one dimensions, I guess, and and or
+
+00:34:05.512 --> 00:34:06.811
+a u one symmetry.
+
+00:34:08.002 --> 00:34:10.022
+And then he plotted the performance
+
+00:34:10.082 --> 00:34:12.161
+on a task which is called permuted
+
+00:34:12.162 --> 00:34:14.241
+mnist, where you make the task
+
+00:34:14.241 --> 00:34:16.081
+harder by permuting the pixels. We
+
+00:34:16.322 --> 00:34:17.781
+you have to keep things in memory.
+
+00:34:18.461 --> 00:34:20.511
+You make it harder, you look at you
+
+00:34:20.511 --> 00:34:22.562
+know, how well do they do as a
+
+00:34:22.562 --> 00:34:24.822
+function of the number of parameters. And you find
+
+00:34:25.032 --> 00:34:26.861
+that the symmetries really help you
+
+00:34:27.102 --> 00:34:29.602
+train these models well with less parameters.
+
+00:34:31.152 --> 00:34:32.612
+And to inspect a little bit,
+
+00:34:33.251 --> 00:34:35.182
+how these internal channels
+
+00:34:35.402 --> 00:34:37.802
+work. So here are the channels in in a normal RNN,
+
+00:34:37.802 --> 00:34:39.822
+they turn on and then they stay on for a while,
+
+00:34:39.822 --> 00:34:42.021
+and then they turn off. But then these
+
+00:34:42.021 --> 00:34:44.182
+internal degrees, these internal spin degrees
+
+00:34:44.182 --> 00:34:46.522
+of freedom, the magnitudes are somewhat stable.
+
+00:34:47.092 --> 00:34:49.052
+But then if you look closely here,
+
+00:34:49.211 --> 00:34:51.482
+you'll see 24 channels. And
+
+00:34:51.482 --> 00:34:53.722
+they kind of oscillate. So this is a vector that moves
+
+00:34:53.722 --> 00:34:54.942
+around in this space.
+
+00:34:55.942 --> 00:34:58.141
+And here actually on this, you see
+
+00:34:58.382 --> 00:35:00.622
+the trajectory of the two principal projected
+
+00:35:00.622 --> 00:35:02.702
+onto the two principal components of some
+
+00:35:02.702 --> 00:35:05.142
+of these neurons you'll
+
+00:35:05.142 --> 00:35:07.182
+see that they they oscillate around. Right? So
+
+00:35:07.182 --> 00:35:08.482
+there's now internal oscillations
+
+00:35:09.422 --> 00:35:10.992
+that hold on to the information.
+
+00:35:12.512 --> 00:35:14.522
+Okay. So that was the first part.
+
+00:35:15.162 --> 00:35:17.447
+And now I'll move on to the second part. Which
+
+00:35:17.447 --> 00:35:19.631
+is different but also not different.
+
+00:35:20.511 --> 00:35:22.632
+But I'll reset a little bit and say
+
+00:35:22.632 --> 00:35:24.972
+that, you know, yes, we are in a very special
+
+00:35:25.112 --> 00:35:27.192
+time. Sort of the same time
+
+00:35:27.192 --> 00:35:28.972
+as the people in the eighteenth century,
+
+00:35:30.282 --> 00:35:32.472
+when the steam engine was invented, where where we're
+
+00:35:32.632 --> 00:35:34.942
+let me say, enhance or augment you
+
+00:35:34.942 --> 00:35:37.352
+know, human labor with machine
+
+00:35:37.412 --> 00:35:39.461
+labor. You could also say replace, but
+
+00:35:39.462 --> 00:35:40.521
+you know, it's it's subtle.
+
+00:35:41.632 --> 00:35:43.792
+And now we are in a time when
+
+00:35:43.792 --> 00:35:45.492
+we are enhancing or augmenting
+
+00:35:46.382 --> 00:35:48.441
+human intelligence. With machine
+
+00:35:48.441 --> 00:35:50.541
+intelligence. This is the AI revolution.
+
+00:35:50.652 --> 00:35:52.842
+And it's interesting because we're in the middle
+
+00:35:52.842 --> 00:35:53.242
+of it.
+
+00:35:55.142 --> 00:35:57.242
+So we decided to write a book about it. In fact
+
+00:35:57.242 --> 00:35:59.432
+you know, we just didn't get it out in time,
+
+00:35:59.432 --> 00:36:01.512
+but you can pre order it. This is a bound
+
+00:36:01.512 --> 00:36:03.842
+for but if you wanna have a look, this
+
+00:36:03.842 --> 00:36:06.272
+is the book. And the book is written
+
+00:36:06.272 --> 00:36:08.352
+together with, Siri Lou and Lars
+
+00:36:08.912 --> 00:36:10.991
+Voldyke. Lars is somewhere here in the audience as
+
+00:36:10.991 --> 00:36:12.882
+well. And this
+
+00:36:13.362 --> 00:36:15.622
+tries to study the deep relationship
+
+00:36:15.922 --> 00:36:17.552
+between a field and physics. We'll
+
+00:36:18.031 --> 00:36:20.402
+stochastic thermodynamics, which is an extension
+
+00:36:20.541 --> 00:36:22.962
+of normal thermodynamics, which deals with equilibrium,
+
+00:36:24.232 --> 00:36:26.192
+situations. To non equilibrium
+
+00:36:26.672 --> 00:36:28.832
+And of course, AI is all about
+
+00:36:28.832 --> 00:36:31.051
+non equilibrium. And
+
+00:36:31.052 --> 00:36:32.992
+we found that they share the same probabilistic,
+
+00:36:33.862 --> 00:36:35.132
+math basically
+
+00:36:36.422 --> 00:36:38.452
+And it is systems that describe
+
+00:36:38.872 --> 00:36:41.011
+you know, systems that Sorry. It is a
+
+00:36:41.012 --> 00:36:43.352
+theory that describes systems that lose information.
+
+00:36:45.022 --> 00:36:46.712
+And then I asked Gemini to
+
+00:36:48.152 --> 00:36:50.182
+visualize how you
+
+00:36:50.182 --> 00:36:52.372
+know, this could be related to time
+
+00:36:52.372 --> 00:36:54.612
+reversal symmetry breaking and I got a somewhat
+
+00:36:54.612 --> 00:36:56.786
+dark image. I thought it was
+
+00:36:56.786 --> 00:36:58.872
+appropriate because we some sometimes I think we
+
+00:36:58.872 --> 00:37:00.881
+live in somewhat dark times.
+
+00:37:01.202 --> 00:37:03.062
+But here on this side,
+
+00:37:04.112 --> 00:37:05.192
+is the phase. If you look at the microscopic
+
+00:37:07.041 --> 00:37:08.942
+physics, it's actually time reversal
+
+00:37:09.162 --> 00:37:11.592
+symmetric. So if you look at a bunch of molecules
+
+00:37:11.592 --> 00:37:13.631
+which are moving around, and
+
+00:37:13.632 --> 00:37:15.652
+you reverse it, goes the other direction, but you
+
+00:37:15.652 --> 00:37:17.892
+don't know if that's forward in time or backward in
+
+00:37:17.892 --> 00:37:19.802
+time. On the other side,
+
+00:37:20.662 --> 00:37:22.822
+the sign, the time reversal symmetry
+
+00:37:22.822 --> 00:37:23.642
+is broken.
+
+00:37:25.032 --> 00:37:27.242
+Which means that we have a direction of time. So
+
+00:37:27.242 --> 00:37:29.302
+I am going to talk until the end
+
+00:37:29.302 --> 00:37:31.382
+in one direction. Unfortunately, I cannot go back in
+
+00:37:31.382 --> 00:37:33.482
+time and get myself a little bit more time for this
+
+00:37:33.482 --> 00:37:35.732
+talk. And, it's
+
+00:37:35.732 --> 00:37:37.892
+appropriate that things break. I think Gemini
+
+00:37:38.032 --> 00:37:40.532
+took breaking a little too serious on this side.
+
+00:37:40.622 --> 00:37:42.852
+But things do break, when
+
+00:37:42.852 --> 00:37:44.962
+you have entropy. Things degrade.
+
+00:37:45.922 --> 00:37:47.942
+And so it's a it's a theory about
+
+00:37:49.482 --> 00:37:51.491
+how losing
+
+00:37:51.492 --> 00:37:53.812
+in how to lose information and how to describe
+
+00:37:53.812 --> 00:37:55.911
+that. Right? And a map that you cannot
+
+00:37:55.912 --> 00:37:58.312
+run backwards is a map that loses information.
+
+00:37:59.082 --> 00:38:01.582
+And, we probably, hopefully, all know
+
+00:38:02.262 --> 00:38:04.762
+this equation, which is a Markov chain
+
+00:38:04.991 --> 00:38:07.152
+which is the equation that actually
+
+00:38:07.152 --> 00:38:09.382
+describes systems that lose information In
+
+00:38:09.382 --> 00:38:11.690
+fact, if you run a market chain long enough, it's well
+
+00:38:11.691 --> 00:38:14.162
+known you have completely forgotten your initial
+
+00:38:14.162 --> 00:38:16.462
+state. And so you start with an initial
+
+00:38:16.602 --> 00:38:18.792
+distribution. This is the path. Of the state
+
+00:38:18.872 --> 00:38:21.032
+And then you have these transition probabilities and as
+
+00:38:21.032 --> 00:38:22.551
+a control parameter lambda.
+
+00:38:24.312 --> 00:38:26.572
+And then in physics, losing information basically
+
+00:38:26.791 --> 00:38:29.102
+is equivalent to entropy production. So
+
+00:38:29.102 --> 00:38:31.172
+every system that loses information produces
+
+00:38:31.172 --> 00:38:32.392
+entropy of some kind.
+
+00:38:33.192 --> 00:38:35.512
+And there is a beautiful theorem which I don't think
+
+00:38:35.672 --> 00:38:37.951
+many people know here, which is called Crook's
+
+00:38:38.332 --> 00:38:40.002
+fluctuation theorem. That that quantifies
+
+00:38:40.542 --> 00:38:42.242
+very precisely what that means.
+
+00:38:42.862 --> 00:38:44.802
+So it says, if I have this forward
+
+00:38:45.102 --> 00:38:47.132
+distribution, over a path,
+
+00:38:47.732 --> 00:38:49.812
+and then I look at the backward distribution.
+
+00:38:49.812 --> 00:38:52.192
+So this is the same dynamics with the same
+
+00:38:52.252 --> 00:38:54.541
+diffusion. But I start at the end
+
+00:38:54.782 --> 00:38:56.562
+and I apply the control signal
+
+00:38:57.022 --> 00:38:59.131
+in reverse. In the other direction. If it
+
+00:38:59.132 --> 00:39:01.372
+were reversible, I would end up with exactly the
+
+00:39:01.372 --> 00:39:03.242
+same state. If it weren't reversible,
+
+00:39:03.382 --> 00:39:05.422
+I end up in some other state. And
+
+00:39:05.422 --> 00:39:07.432
+the ratio between these two
+
+00:39:07.432 --> 00:39:09.462
+probability distributions over paths
+
+00:39:09.762 --> 00:39:11.889
+is e to the total entropy production of
+
+00:39:11.890 --> 00:39:13.242
+the system. No.
+
+00:39:14.492 --> 00:39:16.531
+And I'll tell you a little bit basic
+
+00:39:16.772 --> 00:39:18.852
+thermodynamics. If you don't like equations, you can stare
+
+00:39:18.852 --> 00:39:20.852
+at this equation. This this figure from,
+
+00:39:21.652 --> 00:39:23.682
+Gemini and try to work out what what
+
+00:39:23.682 --> 00:39:25.802
+I'm trying to say in a figure. But let me
+
+00:39:25.802 --> 00:39:27.832
+go through the equations. So I
+
+00:39:27.832 --> 00:39:30.031
+have a state, which is a, you
+
+00:39:30.092 --> 00:39:32.412
+know, an arbitrary state from zero
+
+00:39:32.412 --> 00:39:34.480
+to to the final time t. And
+
+00:39:34.481 --> 00:39:36.881
+the first law of thermodynamics says that the total
+
+00:39:36.882 --> 00:39:38.941
+energy of the system or the
+
+00:39:38.942 --> 00:39:41.152
+sort of total change in the energy of a system,
+
+00:39:41.791 --> 00:39:43.952
+must be equal to the total work done
+
+00:39:43.952 --> 00:39:46.042
+on the system plus the total heat
+
+00:39:46.042 --> 00:39:48.392
+that's flowing into the system. These
+
+00:39:48.392 --> 00:39:50.211
+two terms determine
+
+00:39:50.452 --> 00:39:52.061
+the amount of energy that's changing.
+
+00:39:52.701 --> 00:39:54.922
+There's another really fundamental equation
+
+00:39:55.562 --> 00:39:57.672
+which is the train the change in free energy.
+
+00:39:58.552 --> 00:40:00.712
+That says, that the change in free energy
+
+00:40:00.712 --> 00:40:02.822
+is the change in energy minus
+
+00:40:02.962 --> 00:40:05.271
+the temperature times the change in the entropy.
+
+00:40:06.201 --> 00:40:08.622
+And I will come back to this equation, but it basically
+
+00:40:08.682 --> 00:40:10.842
+says that this is
+
+00:40:10.842 --> 00:40:12.822
+the energy that's free to do work.
+
+00:40:13.302 --> 00:40:15.112
+And it's not all the energy because
+
+00:40:15.352 --> 00:40:17.291
+all the degrees of freedom you've lost
+
+00:40:17.511 --> 00:40:19.592
+information about you can actually not
+
+00:40:19.592 --> 00:40:21.232
+do very effective work with.
+
+00:40:22.192 --> 00:40:24.532
+Okay. And now we get to this very fundamental equation,
+
+00:40:25.482 --> 00:40:27.512
+which says that what is the actual work
+
+00:40:27.512 --> 00:40:29.622
+you're doing on a system that's out of equilibrium?
+
+00:40:30.642 --> 00:40:32.651
+It's given by we can
+
+00:40:32.652 --> 00:40:34.791
+sort of use these two equations, is
+
+00:40:34.792 --> 00:40:36.952
+given by the total work done minus
+
+00:40:36.952 --> 00:40:39.122
+the change in the free energy. This by you get
+
+00:40:39.122 --> 00:40:40.431
+this by combining these two.
+
+00:40:41.992 --> 00:40:44.242
+Sorry. No. That's the definition of dissipated work.
+
+00:40:44.402 --> 00:40:46.562
+And by using these equations, you can e relate
+
+00:40:46.562 --> 00:40:48.732
+this to t times a change of
+
+00:40:48.872 --> 00:40:51.042
+the entropy of the system, minus the heat
+
+00:40:51.042 --> 00:40:52.522
+that you're generating.
+
+00:40:53.572 --> 00:40:55.651
+And that the definition of this is actually
+
+00:40:55.652 --> 00:40:57.741
+t t times the total entropy production.
+
+00:40:58.572 --> 00:41:00.902
+But now what's interesting is some
+
+00:41:00.952 --> 00:41:03.112
+very recent results actually show
+
+00:41:03.112 --> 00:41:04.182
+that that is
+
+00:41:05.202 --> 00:41:07.342
+lower bounded by
+
+00:41:07.342 --> 00:41:09.422
+the Wasserstein distance, the two
+
+00:41:09.422 --> 00:41:11.872
+the squared, two Wasserstein distance
+
+00:41:11.872 --> 00:41:14.022
+squared, between the initial
+
+00:41:14.022 --> 00:41:15.812
+distribution and the final distribution,
+
+00:41:16.422 --> 00:41:18.832
+divided by the time you take to get there. So
+
+00:41:19.001 --> 00:41:20.781
+the faster you wanna move something,
+
+00:41:21.451 --> 00:41:22.982
+the more work you will have to do.
+
+00:41:24.182 --> 00:41:26.342
+And so that actually
+
+00:41:26.342 --> 00:41:28.492
+proves I think or that has
+
+00:41:28.492 --> 00:41:30.107
+this very strong argument that,
+
+00:41:30.902 --> 00:41:33.221
+this is a limit to superintelligence. Right? Because
+
+00:41:33.221 --> 00:41:35.132
+if I have a thought I need to
+
+00:41:35.692 --> 00:41:37.522
+change the distribution of my internal
+
+00:41:38.002 --> 00:41:40.082
+neurons, my latent representations. I need to
+
+00:41:40.082 --> 00:41:41.752
+change it, otherwise I don't have a thought.
+
+00:41:42.452 --> 00:41:44.752
+In order to change it, have to satisfy
+
+00:41:44.812 --> 00:41:47.211
+this equation because one distribution has to go to the other
+
+00:41:47.212 --> 00:41:48.772
+distribution, If I want to
+
+00:41:49.232 --> 00:41:51.402
+think fast, I'm gonna pay more have to
+
+00:41:51.402 --> 00:41:53.521
+use more energy. If I want to if I can do
+
+00:41:53.521 --> 00:41:55.561
+it slow, I have a, you know, I can
+
+00:41:55.562 --> 00:41:57.591
+get close to zero. But who wants to think slow?
+
+00:41:59.212 --> 00:42:01.312
+Okay. So then, I do this little derivation,
+
+00:42:02.432 --> 00:42:04.552
+which is we start from the Crooks' equality.
+
+00:42:04.791 --> 00:42:07.030
+And the Crookes' equality, you can just move this
+
+00:42:07.031 --> 00:42:08.982
+there and you move this guy here then.
+
+00:42:09.062 --> 00:42:11.341
+And then you integrate over paths, And
+
+00:42:11.342 --> 00:42:13.442
+what you'll get is this equation. Which
+
+00:42:13.442 --> 00:42:15.727
+is that if I take a
+
+00:42:15.727 --> 00:42:17.892
+path I start at the big initial state.
+
+00:42:17.892 --> 00:42:19.972
+I sample a point and I sample to my
+
+00:42:19.972 --> 00:42:22.031
+final state under a controlled
+
+00:42:22.031 --> 00:42:24.131
+sequence. Right? And I do
+
+00:42:24.132 --> 00:42:26.271
+this many times. And then I
+
+00:42:26.271 --> 00:42:28.552
+average e to the minus the work done
+
+00:42:28.552 --> 00:42:30.522
+over each one of these paths. Then
+
+00:42:30.982 --> 00:42:33.062
+in fact, I can equate that to e to
+
+00:42:33.062 --> 00:42:35.032
+the minus change in free energy.
+
+00:42:35.192 --> 00:42:37.222
+So here is a way to
+
+00:42:37.222 --> 00:42:39.382
+estimate the free energy, which is actually very difficult to
+
+00:42:39.382 --> 00:42:41.862
+do. And it's called the Gerzynski
+
+00:42:41.922 --> 00:42:43.952
+equality. And even when Radford
+
+00:42:44.012 --> 00:42:46.432
+Neill wrote his paper on annealed importance sampling,
+
+00:42:46.562 --> 00:42:48.182
+in that paper, he says that
+
+00:42:48.882 --> 00:42:51.166
+this is equivalent to the JERZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZ So
+
+00:42:51.166 --> 00:42:53.092
+isn't that beautiful? That actually
+
+00:42:53.412 --> 00:42:55.141
+these two things got independently
+
+00:42:55.702 --> 00:42:58.112
+kind of sort of discovered.
+
+00:42:59.452 --> 00:43:01.562
+And and, you know, from these two different fields. To
+
+00:43:01.562 --> 00:43:03.262
+me, it's a testament that we're actually
+
+00:43:03.642 --> 00:43:04.512
+looking at the same problem.
+
+00:43:06.491 --> 00:43:08.730
+And entropy is a truly deep concept and
+
+00:43:08.731 --> 00:43:10.842
+so I wanna dive a little bit deeper into this
+
+00:43:10.842 --> 00:43:13.012
+with you. And
+
+00:43:13.102 --> 00:43:15.222
+people actually when, you know, thermodynamics
+
+00:43:15.442 --> 00:43:17.692
+was invented really didn't understand
+
+00:43:17.912 --> 00:43:20.162
+this this this entropy.
+
+00:43:20.162 --> 00:43:21.612
+And actually Boltzmann, I think
+
+00:43:22.172 --> 00:43:24.302
+went almost mad he wasn't
+
+00:43:24.682 --> 00:43:26.932
+understood that he had, you know, his interpretation.
+
+00:43:29.292 --> 00:43:31.372
+And so the the thought experiment is I have
+
+00:43:31.372 --> 00:43:33.382
+a little demon and the demon
+
+00:43:33.382 --> 00:43:35.862
+actually has access to all the information
+
+00:43:35.862 --> 00:43:38.092
+about the individual atoms
+
+00:43:38.092 --> 00:43:40.352
+in the box. There's blue
+
+00:43:40.352 --> 00:43:42.317
+atoms which are slow and
+
+00:43:42.652 --> 00:43:44.730
+the demon knows where the atom is and
+
+00:43:44.731 --> 00:43:46.892
+at what speed it's moving. And where it's going.
+
+00:43:47.052 --> 00:43:49.072
+And then there is also
+
+00:43:49.072 --> 00:43:50.662
+hot ones. And it has
+
+00:43:51.122 --> 00:43:53.291
+a little door and it you turn out it turns out you can
+
+00:43:53.292 --> 00:43:55.162
+open and close the door without doing any work.
+
+00:43:56.122 --> 00:43:58.202
+And he opens the door whenever a fast particle
+
+00:43:58.202 --> 00:44:00.512
+comes in and he keeps the door closed when it's a
+
+00:44:00.512 --> 00:44:02.571
+slow particle. And in doing that, he
+
+00:44:02.572 --> 00:44:04.732
+will separate the
+
+00:44:04.732 --> 00:44:06.871
+slow the cold atoms from the hot atoms.
+
+00:44:07.352 --> 00:44:09.391
+But now it can do work. Because now it
+
+00:44:09.392 --> 00:44:11.502
+can close the door and then the hot
+
+00:44:11.502 --> 00:44:13.602
+and then let the door move as
+
+00:44:13.602 --> 00:44:15.882
+a slider and the door will move to
+
+00:44:15.942 --> 00:44:17.972
+one side. And that will create work.
+
+00:44:18.452 --> 00:44:20.612
+So in principle, this daemon can build
+
+00:44:20.612 --> 00:44:22.072
+a Perpetual Mobili.
+
+00:44:22.812 --> 00:44:24.921
+As long as he has access to
+
+00:44:24.922 --> 00:44:26.981
+the information. Of course, the problem is he will
+
+00:44:26.982 --> 00:44:29.482
+not have access to the information. He will lose the information.
+
+00:44:29.892 --> 00:44:31.522
+And that's exactly the entropy
+
+00:44:31.942 --> 00:44:33.751
+the physical system. And from this we conclude
+
+00:44:34.312 --> 00:44:36.027
+that Shannon entropy
+
+00:44:36.722 --> 00:44:38.882
+and physical entropy, bosom entropy are truly
+
+00:44:38.882 --> 00:44:40.892
+the same thing. And I think that's
+
+00:44:40.892 --> 00:44:43.252
+pretty deep. In fact, you can go one step further
+
+00:44:43.252 --> 00:44:45.552
+which is it's subjective. Because
+
+00:44:45.552 --> 00:44:47.791
+one demon knows more about the system than
+
+00:44:47.792 --> 00:44:50.220
+another demon knows about system. And
+
+00:44:50.221 --> 00:44:52.301
+therefore, the entropy for one demon will
+
+00:44:52.302 --> 00:44:54.541
+be different for the other demon. So
+
+00:44:54.541 --> 00:44:56.547
+actually, entropy is Bayesian. A
+
+00:44:56.547 --> 00:44:56.802
+way.
+
+00:44:58.642 --> 00:45:01.000
+And so there is this know,
+
+00:45:01.001 --> 00:45:03.092
+interesting analogy. I'll just start on this
+
+00:45:03.092 --> 00:45:05.202
+side because most people will know this
+
+00:45:05.202 --> 00:45:06.822
+side. It is maybe
+
+00:45:07.302 --> 00:45:09.541
+before the deep learning area, some era, so
+
+00:45:09.541 --> 00:45:11.482
+maybe most people forgot it. But,
+
+00:45:11.722 --> 00:45:13.842
+you can write down let's say z
+
+00:45:13.842 --> 00:45:15.982
+are degrees of freedom that
+
+00:45:15.982 --> 00:45:17.852
+we have lost track of. We don't know
+
+00:45:18.362 --> 00:45:20.442
+where they what they precisely are. We just have a distribution
+
+00:45:20.442 --> 00:45:22.511
+over them. And x are the data.
+
+00:45:22.511 --> 00:45:24.582
+These are the observations. And
+
+00:45:24.582 --> 00:45:26.662
+then we all know that the posterior distribution is
+
+00:45:26.662 --> 00:45:28.532
+given by basic. Rule.
+
+00:45:28.772 --> 00:45:29.642
+Which is this is Bayes rule.
+
+00:45:30.922 --> 00:45:33.082
+And then Hinton and, Mead,
+
+00:45:33.082 --> 00:45:35.232
+Rutherford Neill Hinton and the Reverend Neal, they
+
+00:45:35.232 --> 00:45:37.301
+wrote down the variation of free energy, which
+
+00:45:37.302 --> 00:45:39.352
+is the same thing we used for the variation
+
+00:45:39.352 --> 00:45:41.592
+of outer encoder, or also known as the ELBO,
+
+00:45:41.592 --> 00:45:43.722
+evidence lower bound. And
+
+00:45:43.722 --> 00:45:45.662
+it's defined as minus log probability
+
+00:45:45.962 --> 00:45:47.677
+over the observed data.
+
+00:45:48.552 --> 00:45:50.652
+And you can upper bound it by the variational
+
+00:45:50.792 --> 00:45:52.412
+free energy by introducing a variational
+
+00:45:52.997 --> 00:45:55.232
+q. And look at and and define
+
+00:45:55.392 --> 00:45:56.472
+that's defined as the x
+
+00:45:59.512 --> 00:46:01.712
+And minus the entropy of
+
+00:46:01.712 --> 00:46:03.831
+q. And on the
+
+00:46:03.832 --> 00:46:05.892
+other side, we have the Boltzmann
+
+00:46:05.892 --> 00:46:07.972
+distribution, which is the equilibrium distribution
+
+00:46:07.972 --> 00:46:10.247
+of a of a physical system. Which
+
+00:46:10.247 --> 00:46:12.242
+has HSD
+
+00:46:12.882 --> 00:46:14.212
+as the energy function.
+
+00:46:15.092 --> 00:46:17.252
+And then on physics, of course, we also have a
+
+00:46:17.252 --> 00:46:19.421
+we have free energy of a system at equilibrium
+
+00:46:19.422 --> 00:46:21.602
+which is given by minus the log of the partition
+
+00:46:21.662 --> 00:46:23.652
+function. And for non equilibrium systems,
+
+00:46:24.342 --> 00:46:26.442
+you can upper bound it by this free energy
+
+00:46:27.102 --> 00:46:29.502
+which is the expectation of the energy under
+
+00:46:29.597 --> 00:46:31.822
+the system out of equilibrium,
+
+00:46:32.502 --> 00:46:34.512
+minus the entropy. Of that system. And if you
+
+00:46:34.512 --> 00:46:36.672
+compare these two you'll you'll see
+
+00:46:36.672 --> 00:46:38.872
+they're basically the same. And
+
+00:46:38.872 --> 00:46:41.022
+on this side, when we do when
+
+00:46:41.022 --> 00:46:43.072
+we minimize the free energy, we we
+
+00:46:43.072 --> 00:46:45.251
+minimize it over q, which is the e step
+
+00:46:45.251 --> 00:46:46.471
+in the e m algorithm.
+
+00:46:47.431 --> 00:46:49.772
+And the m step which is minimize f
+
+00:46:49.772 --> 00:46:51.882
+over p, which is learning. It's a
+
+00:46:51.882 --> 00:46:53.912
+learning step. On the other
+
+00:46:53.912 --> 00:46:55.962
+side, you would relax f
+
+00:46:55.962 --> 00:46:58.102
+over q, which is you relax the
+
+00:46:58.102 --> 00:47:00.252
+physical system, You would generate entropy
+
+00:47:00.252 --> 00:47:02.132
+and heat. And if you change
+
+00:47:02.592 --> 00:47:04.760
+h, which will be learning, you actually
+
+00:47:04.761 --> 00:47:06.162
+perform work on the system.
+
+00:47:08.402 --> 00:47:10.422
+And actually in this book we, you know,
+
+00:47:11.432 --> 00:47:12.441
+sort through many
+
+00:47:13.562 --> 00:47:15.982
+you know, relationships between these two fields.
+
+00:47:16.522 --> 00:47:18.601
+You know, when we do inference or learning or
+
+00:47:18.602 --> 00:47:20.342
+control, or transport,
+
+00:47:21.402 --> 00:47:23.182
+in, you know, in machine learning,
+
+00:47:23.772 --> 00:47:26.252
+like, you know, with these particular tools like diffusion
+
+00:47:26.252 --> 00:47:27.102
+models or
+
+00:47:28.302 --> 00:47:30.462
+and Bridge Optum Control or MCMC variation
+
+00:47:30.462 --> 00:47:32.642
+of free energy, These things actually
+
+00:47:32.642 --> 00:47:34.621
+have an equivalent in
+
+00:47:34.942 --> 00:47:37.021
+this theory of stochastic thermodynamics. That's why
+
+00:47:37.021 --> 00:47:39.312
+I think it's worth to read about it because there's
+
+00:47:39.312 --> 00:47:41.701
+a lot of things the physicists did which we can use.
+
+00:47:42.102 --> 00:47:44.572
+There's actually kind of a nice you
+
+00:47:44.952 --> 00:47:47.031
+know, sort of dictionary you can you
+
+00:47:47.031 --> 00:47:49.332
+can come up with and I I will highlight
+
+00:47:49.332 --> 00:47:51.682
+this one stochastic normalizing flows
+
+00:47:52.481 --> 00:47:54.462
+is equal to escorted free energies
+
+00:47:55.072 --> 00:47:57.282
+estimation in physics,
+
+00:47:58.162 --> 00:48:00.501
+and optimal transport continuous normalizing
+
+00:48:01.041 --> 00:48:03.332
+flows is called counter diabetic
+
+00:48:03.332 --> 00:48:04.412
+driving in physics.
+
+00:48:05.852 --> 00:48:08.062
+Okay. And of course, we all
+
+00:48:08.062 --> 00:48:10.492
+know that you know, diffusion models
+
+00:48:10.632 --> 00:48:12.627
+are at the heart of this
+
+00:48:13.127 --> 00:48:15.291
+bridge. In fact, the original paper,
+
+00:48:15.291 --> 00:48:17.082
+if you can read it I can't.
+
+00:48:17.562 --> 00:48:19.822
+Said, deep unsupervised learning
+
+00:48:20.232 --> 00:48:22.392
+using non equilibrium thermodynamics. Right? This
+
+00:48:22.392 --> 00:48:24.702
+is a paper by Yasha Sol Dixin at all.
+
+00:48:25.422 --> 00:48:26.562
+So they made the connection.
+
+00:48:28.942 --> 00:48:31.001
+And so what happens is you have a system that
+
+00:48:31.322 --> 00:48:33.402
+follows the laws of physics. In particular, it
+
+00:48:33.402 --> 00:48:34.942
+follows the second law of thermodynamics.
+
+00:48:35.642 --> 00:48:36.792
+You start with structure,
+
+00:48:37.682 --> 00:48:40.041
+and you let it age like
+
+00:48:40.042 --> 00:48:42.402
+we all age. Right? And then in the end,
+
+00:48:42.582 --> 00:48:44.762
+it turns into noise. Like we
+
+00:48:45.002 --> 00:48:46.862
+turn into dust at one day, unfortunately.
+
+00:48:47.682 --> 00:48:49.921
+And then you study that process and you try
+
+00:48:49.922 --> 00:48:52.194
+to invert it. You say, okay, every
+
+00:48:52.282 --> 00:48:54.302
+little step let me create a
+
+00:48:54.302 --> 00:48:56.322
+force and do some work to move
+
+00:48:56.322 --> 00:48:58.552
+in the other direction. Right? So this one goes
+
+00:48:59.031 --> 00:49:00.572
+against the second law of thermodynamics,
+
+00:49:01.092 --> 00:49:03.231
+It is like an egg that you
+
+00:49:03.232 --> 00:49:05.322
+you turn into an omelette, This is
+
+00:49:05.322 --> 00:49:07.481
+like the omelette that turns into an egg. You don't
+
+00:49:07.481 --> 00:49:09.361
+actually see this happen in the real world,
+
+00:49:09.842 --> 00:49:12.081
+but you know, you could engineer it to happen if you're
+
+00:49:12.082 --> 00:49:12.792
+smart enough.
+
+00:49:14.542 --> 00:49:16.702
+And so we set out to use this
+
+00:49:16.702 --> 00:49:18.222
+theory to actually
+
+00:49:19.822 --> 00:49:21.881
+for something useful which is compute
+
+00:49:21.882 --> 00:49:24.021
+the free energy difference
+
+00:49:24.021 --> 00:49:26.072
+between let's say, a drug like molecule
+
+00:49:26.512 --> 00:49:28.212
+that is unbounds to a protein
+
+00:49:28.842 --> 00:49:31.002
+and a drug like molecule which is bound to
+
+00:49:31.002 --> 00:49:33.122
+a protein. You need that
+
+00:49:33.122 --> 00:49:34.572
+because you wanna figure out how
+
+00:49:35.132 --> 00:49:36.722
+how well does that molecule
+
+00:49:37.442 --> 00:49:39.791
+like to sit in a particular pocket
+
+00:49:39.791 --> 00:49:41.802
+of the protein. But it's actually
+
+00:49:41.802 --> 00:49:43.861
+very difficult calculation to do. And
+
+00:49:43.862 --> 00:49:46.181
+so what you need to do, if you just do MD simulation
+
+00:49:46.181 --> 00:49:47.961
+and you wait, you will wait forever.
+
+00:49:48.392 --> 00:49:50.632
+So you need to control it. So you need to apply a
+
+00:49:50.632 --> 00:49:52.872
+force to drive it into the
+
+00:49:52.872 --> 00:49:54.292
+pocket. And then later
+
+00:49:54.932 --> 00:49:57.011
+compensate for it. But now
+
+00:49:57.011 --> 00:49:59.122
+we know how to do that. We can
+
+00:49:59.122 --> 00:50:01.442
+train a diffusion model because or or a flow
+
+00:50:01.442 --> 00:50:03.461
+model. Which basically takes the
+
+00:50:03.462 --> 00:50:05.082
+initial distribution, and we know then
+
+00:50:05.482 --> 00:50:07.512
+how to find forces or
+
+00:50:07.512 --> 00:50:09.452
+velocities or whatever we call them to
+
+00:50:09.592 --> 00:50:11.772
+move that, to flow that into another distribution.
+
+00:50:12.512 --> 00:50:14.752
+So we train that model, and then we can use
+
+00:50:14.752 --> 00:50:16.582
+the Jarsinski equality, which I just
+
+00:50:16.822 --> 00:50:18.952
+explained in quite a bit of detail to measure
+
+00:50:18.952 --> 00:50:21.052
+over every step how much work did we do
+
+00:50:21.291 --> 00:50:23.530
+and then compute this expectation over the e
+
+00:50:23.531 --> 00:50:25.672
+to the minus work and that will give
+
+00:50:25.972 --> 00:50:27.981
+you an estimate for the free energy. And now
+
+00:50:27.981 --> 00:50:30.082
+you think this is great, this will work fantastic,
+
+00:50:30.852 --> 00:50:33.012
+until you try and then you figure out this
+
+00:50:33.012 --> 00:50:35.262
+is actually a very high variance estimator.
+
+00:50:35.662 --> 00:50:37.362
+Because it's in the exponent
+
+00:50:37.682 --> 00:50:39.612
+and it's basically the large
+
+00:50:39.952 --> 00:50:42.112
+the paths which have a lot a
+
+00:50:42.112 --> 00:50:44.191
+large amount of work completely dominate
+
+00:50:44.192 --> 00:50:46.322
+that estimate. So you need to do something about
+
+00:50:46.322 --> 00:50:48.192
+it. Now it turns out
+
+00:50:48.592 --> 00:50:50.812
+is a generalized Jazinsky quality, and
+
+00:50:50.812 --> 00:50:53.031
+this is cool because this is something we
+
+00:50:53.251 --> 00:50:55.352
+can directly import from this physics
+
+00:50:55.352 --> 00:50:57.522
+theory. The generalized equality
+
+00:50:57.902 --> 00:50:59.971
+says, if you have a control force you
+
+00:50:59.972 --> 00:51:01.972
+can, you know, I won't go into the details.
+
+00:51:02.642 --> 00:51:04.652
+If you optimize for certain
+
+00:51:04.652 --> 00:51:06.717
+paths, which are much less noisy, you
+
+00:51:06.717 --> 00:51:09.122
+can get rid of that noise. And
+
+00:51:09.262 --> 00:51:11.592
+in fact, it's an optimal transport solution.
+
+00:51:11.592 --> 00:51:13.932
+So you need to solve the optimal transport problem
+
+00:51:13.932 --> 00:51:16.354
+between the initial distribution and the
+
+00:51:16.442 --> 00:51:18.321
+final distribution and those paths
+
+00:51:18.721 --> 00:51:20.781
+that that kind of control path you take
+
+00:51:20.782 --> 00:51:23.021
+is the optimal one. And it has zero
+
+00:51:23.022 --> 00:51:25.242
+variance if you do it right. That's amazing.
+
+00:51:25.462 --> 00:51:26.042
+Zero variance.
+
+00:51:27.722 --> 00:51:29.882
+And so we know how to do this. There's a paper
+
+00:51:29.882 --> 00:51:31.782
+called you know, optimal
+
+00:51:32.002 --> 00:51:34.082
+transport continuous normalizing flows by these guys
+
+00:51:34.082 --> 00:51:36.291
+here, Tom at all, where, you know, this
+
+00:51:36.291 --> 00:51:38.472
+would be the normal diffusion model and this
+
+00:51:38.472 --> 00:51:40.922
+would be the optimal transport
+
+00:51:40.982 --> 00:51:42.812
+diffusion model. Right? The straight lines
+
+00:51:43.052 --> 00:51:45.292
+you you match the you match the
+
+00:51:45.292 --> 00:51:47.392
+the particles you match the the
+
+00:51:47.392 --> 00:51:49.531
+samples and then you have a straight line between
+
+00:51:49.531 --> 00:51:49.821
+them.
+
+00:51:52.162 --> 00:51:54.242
+And this is the paper we wrote about this. So if you
+
+00:51:54.242 --> 00:51:55.862
+wanna learn, it's actually here at iCLEAR.
+
+00:51:56.781 --> 00:51:59.072
+So you can you can check it out in one of the poster sessions.
+
+00:51:59.552 --> 00:52:01.062
+Or talk to Lars, which is somewhere here.
+
+00:52:02.102 --> 00:52:04.412
+Okay. So then, the last part of this talk
+
+00:52:04.652 --> 00:52:06.022
+I wanna talk about
+
+00:52:07.122 --> 00:52:09.202
+from foundation to impact. So I've been working
+
+00:52:09.202 --> 00:52:11.382
+on foundations my whole life,
+
+00:52:11.622 --> 00:52:13.847
+and in the last stretch. Of
+
+00:52:13.847 --> 00:52:16.232
+that, career, I wanted to do something
+
+00:52:16.372 --> 00:52:17.271
+useful finally.
+
+00:52:18.402 --> 00:52:20.882
+And so I cofounded this company
+
+00:52:20.882 --> 00:52:23.297
+called Cost AI. And
+
+00:52:23.432 --> 00:52:25.481
+what does it do? It will
+
+00:52:25.481 --> 00:52:27.722
+help design materials using
+
+00:52:27.722 --> 00:52:29.801
+AI. And let me try
+
+00:52:29.802 --> 00:52:32.182
+to relate that back to thermodynamics.
+
+00:52:33.457 --> 00:52:33.957
+So
+
+00:52:35.892 --> 00:52:38.182
+let's say I am in the business
+
+00:52:38.182 --> 00:52:40.512
+of designing you know, drugs or something.
+
+00:52:40.722 --> 00:52:42.342
+I come up with my first design.
+
+00:52:43.742 --> 00:52:46.062
+And I In order to evaluate that particular
+
+00:52:46.062 --> 00:52:47.972
+drug, I will have to go through
+
+00:52:48.212 --> 00:52:50.292
+lots of simulations which will cost me a lot
+
+00:52:50.292 --> 00:52:52.272
+of energy and therefore money.
+
+00:52:53.512 --> 00:52:55.832
+And, and then I figure out actually it wasn't actually
+
+00:52:55.832 --> 00:52:57.991
+a very good drug after all. So I come up
+
+00:52:57.991 --> 00:52:59.102
+with my next design.
+
+00:53:00.222 --> 00:53:02.382
+Now I could go through the same sequence of things
+
+00:53:02.382 --> 00:53:04.522
+again, but the
+
+00:53:04.842 --> 00:53:06.812
+devil in me or the demon in me
+
+00:53:07.932 --> 00:53:10.002
+actually thinks well maybe I should store
+
+00:53:10.002 --> 00:53:11.982
+the information from the first. Rung.
+
+00:53:12.462 --> 00:53:14.947
+In a big database. And then
+
+00:53:15.352 --> 00:53:16.912
+the information from the database
+
+00:53:17.392 --> 00:53:19.712
+we can use that to train neural networks.
+
+00:53:19.712 --> 00:53:21.852
+That is moving the information from the
+
+00:53:21.852 --> 00:53:23.832
+database into the
+
+00:53:24.392 --> 00:53:26.812
+weights of a neural network. And then next
+
+00:53:26.872 --> 00:53:29.071
+time around, what I can do is
+
+00:53:29.231 --> 00:53:31.422
+use the information
+
+00:53:32.612 --> 00:53:34.932
+from my neural network to either directly predict
+
+00:53:34.932 --> 00:53:36.712
+the properties, which is very very cheap,
+
+00:53:37.512 --> 00:53:39.752
+or use train maybe a machine learning inter atomic
+
+00:53:39.752 --> 00:53:41.272
+potential or force neural
+
+00:53:41.812 --> 00:53:43.392
+network force to
+
+00:53:43.952 --> 00:53:46.132
+accelerate this particular MD simulation.
+
+00:53:46.862 --> 00:53:48.872
+Okay. So that's cool because now
+
+00:53:49.192 --> 00:53:51.352
+I have used, I've kind of amortized the
+
+00:53:51.352 --> 00:53:53.222
+amount of effort I made
+
+00:53:53.542 --> 00:53:55.002
+I've learned from my first
+
+00:53:55.622 --> 00:53:57.961
+simulations and I've used that to accelerate
+
+00:53:58.592 --> 00:54:00.802
+the next ones, which means I am using less energy.
+
+00:54:00.961 --> 00:54:03.112
+For the next round. So that is
+
+00:54:03.112 --> 00:54:05.272
+literally Maxwell's demon
+
+00:54:05.272 --> 00:54:07.522
+situation. So we
+
+00:54:07.522 --> 00:54:09.682
+built this platform
+
+00:54:10.472 --> 00:54:12.972
+and the platform can be most easily thought
+
+00:54:13.192 --> 00:54:14.722
+about as a
+
+00:54:15.202 --> 00:54:17.322
+search engine. Although this one searches
+
+00:54:17.781 --> 00:54:19.522
+not over existing molecules like
+
+00:54:20.162 --> 00:54:22.421
+you know, a search engine searches
+
+00:54:22.422 --> 00:54:23.322
+over existing
+
+00:54:24.632 --> 00:54:26.432
+you know, I would say
+
+00:54:27.542 --> 00:54:29.702
+documents or images. Actually, I would say maybe
+
+00:54:29.702 --> 00:54:31.812
+modern search engines also create
+
+00:54:32.372 --> 00:54:34.441
+text and create images, or maybe it's better
+
+00:54:34.682 --> 00:54:37.072
+compared to that. And
+
+00:54:37.072 --> 00:54:39.222
+so start with a with a prompt.
+
+00:54:39.622 --> 00:54:41.692
+Say, I want a material and it needs to have these properties
+
+00:54:41.692 --> 00:54:43.872
+and, you know, it cannot be toxic and,
+
+00:54:43.872 --> 00:54:46.062
+you know, all these kinds of things. Right? And so
+
+00:54:46.062 --> 00:54:48.262
+that goes to the agent. So at the at the heart of this
+
+00:54:48.502 --> 00:54:50.602
+is a is a COSPA agent that is orchestrating
+
+00:54:50.742 --> 00:54:52.832
+a big computation and the first
+
+00:54:52.832 --> 00:54:55.072
+thing it does is say, okay, does that mat Is there actually
+
+00:54:55.072 --> 00:54:57.082
+material that satisfies these properties?
+
+00:54:57.241 --> 00:54:59.332
+We have we have big databases from
+
+00:54:59.332 --> 00:55:00.071
+the various
+
+00:55:01.771 --> 00:55:03.852
+you know, publishing houses, that will help
+
+00:55:03.852 --> 00:55:06.030
+us look for materials that
+
+00:55:06.031 --> 00:55:08.111
+have the right properties. And you know, let's say that was
+
+00:55:08.112 --> 00:55:10.462
+disappointing, so then we go to our generative models.
+
+00:55:10.622 --> 00:55:12.431
+So now we're going to generate
+
+00:55:12.957 --> 00:55:14.912
+molecules candidate molecules,
+
+00:55:15.072 --> 00:55:16.372
+which have the right properties.
+
+00:55:17.332 --> 00:55:19.612
+And of course, when we generate them, we have to
+
+00:55:19.932 --> 00:55:22.031
+also evaluate them. So we have this multiscale
+
+00:55:23.037 --> 00:55:25.392
+stack of, you know, of let's say, digital
+
+00:55:25.392 --> 00:55:27.552
+twin stack of of evaluating
+
+00:55:27.884 --> 00:55:29.492
+all of these molecules.
+
+00:55:30.692 --> 00:55:32.542
+And then after all that has sort of
+
+00:55:32.702 --> 00:55:34.831
+converged, we go to experimental layer
+
+00:55:35.231 --> 00:55:37.311
+hopefully, this is a self driving lab of kind
+
+00:55:37.312 --> 00:55:39.491
+so we get lots of feedback about data.
+
+00:55:40.271 --> 00:55:42.042
+And when that is done, we go
+
+00:55:42.602 --> 00:55:44.702
+actually expose the results
+
+00:55:45.382 --> 00:55:47.682
+to to the to the chemist
+
+00:55:48.232 --> 00:55:50.311
+the chemist thinks, it's actually not what he wanted,
+
+00:55:50.312 --> 00:55:52.202
+and they they refine
+
+00:55:52.422 --> 00:55:53.982
+the prompt. Right?
+
+00:55:55.112 --> 00:55:57.192
+So that's how that works. And now I'm gonna
+
+00:55:57.192 --> 00:55:59.431
+actually announce something which I'm very
+
+00:55:59.432 --> 00:56:01.232
+very excited about and this is
+
+00:56:01.622 --> 00:56:03.852
+able hopefully go live now
+
+00:56:03.852 --> 00:56:05.331
+or right after, I don't know.
+
+00:56:06.041 --> 00:56:08.322
+This is a new
+
+00:56:08.642 --> 00:56:10.342
+framework for molecular
+
+00:56:10.961 --> 00:56:13.262
+dynamic simulations that we developed
+
+00:56:13.262 --> 00:56:15.521
+at COSP and that we are open sourcing to the world.
+
+00:56:16.082 --> 00:56:18.562
+This was done by Jonas Koller and Nicholas
+
+00:56:18.562 --> 00:56:20.652
+Gao. Those are the the heroes
+
+00:56:20.652 --> 00:56:22.392
+of this story. They put a huge amount of work
+
+00:56:22.791 --> 00:56:24.851
+of creating that. Collaboration with
+
+00:56:24.852 --> 00:56:26.891
+NVIDIA. And it is a JAX
+
+00:56:26.892 --> 00:56:28.652
+based toolkit for
+
+00:56:29.032 --> 00:56:29.782
+atomistic simulations.
+
+00:56:31.642 --> 00:56:33.882
+And it's a Python and GPU
+
+00:56:33.882 --> 00:56:35.792
+native. So it will actually
+
+00:56:36.442 --> 00:56:37.982
+operate very fast on GPUs.
+
+00:56:39.552 --> 00:56:41.632
+What is very interesting about that is you can
+
+00:56:41.632 --> 00:56:43.851
+just take your force field, your
+
+00:56:43.852 --> 00:56:46.102
+machine learning force field, and compile
+
+00:56:46.102 --> 00:56:48.071
+it into JAX and then run it directly
+
+00:56:48.312 --> 00:56:49.712
+into this MD simulation.
+
+00:56:50.672 --> 00:56:52.922
+It's built around batching so you can do many computations
+
+00:56:52.922 --> 00:56:55.232
+at the same time on, you know, maximally using
+
+00:56:55.232 --> 00:56:57.472
+your GPUs. And it runs
+
+00:56:57.472 --> 00:56:59.631
+natively on accelerators. One of them GPUs,
+
+00:56:59.632 --> 00:57:00.942
+but also GPUs and all.
+
+00:57:02.442 --> 00:57:04.601
+And you know, we of course we benchmarked it
+
+00:57:04.602 --> 00:57:06.522
+and we get quite nice
+
+00:57:07.082 --> 00:57:09.161
+sort of higher throughput on
+
+00:57:09.162 --> 00:57:10.582
+both MD and
+
+00:57:11.402 --> 00:57:13.482
+what you call canonical Monte Carlo
+
+00:57:13.482 --> 00:57:15.561
+which which we need. I'll just I'll just illustrate
+
+00:57:15.562 --> 00:57:17.572
+this. Okay. So first maybe
+
+00:57:17.572 --> 00:57:19.732
+maybe a few more words about this. So it
+
+00:57:19.732 --> 00:57:21.832
+has different ensembles both in MCMC
+
+00:57:21.892 --> 00:57:24.072
+and MD. Simulations. It can also do
+
+00:57:24.072 --> 00:57:26.231
+geometry optimization. We have
+
+00:57:26.232 --> 00:57:28.252
+Colomb, interactions using a wall
+
+00:57:28.252 --> 00:57:30.372
+simulations in them. We have Leonard Jones
+
+00:57:30.372 --> 00:57:32.232
+and all sorts of some more classical
+
+00:57:32.822 --> 00:57:34.931
+forces in them. But maybe the most exciting thing is
+
+00:57:34.932 --> 00:57:36.974
+you can just take your favorite machine
+
+00:57:36.974 --> 00:57:39.161
+learning force field compile
+
+00:57:39.162 --> 00:57:41.232
+it, to JAX and run it
+
+00:57:41.232 --> 00:57:43.182
+in the MD simulator. Okay.
+
+00:57:44.062 --> 00:57:46.302
+So here's an example. This is actually one of
+
+00:57:46.302 --> 00:57:48.401
+the first projects we did at COSP which is
+
+00:57:48.562 --> 00:57:50.602
+trying to come up with a metal organic framework
+
+00:57:51.322 --> 00:57:53.522
+that would be very good at capturing
+
+00:57:53.522 --> 00:57:55.362
+carbon dioxide from the atmosphere
+
+00:57:55.682 --> 00:57:57.692
+and, and regenerating afterwards. And what
+
+00:57:57.692 --> 00:57:59.842
+you need to do then is you need to compute
+
+00:57:59.842 --> 00:58:01.921
+these isotherms, which is at different
+
+00:58:01.922 --> 00:58:03.932
+pressure levels and different temperatures
+
+00:58:04.092 --> 00:58:06.492
+you need to figure out how much c o two sticks
+
+00:58:06.492 --> 00:58:08.112
+to the inside of the pores
+
+00:58:08.512 --> 00:58:10.371
+of this metal organic framework.
+
+00:58:11.092 --> 00:58:13.332
+And so here's the simulator that would run.
+
+00:58:13.332 --> 00:58:15.352
+So you throw in ran at random
+
+00:58:15.352 --> 00:58:17.481
+positions, you throw in these carbon
+
+00:58:17.482 --> 00:58:19.742
+dioxide molecules. And you let them wiggle around
+
+00:58:19.982 --> 00:58:21.842
+until they kind of bind to something
+
+00:58:22.211 --> 00:58:24.531
+and then at the end, you figure out how much got stuck
+
+00:58:24.531 --> 00:58:26.972
+there. Here's another
+
+00:58:27.032 --> 00:58:29.372
+example. This is basically a batch relaxation
+
+00:58:29.752 --> 00:58:32.072
+of a meta organic framework. Run with
+
+00:58:32.072 --> 00:58:33.482
+the Ooma, force field.
+
+00:58:34.202 --> 00:58:36.522
+Which we just compiled, from PyTorch
+
+00:58:36.522 --> 00:58:37.742
+into into JAX.
+
+00:58:38.852 --> 00:58:41.010
+And, you know, the nice thing here is, of course,
+
+00:58:41.011 --> 00:58:43.202
+you can run a large batch of
+
+00:58:43.202 --> 00:58:45.322
+these minimizations all parallel.
+
+00:58:45.971 --> 00:58:48.211
+And this one is also very exciting
+
+00:58:48.211 --> 00:58:50.351
+I think. So this is a particular
+
+00:58:51.612 --> 00:58:54.031
+sort of diffusion process that we studied
+
+00:58:54.582 --> 00:58:56.862
+called hopping of
+
+00:58:57.242 --> 00:58:59.512
+protons in sulfuric sulfuric
+
+00:58:59.512 --> 00:59:01.531
+acid. And so this is kind of
+
+00:59:01.531 --> 00:59:03.231
+illustrated here. You have water molecules
+
+00:59:04.082 --> 00:59:05.862
+and they and they move these
+
+00:59:06.102 --> 00:59:07.732
+protons, these hydrogen atoms,
+
+00:59:08.132 --> 00:59:10.531
+between, you know, those water molecules.
+
+00:59:10.532 --> 00:59:12.472
+So they they hop water
+
+00:59:12.932 --> 00:59:15.102
+molecules creating h three o plus in the
+
+00:59:15.102 --> 00:59:17.112
+middle. And so, so these these
+
+00:59:17.112 --> 00:59:18.892
+little green dots are sulfuric acid.
+
+00:59:19.751 --> 00:59:22.072
+The red, sort of flashes
+
+00:59:22.072 --> 00:59:24.082
+are these you know, when
+
+00:59:24.082 --> 00:59:26.162
+we actually observe in simulation these these
+
+00:59:26.162 --> 00:59:27.902
+these jumps. And then
+
+00:59:28.541 --> 00:59:30.622
+these are, you know, these blue things are the
+
+00:59:30.622 --> 00:59:32.122
+HR three plus.
+
+00:59:32.882 --> 00:59:34.782
+Sort of places where the hop happened.
+
+00:59:35.502 --> 00:59:37.272
+And we can show that we can actually very
+
+00:59:37.832 --> 00:59:39.862
+clearly reproduce the radial distribution functions
+
+00:59:40.261 --> 00:59:42.362
+even better than some of the DFT calculations,
+
+00:59:42.822 --> 00:59:45.041
+which is, this
+
+00:59:45.041 --> 00:59:47.342
+one. The the PBE
+
+00:59:47.342 --> 00:59:49.412
+one. Okay.
+
+00:59:50.592 --> 00:59:52.791
+That was the announcement yeah, I'll
+
+00:59:52.791 --> 00:59:54.950
+show the QR codes in a in a
+
+00:59:54.951 --> 00:59:57.132
+minute and you can download the code
+
+00:59:58.162 --> 01:00:00.441
+and and play around. And let me know how you like it.
+
+01:00:03.012 --> 01:00:03.992
+So undeniably,
+
+01:00:05.142 --> 01:00:07.382
+the AI for science revolution is here.
+
+01:00:07.541 --> 01:00:09.862
+I am very excited about this. We are seeing massive
+
+01:00:09.862 --> 01:00:10.362
+progress.
+
+01:00:11.962 --> 01:00:12.882
+On the you know,
+
+01:00:15.041 --> 01:00:16.922
+and materials
+
+01:00:17.222 --> 01:00:19.231
+innovation, and climate modelling
+
+01:00:19.232 --> 01:00:20.422
+and many more fields.
+
+01:00:21.511 --> 01:00:23.530
+And I'm gonna highlight this
+
+01:00:23.531 --> 01:00:25.690
+year because, both of these students are here and they
+
+01:00:25.691 --> 01:00:27.791
+are very very smart. You should check them out.
+
+01:00:28.182 --> 01:00:30.422
+One is for Eichelbelum and the other one is Marcin Zizh.
+
+01:00:30.422 --> 01:00:32.872
+None of And
+
+01:00:33.031 --> 01:00:35.352
+what happens here is, this is
+
+01:00:35.412 --> 01:00:37.602
+variational flow matching This is
+
+01:00:37.602 --> 01:00:38.982
+a version of flow matching
+
+01:00:39.822 --> 01:00:42.142
+based on probability distributions where you actually
+
+01:00:42.142 --> 01:00:44.312
+estimate the probability distribution and,
+
+01:00:44.632 --> 01:00:46.732
+use it also to predict in
+
+01:00:46.732 --> 01:00:48.552
+a in one step basically to generate,
+
+01:00:49.262 --> 01:00:51.442
+molecules. And the other one is a
+
+01:00:52.082 --> 01:00:54.121
+sort of a new transformer, which
+
+01:00:54.122 --> 01:00:55.692
+is very fast
+
+01:00:56.562 --> 01:00:58.972
+in order to model weather and
+
+01:00:59.167 --> 01:01:01.382
+storms. And that paper
+
+01:01:01.382 --> 01:01:02.852
+is actually out here
+
+01:01:03.731 --> 01:01:05.812
+and you can, find Maxim to to talk
+
+01:01:05.812 --> 01:01:07.862
+about it. So
+
+01:01:07.862 --> 01:01:09.941
+then in conclusion, on
+
+01:01:09.941 --> 01:01:12.421
+a slightly more serious note, but I think it kinda
+
+01:01:12.422 --> 01:01:14.531
+resonates with the the talk of
+
+01:01:14.531 --> 01:01:16.622
+this morning. And I didn't put it in afterwards.
+
+01:01:16.622 --> 01:01:17.852
+This was already in my talk.
+
+01:01:19.882 --> 01:01:21.982
+We are living in technologically disruptive
+
+01:01:22.202 --> 01:01:24.672
+time. And this is very exciting to be in that particular
+
+01:01:24.732 --> 01:01:25.572
+disruptive time.
+
+01:01:27.522 --> 01:01:29.682
+But we are, I mean, this room, all
+
+01:01:29.682 --> 01:01:31.402
+of you plus maybe
+
+01:01:32.162 --> 01:01:34.192
+two or three more of these rooms, We
+
+01:01:34.192 --> 01:01:36.502
+are developing this technology. Right?
+
+01:01:37.221 --> 01:01:39.181
+We are very special in that sense.
+
+01:01:40.142 --> 01:01:42.222
+And in a way, we are all Oppenheimer's. That's
+
+01:01:42.222 --> 01:01:44.491
+the way I view it. Because we are building
+
+01:01:44.491 --> 01:01:46.511
+a powerful technology that has potential
+
+01:01:46.572 --> 01:01:48.652
+dual use. Now, it has dual use. It
+
+01:01:48.652 --> 01:01:50.787
+can be used for good and for bad like any
+
+01:01:50.787 --> 01:01:52.931
+other powerful technology. And
+
+01:01:52.932 --> 01:01:54.712
+I feel this comes with great responsibility.
+
+01:01:55.302 --> 01:01:57.382
+I'm not gonna tell you what to work on and what not to
+
+01:01:57.382 --> 01:01:59.602
+work on and who to work with, etcetera.
+
+01:02:00.172 --> 01:02:02.342
+But I do ask you, to make
+
+01:02:02.342 --> 01:02:04.487
+conscious choices about what to work on. Think
+
+01:02:04.487 --> 01:02:06.592
+about. What you want to work on and
+
+01:02:06.592 --> 01:02:08.181
+do not look away from the problem.
+
+01:02:09.542 --> 01:02:11.491
+And so this is the final slide for me.
+
+01:02:12.672 --> 01:02:14.892
+So if you wanna check out these two
+
+01:02:15.852 --> 01:02:18.091
+QR codes, you'll find the code and the blog
+
+01:02:18.092 --> 01:02:20.282
+for for cups, which is the
+
+01:02:20.762 --> 01:02:22.791
+the MD simulator. And I'll leave it at that. Thank
+
+01:02:22.791 --> 01:02:23.482
+you very much.
+
+01:02:34.052 --> 01:02:35.512
+I guess you're already there. So
+
+01:02:37.922 --> 01:02:39.842
+Thanks so much for the great talk.
+
+01:02:40.082 --> 01:02:42.112
+So could you comment on the importance of
+
+01:02:43.242 --> 01:02:45.332
+reliability in in a scientific,
+
+01:02:45.792 --> 01:02:47.282
+in science in general? So
+
+01:02:48.322 --> 01:02:50.592
+trustworthy discovery and so on. And
+
+01:02:50.592 --> 01:02:52.881
+specifically, perhaps for casp
+
+01:02:53.281 --> 01:02:54.982
+does your agent, suffer
+
+01:02:55.332 --> 01:02:57.352
+from hallucinations? And is that,
+
+01:02:57.412 --> 01:02:59.702
+like, a problem, in practice or not?
+
+01:02:59.702 --> 01:03:01.502
+Really? Yeah. That's a good question.
+
+01:03:02.791 --> 01:03:04.761
+Typically, yeah, it can
+
+01:03:05.142 --> 01:03:07.541
+it can it's it's doing an optimization
+
+01:03:08.202 --> 01:03:09.612
+this optimization could be
+
+01:03:10.251 --> 01:03:12.441
+it could do way too many expensive
+
+01:03:12.442 --> 01:03:14.491
+calculations, let's say. And so you
+
+01:03:14.491 --> 01:03:16.241
+have to put in some guardrails that if the
+
+01:03:16.562 --> 01:03:18.722
+costs start to grow, you wanna check
+
+01:03:18.722 --> 01:03:20.912
+things. And you consider
+
+01:03:20.912 --> 01:03:23.152
+measure how well it's doing relative to standard methods
+
+01:03:23.152 --> 01:03:24.291
+like Bayesian optimization.
+
+01:03:27.182 --> 01:03:29.262
+In general if you have agents to
+
+01:03:29.262 --> 01:03:31.402
+have uncertainty in them. And
+
+01:03:31.402 --> 01:03:33.642
+in fact, one of our recent papers with Dario
+
+01:03:33.642 --> 01:03:34.142
+Crocha
+
+01:03:35.721 --> 01:03:37.557
+has exactly is a transformer
+
+01:03:38.262 --> 01:03:39.562
+actually a LoRa based
+
+01:03:40.357 --> 01:03:42.472
+transformer. That adds
+
+01:03:42.792 --> 01:03:44.532
+uncertainty to the predictions.
+
+01:03:45.092 --> 01:03:47.492
+And, that could be very useful in this particular
+
+01:03:47.492 --> 01:03:47.782
+case.
+
+01:03:50.271 --> 01:03:52.402
+So I don't know precisely who goes when.
+
+01:03:55.162 --> 01:03:57.242
+Is do you wanna point to something? Okay.
+
+01:03:57.242 --> 01:03:59.332
+I guess, I don't know. You have to look
+
+01:03:59.332 --> 01:04:01.242
+at each other who was first and then play
+
+01:04:02.652 --> 01:04:03.872
+Hi. Thank you Max.
+
+01:04:04.832 --> 01:04:06.672
+Quantum field theory is such a rich field.
+
+01:04:06.912 --> 01:04:09.362
+Are there any other
+
+01:04:09.502 --> 01:04:11.531
+methods that would be applicable
+
+01:04:11.672 --> 01:04:13.752
+to AI research from quantum field
+
+01:04:13.752 --> 01:04:16.027
+day? For example, like the randomization group
+
+01:04:17.622 --> 01:04:19.322
+or some other types of techniques.
+
+01:04:19.652 --> 01:04:22.072
+Know, in your Yeah. The answer is definitely yes, but the renormalization
+
+01:04:22.372 --> 01:04:24.531
+group theory thing is already done. There
+
+01:04:24.531 --> 01:04:25.952
+is a paper we've written called
+
+01:04:26.992 --> 01:04:28.371
+God g u d,
+
+01:04:29.011 --> 01:04:30.672
+which is basically,
+
+01:04:31.212 --> 01:04:32.812
+mapping renormalization
+
+01:04:33.272 --> 01:04:35.312
+group theory to sort of
+
+01:04:35.312 --> 01:04:37.342
+diffusion models. So that
+
+01:04:37.342 --> 01:04:39.482
+one you can just look up. But, yeah,
+
+01:04:39.482 --> 01:04:41.172
+I think I think it's that's
+
+01:04:41.732 --> 01:04:43.972
+what also this book is about. It
+
+01:04:43.972 --> 01:04:46.132
+is there is a lot of really smart stuff
+
+01:04:46.132 --> 01:04:47.881
+in these physics fields.
+
+01:04:48.442 --> 01:04:50.222
+And if you have a physics background,
+
+01:04:51.211 --> 01:04:53.241
+if you can find the bridge between them
+
+01:04:53.562 --> 01:04:55.982
+you can you can walk the bridge in two directions.
+
+01:04:56.042 --> 01:04:58.192
+Right? So it's like smart ideas can
+
+01:04:58.192 --> 01:05:00.271
+make it into AI
+
+01:05:00.512 --> 01:05:02.231
+but AI can also really help
+
+01:05:02.632 --> 01:05:05.000
+you know, push the the, you know, the frontier
+
+01:05:05.001 --> 01:05:07.092
+of these physics fields forward. So I think
+
+01:05:07.332 --> 01:05:09.501
+that's why I love a f for science so much. Thank you.
+
+01:05:09.502 --> 01:05:10.472
+You. Thank
+
+01:05:11.972 --> 01:05:14.182
+you. Hello. Thank you Max for
+
+01:05:14.182 --> 01:05:16.291
+this inspiring talk. I have a question
+
+01:05:16.291 --> 01:05:18.422
+that has haunted me for quite a long
+
+01:05:18.422 --> 01:05:20.602
+time. I'm glad that you talked about
+
+01:05:20.602 --> 01:05:22.242
+the connection between
+
+01:05:22.882 --> 01:05:24.742
+Shana entropy and the thermodynamic
+
+01:05:25.957 --> 01:05:26.457
+entropy.
+
+01:05:28.402 --> 01:05:30.502
+My question is that, we know
+
+01:05:31.522 --> 01:05:33.302
+this this Landauer's law
+
+01:05:33.842 --> 01:05:35.921
+specifying that you raise it one bit, it
+
+01:05:35.922 --> 01:05:37.942
+would, cost the KBT times
+
+01:05:38.762 --> 01:05:40.842
+l m two. This bit this bit
+
+01:05:40.842 --> 01:05:43.041
+of a energy, right? Are you able
+
+01:05:43.041 --> 01:05:45.072
+to predict how much
+
+01:05:45.462 --> 01:05:47.541
+energy the cost to to
+
+01:05:47.541 --> 01:05:49.052
+train something to
+
+01:05:50.852 --> 01:05:53.252
+to to deal with the amnesty data or image
+
+01:05:53.252 --> 01:05:55.312
+set data set. Yeah. It can
+
+01:05:55.312 --> 01:05:57.172
+predict the the theoretical minimum
+
+01:05:57.332 --> 01:05:59.422
+And and how far away the
+
+01:05:59.422 --> 01:06:01.552
+brain away from that? How far away is the
+
+01:06:01.552 --> 01:06:03.092
+GPU or GPU away from that?
+
+01:06:03.572 --> 01:06:05.662
+Yeah. These are great questions actually. So
+
+01:06:06.402 --> 01:06:08.261
+and there is a whole field actually
+
+01:06:08.922 --> 01:06:11.282
+I I went to a conference in Japan on
+
+01:06:11.422 --> 01:06:13.771
+this topic and there's a whole field of physicists
+
+01:06:13.771 --> 01:06:16.192
+that actually thinks very deeply about the relationship
+
+01:06:17.402 --> 01:06:19.802
+between computation and thermodynamics. Stochastic
+
+01:06:19.862 --> 01:06:22.101
+thermodynamics. So people study actually
+
+01:06:22.102 --> 01:06:24.182
+precisely this problem. So what is
+
+01:06:24.182 --> 01:06:26.231
+the minimal amount of compute I would need
+
+01:06:26.232 --> 01:06:28.652
+to invest in order to reach a certain result?
+
+01:06:29.531 --> 01:06:31.312
+And I can't I can't give you the answer
+
+01:06:32.322 --> 01:06:34.341
+to how far the brain is away from it.
+
+01:06:34.342 --> 01:06:36.581
+But, yeah. So these these are great questions
+
+01:06:36.582 --> 01:06:38.442
+that need to be researched and I think we'll
+
+01:06:38.842 --> 01:06:40.922
+we'll discover lots of really interesting things
+
+01:06:40.922 --> 01:06:43.010
+when we study these questions. Okay.
+
+01:06:43.011 --> 01:06:45.172
+But it's great to know that there are actually people
+
+01:06:45.172 --> 01:06:47.262
+trying to ask this questions. Yes. There is a whole field.
+
+01:06:47.262 --> 01:06:48.882
+I can I can point you to it? Jostinski
+
+01:06:49.422 --> 01:06:51.402
+and Crooks are in the community.
+
+01:06:51.562 --> 01:06:53.612
+But there's a whole bunch of other people as well.
+
+01:06:53.932 --> 01:06:55.762
+Yeah. Okay. Yeah. Thank you, Val.
+
+01:06:57.612 --> 01:06:59.632
+Hi. Loved your work.
+
+01:07:00.162 --> 01:07:01.702
+I just wanted to ask,
+
+01:07:02.482 --> 01:07:03.932
+with your company and all,
+
+01:07:04.492 --> 01:07:06.832
+how are you facing the problem of
+
+01:07:07.312 --> 01:07:09.552
+synthetic accessibility and making sure those
+
+01:07:09.552 --> 01:07:11.862
+molecules that you Yeah. Predict actually
+
+01:07:11.922 --> 01:07:13.842
+go to a are synthesizable and
+
+01:07:13.982 --> 01:07:16.162
+Yes. Making a blank. Two ways.
+
+01:07:16.602 --> 01:07:18.402
+The first one is we look up
+
+01:07:19.041 --> 01:07:21.062
+in our databases if things have been synthesized
+
+01:07:21.362 --> 01:07:23.302
+which are very similar. So, we have a similarity
+
+01:07:23.602 --> 01:07:25.372
+metric that extracts all the
+
+01:07:25.771 --> 01:07:27.851
+all the molecules which are similar and then look
+
+01:07:27.852 --> 01:07:29.232
+at their synthesis recipes
+
+01:07:29.982 --> 01:07:31.992
+That's the first approach. The second
+
+01:07:31.992 --> 01:07:34.422
+approach is we compute things like
+
+01:07:34.962 --> 01:07:36.972
+free energy Use the free energy computation. If you can
+
+01:07:36.972 --> 01:07:39.082
+estimate the free energy, of the
+
+01:07:39.622 --> 01:07:41.762
+molecule, that you are, producing
+
+01:07:41.762 --> 01:07:43.992
+and you find that other versions of this
+
+01:07:44.472 --> 01:07:46.392
+have higher free energy, then that will
+
+01:07:46.952 --> 01:07:49.332
+form most likely. So there is there is
+
+01:07:49.332 --> 01:07:51.492
+these kind of computational as well as kind of I would
+
+01:07:51.492 --> 01:07:53.752
+say literature approaches or
+
+01:07:53.752 --> 01:07:55.342
+or or matching things to
+
+01:07:55.981 --> 01:07:58.221
+literature or recipes that have already
+
+01:07:58.221 --> 01:07:58.882
+been published.
+
+01:08:02.122 --> 01:08:04.142
+Hello. I loved your talk.
+
+01:08:04.402 --> 01:08:06.562
+I just wonder, back in the
+
+01:08:06.562 --> 01:08:08.642
+day when we used to do umbrella sampling
+
+01:08:08.642 --> 01:08:09.882
+or blue moon sampling,
+
+01:08:10.842 --> 01:08:12.921
+for the free energy Yeah. Calculations out
+
+01:08:12.922 --> 01:08:15.172
+of equilibrium, I mean, although you
+
+01:08:15.172 --> 01:08:17.282
+could achieve the sample in the problem was most of
+
+01:08:17.282 --> 01:08:19.751
+the time the reaction coordinates.
+
+01:08:20.142 --> 01:08:22.306
+So I was reading your job. Whether
+
+01:08:22.307 --> 01:08:24.481
+you is that part of
+
+01:08:24.481 --> 01:08:26.781
+the learning? To select the reaction
+
+01:08:26.782 --> 01:08:28.861
+coordinates in order to perform the out of equilibrium
+
+01:08:28.862 --> 01:08:31.031
+calculation or just took
+
+01:08:31.032 --> 01:08:33.392
+it at home? So you could argue that the nice thing
+
+01:08:33.392 --> 01:08:35.492
+about this method is that you don't need a reaction
+
+01:08:35.872 --> 01:08:38.081
+coordinates. Because the thing about a reaction coordinates,
+
+01:08:38.081 --> 01:08:40.211
+you have to choose one before
+
+01:08:40.212 --> 01:08:42.311
+you start. And that
+
+01:08:42.312 --> 01:08:44.392
+already influences the success you will
+
+01:08:44.392 --> 01:08:46.601
+have. And so these
+
+01:08:46.601 --> 01:08:48.848
+these ones don't do not require you to to
+
+01:08:49.114 --> 01:08:51.431
+you you can after you've trained your diffusion
+
+01:08:51.432 --> 01:08:53.482
+model, you could potentially try
+
+01:08:53.482 --> 01:08:55.591
+to extract a reaction coordinate
+
+01:08:55.592 --> 01:08:57.602
+and then maybe use umbrella sampling
+
+01:08:57.922 --> 01:09:00.062
+on that reaction coordinate. We haven't tried
+
+01:09:00.062 --> 01:09:02.142
+that. We have we have
+
+01:09:02.142 --> 01:09:03.942
+compared to, FEP
+
+01:09:04.902 --> 01:09:06.132
+free energy perturbation methods.
+
+01:09:06.982 --> 01:09:09.221
+Also with neural nets and know, they they were
+
+01:09:09.222 --> 01:09:11.381
+they are pretty close. The ones that I showed in
+
+01:09:11.382 --> 01:09:13.511
+FEP best ones are pretty close, I would
+
+01:09:13.512 --> 01:09:13.642
+say.
+
+01:09:17.382 --> 01:09:19.322
+Hello. Thank you for the talk.
+
+01:09:19.871 --> 01:09:21.811
+You mentioned about algorithms
+
+01:09:21.952 --> 01:09:24.132
+for generating molecules that satisfy
+
+01:09:24.142 --> 01:09:26.191
+the certain properties. Yep.
+
+01:09:26.352 --> 01:09:28.111
+My, first question is that
+
+01:09:29.232 --> 01:09:31.392
+how much those properties are
+
+01:09:32.012 --> 01:09:33.992
+close to real life drug
+
+01:09:34.472 --> 01:09:36.682
+discovery scenarios, Uh-huh. And my second
+
+01:09:36.682 --> 01:09:39.012
+question is that in your opinion,
+
+01:09:39.152 --> 01:09:41.312
+the current evaluation metrics
+
+01:09:41.312 --> 01:09:43.381
+or benchmark, how much they
+
+01:09:44.422 --> 01:09:46.742
+are, close to the algorithms
+
+01:09:46.982 --> 01:09:49.252
+that recently were developed,
+
+01:09:49.572 --> 01:09:51.651
+to generate such molecules. Yeah.
+
+01:09:51.732 --> 01:09:53.761
+Think what you're aiming at, which is a very good
+
+01:09:53.762 --> 01:09:55.862
+question, which is that
+
+01:09:57.062 --> 01:09:58.682
+the things you do in a computer
+
+01:09:59.462 --> 01:10:01.032
+do not actually reflect real life.
+
+01:10:01.592 --> 01:10:03.842
+And so you have to go then through the experiment
+
+01:10:04.882 --> 01:10:07.292
+as well and and then actually extract lots of information
+
+01:10:07.352 --> 01:10:09.582
+from the experiment But even then you're
+
+01:10:09.582 --> 01:10:11.722
+not there. Because then you have to
+
+01:10:11.722 --> 01:10:13.712
+even go to putting this material
+
+01:10:13.772 --> 01:10:15.802
+in a process or creating it at
+
+01:10:15.802 --> 01:10:17.961
+scale or in a reactor or something like this.
+
+01:10:18.122 --> 01:10:19.872
+And then again, everything will change a bit.
+
+01:10:20.347 --> 01:10:22.207
+So your ability
+
+01:10:23.632 --> 01:10:25.952
+to model these systems
+
+01:10:26.012 --> 01:10:27.632
+like the the actual
+
+01:10:29.106 --> 01:10:31.532
+like system, the the actual material
+
+01:10:31.751 --> 01:10:33.872
+operating in a real situation. A
+
+01:10:33.872 --> 01:10:35.932
+real process, that is really key, but
+
+01:10:35.932 --> 01:10:37.842
+it is also very hard. Problem.
+
+01:10:39.362 --> 01:10:41.062
+So it's not you could argue
+
+01:10:41.392 --> 01:10:43.472
+also depends a lot on the on the application area. I
+
+01:10:43.472 --> 01:10:45.862
+think for semiconductors, we are pretty
+
+01:10:45.862 --> 01:10:47.932
+good in being able to
+
+01:10:47.932 --> 01:10:50.012
+simulate that For other things like
+
+01:10:50.012 --> 01:10:52.251
+a telesys, there's probably a quite
+
+01:10:52.252 --> 01:10:52.542
+big gap.
+
+01:10:55.732 --> 01:10:57.812
+Sure we could keep Max here all day asking him
+
+01:10:57.812 --> 01:10:59.891
+questions, but think, give him
+
+01:10:59.892 --> 01:11:01.972
+a break and to give you know, to to move on to
+
+01:11:01.972 --> 01:11:04.311
+the break, let's have one more question if if you don't mind.
+
+01:11:05.112 --> 01:11:07.211
+Okay. Thanks for your presentation. I have a
+
+01:11:07.212 --> 01:11:09.242
+single simple question. Don't
+
+01:11:09.242 --> 01:11:10.172
+you think that,
+
+01:11:11.882 --> 01:11:13.912
+rapid AI driven growth
+
+01:11:14.237 --> 01:11:16.362
+of life sciences, especially
+
+01:11:16.502 --> 01:11:18.582
+maybe biology, is not actually bound by
+
+01:11:18.582 --> 01:11:20.472
+developing AI, but rather
+
+01:11:20.712 --> 01:11:22.862
+by collecting more data. Yeah. Yeah. Good
+
+01:11:22.862 --> 01:11:23.482
+point. I think
+
+01:11:24.972 --> 01:11:27.052
+I would say it's the combination of the two.
+
+01:11:27.052 --> 01:11:28.802
+So but definitely the
+
+01:11:29.101 --> 01:11:31.102
+data is the key component.
+
+01:11:31.102 --> 01:11:32.962
+Otherwise, you cannot train any models.
+
+01:11:33.192 --> 01:11:35.442
+But in order to analyze
+
+01:11:35.502 --> 01:11:37.342
+these huge amounts of data or
+
+01:11:37.822 --> 01:11:39.831
+make use of it, you really need the AI. So
+
+01:11:39.831 --> 01:11:41.692
+I think it's a combination of the two
+
+01:11:42.172 --> 01:11:44.272
+One without the other, you're not gonna make a lot of
+
+01:11:44.272 --> 01:11:46.182
+progress. Thank you. Thank you.

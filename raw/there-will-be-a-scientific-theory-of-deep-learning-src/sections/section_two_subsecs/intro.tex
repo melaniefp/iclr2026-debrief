@@ -1,0 +1,37 @@
+\section{Evidence of an emerging mechanics of learning}
+\label{sec:reasons_why}
+
+
+A great cause for optimism that a mechanics of learning is possible is the fact that the essential ingredients of deep learning are both \textit{explicit} and \textit{measurable.}
+A deep learning system is characterized by the following components:
+\begin{equation*}
+    \begin{aligned}
+    \text{Architecture:} \quad & \text{a neural network } f(\vx;\vtheta) \text{ specified as a composition of simple linear and nonlinear transformations.} \\
+    \text{Data:} \quad & \text{a dataset } \mathcal{D} = \{(\vx_i, \vy_i)\}_{i=1}^n \text{ consisting of samples from an unknown data-generating distribution }\\[-0.7ex]& (\vx,\vy) \sim \mathcal{P}_{\mathrm{data}}. \\
+    \text{Task:} \quad & \text{an objective } \mathcal{L}(\vtheta) \text{ measuring the performance of the network } f(\vx;\vtheta) \text{ on the dataset } \mathcal{D}. \\
+    \text{Learning rule:} \quad & \text{a gradient-based update equation, e.g. }
+    \vtheta^{(t+1)} = \vtheta^{(t)} - \eta \nabla \mathcal{L}(\vtheta^{(t)})
+    \text{, together with a parameter} \\[-0.7ex]
+    & \text{initialization, e.g. } \vtheta^{(0)}_i \sim \mathcal{N}(0,\alpha^2_{\mathrm{init}}) \text{ and optimization hyperparameters, e.g. learning rate }\eta\text{.}
+    \end{aligned}
+\end{equation*}
+Nothing about the learning process is hidden.
+Unlike many complex systems where the equations governing dynamics must be inferred from observations, deep learning directly exposes its ``equations of motion.''
+Moreover, these dynamics are extraordinarily measurable: every weight, activation, gradient, and loss value can be recorded, along with arbitrary statistics derived from them.
+As a result, deep learning experiments are unusually easy to design, replicate, and interrogate, making it more straightforward to discover empirical regularities and rigorously test theoretical predictions.
+Few fast-moving scientific domains offer comparable transparency in their governing equations or comparable freedom in what can be measured.
+
+
+What, then, stands in the way of a scientific theory of deep learning? The central challenge is not \emph{opacity}, but \emph{complexity}.
+While we have direct access to the architecture, data, task, and learning rule, the interaction of these components gives rise to learning dynamics that are nonlinear, coupled, and high-dimensional.
+These dynamics depend in subtle ways on the choice of hyperparameters.
+And even though we can inspect every training sample, data distributions are complex and have defied simple characterization.
+
+
+Nevertheless, we argue that this complexity conceals underlying regularities, and that deep learning will indeed admit a scientific theory.
+In what follows, we present five broad observations that serve as evidence for an emerging mechanics of learning.
+Each of these admits direct analogies to tools and ideas in other disciplines of mechanics.
+These are summarized in \cref{tab:lm_physics_comparison}.
+
+
+\input{sections/section_two_subsecs/analogy_table}

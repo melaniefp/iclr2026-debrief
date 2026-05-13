@@ -1,0 +1,92 @@
+\section{Related Works}\label{sec:related_work}
+
+\subsection{Non-Markovian Diffusions}
+
+Our method is non-Markovian, as it makes use of path history. There is also recent work in non-Markovian diffusion modeling \cite{nobis2024generative, nobis2025fractional} that approximately parameterizes the driving noise as fractional Brownian motion. Our framework actually supersedes such frameworks, assuming we have to discretize the SDE to simulate it. This is because many non-Markovian processes (including fractional Brownian Motion) can be written as Volterra SDEs \cite{burton2005volterra}:
+\begin{equation}\label{eqn:volterra}
+    dX(t) = -AX(t)dt + \left(\int_{0}^{t}\sigma(t, s)dB(s)\right) dt + \sigma(t, t)dB(t)
+\end{equation}
+In principle, if we constructed our martingale to consider every point on the discretization grid, our score network would take this entire history as input. It could then learn the middle integral over past noise history as part of the score-driven drift, assuming the underlying time series data actually has Volterra dynamics.
+
+In fact, our framework is strictly more flexible, because it can learn from data what the best way to incorporate the path history is when generating the next sample. In contrast, the fractional Brownian Motion diffusion models use a handcrafted kernel to incorporate path history.
+Furthermore, our framework allows us to take the intermediate steps of the generative process as valid samples, whereas the other works do not.
+
+Daems et al \cite{daems2023variational} also explore variational inference for (approximate) fractional Brownian motion driven SDEs to generate videos. However, they do not make the connection to any-subset autoregressive models nor score matching.
+
+\subsection{Time-Series Modeling}
+\paragraph{Longitudinal Flow Matching}
+Longitudinal flow matching \cite{islam2025longitudinal} also uses diffusion/flow processes to generate time series data, where the time variable in the generative process corresponds to the actual time in the physical time series. However, their work has a few key differences from ours:
+(1) We explicitly unify diffusion (bridge) models and any-subset autoregressive models (Section \ref{subsec:any_subset}). Their procedure does not support any-subset conditioning (in the future or arbitrary past), nor is it even autoregressive, as it only conditions on the most recent observation, making their predictions Markovian.
+This stems from their choice to focus on multi-marginal optimal transport (rather than learning interdependencies along the trajectory).
+(2) Their loss function and simulation require three objects (velocity, score, volatility) parameterized by learned neural networks. This complicates the learning problem with three losses: flow matching (on velocity), score matching (on score), confidence estimation (on volatility; using the velocity and scores to form a distillation-like target). We just require one item learned with one loss: the path-dependent drift (Equation \ref{eqn:simplified_dsm_main}).
+%(2) They do not provide any method for joint density estimation.
+(3) Our method is rigorously derived from stochastic calculus, measure theory, and Gaussian process regression. Their method is derived from different ideas, such as flow matching and optimal transport.
+(4) The scope of their experiments is mostly limited to medical imaging; we tackle video generation and weather forecasting (Section \ref{sec:results}).
+(5) They do not provide detailed analysis on the benefits of time-adaptive volatility, and how that affects learning of path measures (\textit{i.e.}, correctness of trajectories). We provide both theoretical (Theorem \ref{thm:non_bijective_path_measure}) and empirical evidence (Figure \ref{fig:insufficient_stiched_bridge}) of this phenomenon. See Section \ref{sec:cond_ablation} for an empirical comparison.
+
+\paragraph{Time Series Schrodinger Bridge}
+SBTS diffusion \cite{hamdouche2023generative, alouadi2025robust} proposes to frame time series generation as a Schrodinger bridge problem between path measures, and also uses a similar measure-theoretic argument with Girsanov's Theorem to derive their method. However, their work has a few key limitations:
+(1) They assume a fixed discretization, and only model causally through time. As such, they do not support any-subset autoregressive modeling \cite{guo2025reviving}, either with respect to the past conditioning or future conditioning.
+(2) Their learning objectives for the drift do not scale to high-dimensions. In contrast, we show that the change-of-measure and Gaussian process regression can ultimately be used to derive a tractable, scalable denoising score matching objective \cite{vincent2011connection}; they fail to see this connection.
+%(3) Their reference process is unexpressive, being only a Brownian motion scaled by a constant factor, even though it is well-known \cite{song2019generative, zhou2023denoising} that performance of SDE-based generative models is sensitive to the volatility schedule.
+(3) They do not show success on any high-dimensional tasks at scale (largest is MNIST).
+(4) They were generally unable to leverage the power of modern deep learning architectures, at most using LSTMs on low-dimensional problems.
+%(6) They do not explore procedures for density estimation, despite their method being based on change-of-measure.
+
+\paragraph{Multi-Marginal Schrodinger Bridges}
+DMSB \cite{chen2023deep}, SF$^2$M \cite{tong2023simulation}, 3MSBM \cite{theodoropoulos2025momentum}, and SSB \cite{garg2024soft} (this one lays out the theory, but no experiments) learn multi-marginal Schrodinger Bridges, but (1) only respect the marginal rather than joint distributions, (2) do not make the connection to any-subset autoregressive modeling, %(3) do not present density estimation methods,
+(3) have limited experimental validation on high-dimensional problems. Smooth Schrodinger Bridges \cite{hong2025trajectory} also tackles trajectory inference, but (1) their belief-propagation-based method does not scale to high-dimensional problems, (2) they do not use neural networks, %(3) they don't address density estimation,
+(3) while they do draw some connections to autoregressive modeling and Gaussian processes like our work, they do not show any connection to any-subset autoregressive models.
+Chen et al \cite{chen2023provably} also tried to generate time series with Schrodinger bridges, but they modeled the time series as the high-dimensional endpoint distribution of the SDE, rather than a distribution over intermediate variables in the generative SDE itself.
+
+\paragraph{Multi-Marginal Flow Matching}
+
+Multi-Marginal flow matching also tries to respect certain marginal distributions at intermediate times in flow matching trajectories \cite{kviman2025multi}. However, they do not actually learn the joint distribution (but only the marginals), and do not account for any-subset inference (in discrete or continuous time).
+
+\paragraph{Probabilistic Forecasting with Stochastic Interpolants}
+
+See Section \ref{sec:pfi_comparison}.
+
+% Similar to our work, PFI \cite{chen2024probabilistic} uses the stochastic interpolant framework \cite{albergo2023stochastic} to conduct SDE-driven probabilistic forecasting of time-series data. However, they have a few key differences with our work:
+% (1) Conceptually, our method conducts the time series generation all as part of one SDE, where the time variable in our SDE rollout corresponds to the actual physical time variable. Their method, while having the same stochastic bridge idea between waypoints, realizes this as a series of chained SDEs, each with an auxiliary time variable that has no physical meaning, but rather always rolls out from 0 to 1.
+% (2) Their framework is designed for discretized, regularly-spaced time grids; whereas ours can handle continuous-time, irregularly spaced time series.
+% (3) They do not consider the any-subset inference case. In particular, they only deal with \textit{causal} conditioning on a maximum of three states (previous waypoint, current auxiliary generative state, and sometimes one waypoint from the history, making for $O(N)$ conditions), on a regularly spaced physical time grid. They can also only infer the next waypoint in the regular discretized time grid. In contrast, our method is explicitly designed as an any-subset autoregressive model that can condition on any subset of observations in the time series, even those in the \textit{future}. In the case of regularly spaced grids, we would have $O(2^N)$ capacity, versus their $O(N)$ capacity, but we also allow for irregularly spaced physical time grids. Our inference is also not limited to the immediate next waypoint on a fixed time grid, but is flexible to infer future states at arbitrary timestamps.
+% (4) Their experiments make the assumption that the transition kernel of the time series is time-invariant and Markov, which is not true in many important cases, \textit{e.g.}, stock data driven by fractional Brownian motion. As a consequence, they do not condition their models on the physical time variable. This lack of conditioning on the physical time variable becomes problematic when we have a non-Markov and/or time-varying process, where we need to know the time relations between observed keypoints. For instance, in their video generation experiments, they randomly conditioned their model on a time-stamped previous frame as well as the most recent frame but \textit{without} the timestamp, making it very difficult to ascertain where the previous history frame was in relation to the most recent frame, thereby hindering the estimation of the dynamics.
+% %(5) Their method does not allow for density estimation, whereas ours does.
+% (5) Our method is derived from the first principles of changing the path measure of an SDE, Girsanov's Theorem, and Gaussian process regression. Their method follows from the stochastic interpolant framework.
+
+\subsection{Video Generative Models}
+
+There is a rich body of work in video generative models. Generally, the strategy is to generate groups of frames autoregressively \cite{ho2022video}. Within this paradigm, there is work on efficiently compressing the frame context \cite{zhang2025pretraining, zhang2025frame, cai2025mixture}; architectural improvements \cite{ma2024latte}; noising schedule \cite{chen2024diffusion, sun2025ar}.
+Fundamentally, they \textit{all stay within the noise-to-data diffusion paradigm}: we introduce a new paradigm of a continual SDE data-to-data bridge. Furthermore, they largely treat videos as discrete-time signals, rather than our continuous-time treatment.
+
+\textit{Our contribution is on the probabilistic modeling side, and therefore orthogonal to these engineering improvements; it could, in principle, be applied jointly with many of them. We accordingly design our experiments to isolate methodological gains via controlled ablations of our own method, rather than to chase SOTA against models that differ along multiple architectural and scaling axes.}
+
+\subsection{Diffusion Bridges}
+See Section \ref{sec:comparison} for detailed comparison. The popular denoising diffusion models/score-based generative models \cite{song2020score, ho2020denoising} are special cases of denoising diffusion bridge models \cite{zhou2023denoising}.
+While these works only account for bridges between two endpoints (\textit{e.g.}, noise to data), we extend the bridging methodology to the non-Markovian (any-subset, non-causal) case.
+Another difference between these works and ours is that they derive their method through Anderson's time-reversal \cite{anderson1982reverse}, while we only deal with the forward-time process via a change-of-measure to force it to generate data; this results in slightly different parameterizations of the score function.
+
+There are also works that have a similar formulation of forward-in-time diffusion bridges \cite{liu2022let, peluchetti2023diffusion, peluchetti2023non}. \cite{liu2022let} actually does consider non-Markovian stochastic processes in their initial general formulation, but they unfortunately do not take this idea further. Ultimately, they resort to matching individual marginals $\prod_1^L p(x_{t_i})$, rather than the finite-dimensional marginals $p(x_{t_1}, \ldots, x_{t_L})$. Furthermore, their work only considers \textit{two-endpoint} bridges, \textit{i.e.}, they only care about the sample at $t = 0$ and $t = 1$, and completely ignores time series data that could be modeled by an SDE.
+
+\subsection{Autoregressive Models}
+
+\paragraph{Continuous-Space Autoregressive Models}
+Our method also is related to a line of work that uses diffusion models to parameterize the next-token prediction in continuous-space autoregressive models (\textit{e.g.}, image generation) \cite{li2024autoregressive, ho2022cascaded}. However, we have a few key differences:
+(1) Our method operates in continuous time, whereas the previous methods conceptually run in discrete time with respect to the autoregressive generation (\textit{e.g.}, they predict a fixed number of tokens at fixed "grid" points). This means that our method can predict arbitrarily many points in the time series, whereas the previous ones cannot.
+(2) Our method uses diffusion bridges to parameterize the model, which is conceptually closer to how certain time series (\textit{e.g.}, dynamical systems) operate. Whereas previous methods transform noise into data, we have the inductive bias that we really only need to make some small perturbations to the previous data to get the next data point.
+%(3) We tackle any-subset autoregression, as opposed to fixed order.
+(3) The time index of our sampling process also corresponds to the physical time index of the generated time series data, since we have the property that intermediate distributions generated by the SDE adhere to the data distribution.
+
+\paragraph{Any-Order and Any-Subset Autoregressive Models}
+Our method is related to any-order and any-subset autoregressive models \cite{shih2022training, guo2025reviving}, as we can infill trajectories and condition on arbitrary subsets of the trajectory. However, our method advances the paradigm in a few substantial ways: (1) We operate in continuous time. (2) We unearth a novel parameterization of any-subset autoregressive rollouts as diffusion bridge modeling. (3) Any-subset autoregressive models typically operate on discrete data, not continuous data.
+
+\subsection{Meta Flow Maps}
+
+Meta Flow Maps \cite{potaptchik2026metaflowmapsenable} are a recently introduced framework that touches on some similar ideas: namely, conditioning differential equation-based generative models on some intermediate point in the trajectory. That is, they generate samples from the posterior $p_{1|t}(|x_t)$, where $1$ is the time at which we get data, and $t$ is an intermediate timestep we want to condition on.
+
+However, we have a few crucial differences:
+(1) When simulating the conditional flow, their method does not actually hit the intermediate trajectory point $x_t$ that the model was conditioned on: it only produces samples from the posterior $p_{1 | t}(| x_t)$. Therefore, the modeling choice is fundamentally different from the dynamics it hopes to simulate, and lacks interpretability when the paths are examined. In contrast, our method is specifically trained to hit all the conditioning points over the course of the trajectory, as our generative time index is actually the same as the time series index. This is a consequence of our choice to model with a stochastic diffusion bridge, rather than their deterministic flow.
+(2) Although they briefly mentioned time series data and multiple conditioning inputs, they did not further implement or explore the connection to autoregressive models, let alone the continuous time or any-subset variants.
+%(3) We provide a scalable method for marginal density estimation, while the topic is not explored in their paper.
+%(3) Their method uses flow maps \cite{boffi2025build, boffi2025flow}, which actually do have the advantage of being able to do one-step sampling, whereas our diffusions take many more steps. However, for certain dynamical systems where we must roll out multiple points on the trajectory anyways, a naive application of their method would have to run a flow map for each point in the dynamical system, whereas with one rollout of our SDE trajectory, we can get the whole time series; somewhat offsetting the difference.

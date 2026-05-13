@@ -1,0 +1,78 @@
+{
+    "files.exclude": {
+        // tool-generated dirs/files
+        ".mypy_cache": true,
+        ".pytest_cache": true,
+        ".coverage": true,
+        "**/tags": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/.venv": true,
+        // other editor/ide settings
+        "**/.idea": true,
+        "**/__pycache__": true
+    },
+    "debug.toolBarLocation": "commandCenter",
+    "diffEditor.diffAlgorithm": "advanced",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit",
+    },
+    "editor.rulers": [
+        99
+    ],
+    "[dockercompose]": {
+        "editor.autoIndent": "advanced"
+    },
+    "[jsonl]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.wordWrap": "on"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "[yaml]": {
+        "editor.autoIndent": "advanced"
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "githubPullRequests.codingAgent.uiIntegration": true,
+    "markdown.validate.enabled": true,
+    "notebook.formatOnSave.enabled": true,
+    "notebook.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "python.analysis.autoImportCompletions": true,
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/src"
+    ],
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.languageServerMode": "default",
+    "python.envFile": "${workspaceFolder}/.envrc",
+    "python.languageServer": "Pylance",
+    "python.terminal.shellIntegration.enabled": true,
+    "python.analysis.supportAllPythonDocuments": true,
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "scm.repositories.explorer": true,
+    "scm.repositories.selectionMode": "single",
+    "search.exclude": {
+        "**/build": true,
+        "**/.tmp": true,
+        "**/outputs": true,
+        "**/__pycache__": true,
+        "**/.venv": true,
+        "**/dist": true
+    },
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.suggest.enabled": true,
+    "terminal.integrated.stickyScroll.enabled": true,
+    "yaml.format.bracketSpacing": false,
+    "yaml.format.enable": true,
+    "yaml.format.printWidth": 99
+}

@@ -1,0 +1,32 @@
+\section{Related work}
+\label{sec:related_work}
+
+
+\paragraph{Deterministic Diffusion Distillation}
+The earliest distillations of diffusion models were \textit{deterministic}. These are based on the probability flow ODE, often approximated by the DDIM sampler. Early methods aimed to iteratively learn the trajectory using the iterative progressive distillation \citep{salimans2022progressive,meng2022ondistillation}. Later methods based on consistency models \citep{song2023consistency} use a more inductive approach where the generator is using itself as a target to solve for part of the trajectory \citep{kim2023consistency,song2023improvedconsistency,heek2024multistep,lu2024simplifying}.
+Recently, flow-map or consistency-based distillation approaches have been applied to discrete data lifted to continuous space with standard diffusion models \citep{sahoo2025diffusion,roos2026categorical,lee2026one}. Currently, it remains to be seen whether these continuous models on discrete data can match the performance of discrete diffusion models. Furthermore, for both model classes it remains to be seen whether they can match the performance of standard autoregressive models.
+
+\paragraph{Stochastic Diffusion Distillation}
+Arguably a more successful method to distill diffusion models into generators is by \textit{stochastic distillation}, sometimes referred to as \textit{distribution matching} \citep{wang2023prolificdreamer,luo2024diff,yin2024one} which distill a diffusion model by approximately minimizing the KL divergence between the distilled generator and the teacher model. When the generator is single-step, MMD \citep{salimans2024multistep} is equivalent to the distribution matching approaches, but it tends to outperform them in few-step regimes.
+
+\paragraph{Discrete Diffusion Models}
+Direct concepts of continuous diffusion were adopted by \citep{sohldickstein2015diffusion,hoogeboom2021argmaxflows,austin2021structured} which pioneered diffusion on discrete data.
+\citet{austin2021structured} proposed a generalized formulation and introduced an absorbing state or masked process.
+\citet{chen2022analog} introduce Bit Diffusion, which applies continuous diffusion to the binary representations of discrete data.
+More bridges between continuous and discrete diffusion were built by e.g. \citet{lou2023discrete}, who explored discrete versions of score matching and Tweedie's formula.
+Arguably, masked diffusion became the leading paradigm in this research direction, with SOTA results achieved by e.g. MD4 \citet{shi2024simplified}.
+Most recently, discrete diffusion can also be cast as a case of flow matching \cite{gat2024discreteflowmatching}.
+While currently there still exists a performance gap between autoregressive and diffusion models, hybrid methods like
+\citet{arriola2025block} combine autoregressive and non-autoregressive techniques, also enabling variable-length generation.
+
+\paragraph{Discrete Diffusion Distillation}
+There have been a few distillation approaches that target discrete diffusion processes. SDTT \citep{deschenaux2025beyondautoregression} takes an approach reminiscent of progressive distillation but applied to discrete sampling. Although the approach tends to produce improvements to limited degree, it is fundamentally limited. For example, perfectly correlated coin tosses of two coins cannot be approximated with a single step of this approach. Due to the divergences chosen, SDTT will overcome the above mentioned limitation by directly dropping modes to achieve sampling speedups.
+
+In Di4C \citep{hayakawa2024distillationdiscretediffusion} the shortcomings of factorized output distributions are recognized. The model outputs are extended to support mixture distributions, which allows the model to learn correlated outputs. Although effective to some degree, they tend to be limited in effect. One is often fighting an exponential of correlations between all tokens, and therefore the number of required mixtures also grows exponentially. In contrast, our D-MMD approach leaves the factorized output distribution unchanged. Instead, the generator can only match expectation moments if itself collapses the factorized output distribution. Another perspective is that our entire generator has become the mixture distribution.
+
+In DiMO \citep{zhu2025dimo} it is shown how one can distill a single step generator from a masked diffusion model for image token generation. Although derived differently via straight-through softmax sampling, the resulting algorithm is equivalent to the implementation of D-MMD for the one-step case. Expanding on their approach, D-MMD generalizes to other types of processes (for example uniform diffusion) and supports few-step generators. These extensions make D-MMD applicable to a wider range of tasks such as high-quality text diffusion generators.
+
+Concurrent to our work, IDLM \citep{li2026idlm} proposes a similar framework. The difference with IDLM is that the training algorithm generates the full $x$ and diffuses back to $z_t$, whereas our work samples from the posterior $q(z_s | z_t, x)$. We view this work as complementary.
+
+
+\input{samples}

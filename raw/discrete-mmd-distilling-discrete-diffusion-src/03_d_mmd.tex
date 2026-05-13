@@ -1,0 +1,268 @@
+\section{Discrete MMD: A generalization of MMD}
+\label{sec:d_mmd}
+
+Here we derive a more general form of the MMD equations that can be used in more general diffusion processes, such as discrete diffusion. A key observation is that the alternating optimization of Equations~\ref{eq:mmd_alternating_1} and \ref{eq:mmd_alternating_2} can be rewritten to a more general min-max formulation, neglecting constants:
+\begin{align}\label{eq:d-mmd}
+    \mathcal{L}_{\text{D-MMD}}(\eta) &= \min_\eta \max_\phi \mathbb{E}_{g_\eta(z_t, x, s, z_s)}\left[L_s(x, \hat{x}_\theta(z_s), z_s) -  L_s(x, \hat{x}_\phi(z_s), z_s) \textcolor{gray}{\, - \, L_s(\hat{x}_{\theta}(z_s), \hat{x}_\phi(z_s), z_s)} \right],
+\end{align}
+where the last term only regularizes the auxiliary model to remain close to the teacher, without changing the fixed-point of the algorithm.
+
+In words, the generator $g_\eta$ aims to minimize the loss under the teacher while maximizing the loss under the auxiliary model. Simultaneously, the auxiliary model is trained to minimize the loss with the generator and is regularized to remain close to the teacher distribution.
+
+\paragraph{Equivalence to continuous MMD}
+To show that the D-MMD produces the same gradients as the MMD equations, recall that $L_s(x, \hat{x}, z_s) = w(s) ||x - \hat{x}||^2$. Let $x_{\eta} = \hat{x}_\eta(z_t)$ be shorthand notation,
+\begin{equation}
+    \nabla_\eta \mathcal{L}_{\text{D-MMD}}(\eta) = \nabla_\eta \left( L_s(x_{\eta}, \hat{x}_\theta(z_s), z_s) -  L_s(x_{\eta}, \hat{x}_\phi(z_s), z_s) \right) = 2\, w(s) \frac{d \hat{x}_\eta}{d\eta} \left( \hat{x}_\phi(z_s) - \hat{x}_\theta(z_s)\right),
+\end{equation}
+which is the same gradient as $2\nabla_\eta \mathcal{L}_{\text{MMD}}(\eta)$ assuming independence of $z_s$ on $\eta$ as done in \citet{salimans2024multistep}, by using a stop-gradient $\mathrm{sg(\cdot)}$. The equivalence for the loss of the auxiliary model
+%is straightforward and
+follows directly from substitution of the loss terms and is not displayed here.
+% \begin{align}
+%     & \max_\phi \ - \, \mathbb{E}_{g_\eta(z_t, x, s, z_s)} \left[w(s) \left( ||x - \hat{x}_\phi(z_s)||^2 + ||\hat{x}_\theta(z_s) - \hat{x}_\phi(z_s)||^2 \right) \right], \\
+%     =& \min_\phi \mathbb{E}_{g_\eta(x, s, z_s)} \left[w(s) \left( ||\hat{x}_\eta(z_t) - \hat{x}_\phi(z_s)||^2 + ||\hat{x}_\theta(z_s) - \hat{x}_\phi(z_s)||^2 \right) \right],
+% \end{align}
+% where \tm{$\hat{x}_\eta(z_t)$ follows from substitution of x in the sampling process?}
+
+A fixed point for the algorithm occurs when $g_\eta$ generates exactly the teacher induced distribution. In this case the auxiliary model $\hat{x}_\phi(z_s)$ will equal the teacher $\hat{x}_{\theta}(z_s)$ and the loss will equal zero.
+In practice, the dynamics of adversarial optimization can be difficult and often depends on specific hyper-parameter settings.
+
+
+\paragraph{Discrete D-MMD: matching probabilities}
+The loss in Equation~\ref{eq:d-mmd} is difficult to optimize for discrete diffusion because there is no straightforward gradient from the categorical sample $x$ to $\eta$. Instead of drawing hard samples $x$, the soft probability vector $\hat{x}_\eta(z_t)$ is used, as also done in \cite{zhu2025dimo}. Simplifying the expression from the algorithm we observe that the equation is doing direct matching moments on expectation of $x$:
+\begin{equation}
+     \mathcal{L}_{\text{GEN}}(\eta) = \mathrm{CE}\left(\hat{x}_\eta| \hat{x}_\theta(z_s)\right) - \mathrm{CE}\left(\hat{x}_\eta| \hat{x}_\phi(z_s)\right) = -\sum_c (\hat{x}_\eta)_c \left( \log \hat{x}_\theta(z_s) - \log \hat{x}_\phi(z_s)\right)_c.
+\end{equation}
+Effectively, the gradient of this algorithm simply gives an update for $\hat{x}_\eta$ which is a delta of the log-probability of $\hat{x}_\theta(z_s)$ and $\hat{x}_\phi(z_s)$. Note that the update is still very similar to standard MMD. The main difference is that the update is now in log-probability instead of the standard output space. The loss for the auxiliary model is:
+\begin{equation}
+     \mathcal{L}_{\text{AUX}}(\phi) = \mathrm{CE}\left(x| \hat{x}_\phi(z_s)\right) + \mathrm{CE}\left(\hat{x}_\theta| \hat{x}_\phi(z_s)\right) = -\sum_c (x + \hat{x}_\theta(z_s))
+     _c \log \hat{x}_\phi(z_s)_c.
+\end{equation}
+Here the auxiliary model is optimized to learn the expectation of the generator, $\mathbb{E}_{g_\eta(x, z_s)}[x|z_s] \stackrel{!}{=} \hat{x}_\phi(z_s)$, with a second regularization term that does not change the fixed point. For this algorithm the fixed point is $\mathbb{E}_{g_\eta(x, z_s)}[x|z_s] = \hat{x}_\phi(z_s) = \hat{x}_\theta(z_s)$. For masking diffusion and discrete flow matching, this algorithm can directly be used. For other types of diffusion where the optimal solution may not be $\hat{x}_\theta(z_t) = \mathbb{E}_q[x | z_t]$ (such as traditional uniform diffusion) we refer the readers to Appendix~\ref{app:other_diffusions}.
+
+In \Cref{app:sufficiency_factorized_probs} we show that if the generator samples such that the teacher and auxiliary models match perfectly, we are guaranteed to sample according to the teacher distribution. Finally, an overview of the algorithm is given in \Cref{alg:mmd}.
+
+\subsection{How can a factorized generator even learn correlated outputs?}
+It may seem impossible that a factorized model is learning to correlate its outputs. However, the generator is a composition of two sampling steps. First, $\hat{x}_\eta(z_t)$ is a stochastic function that generates ``soft samples''. Subsequently a second step samples $x \sim \mathrm{Cat}(\hat{x}_\eta(z_t))$ hard tokens. Note that \textit{only the second step is factorized}.
+
+Because the second step is factorized, the only way for the generator to minimize the moment matching loss is to \textit{correlate} the soft samples $\hat{x}_\eta(z_t)$ and reduce their \textit{output entropy}. This is not to be confused with the total entropy of the generator, because the sampling of soft tokens also contributes to its entropy. In practice, we observe that generators indeed reduce their output entropy to generate correlated outputs (see \autoref{tab:cifar10_noiseinput}).
+
+\subsection{Correcting the bias of $\hat{x}_\eta$ for the auxiliary model.}
+For training the auxiliary model, it is not always possible to use $\hat{x}_\eta$ as a soft target.
+The reason is that $z_s \sim q(z_s | x, z_t)$ is a sample consistent with $x, z_t$, and not with $\hat{x}_\eta$ (despite $x \sim \mathrm{Cat}(\hat{x}_\eta)$). An exception is masked diffusion, because per dimension a masked $z_s$ does not provide information about $x$. For masked diffusion it is therefore equally valid to use either the soft $\hat{x}_\eta$ or the hard $x$. On the contrary for uniform diffusion the auxiliary model always needs to be trained on the hard samples.
+
+% \subsection{Correcting the bias of $\hat{x}_\eta$ for the auxiliary model.}
+% Depending on the particular diffusion process, the generated soft samples $\hat{x}_\eta$ may not be consistent with the expected probabilities $\mathbb{E}_{g_\eta}[x | z_s]$. We generally draw a sample from $x \sim \mathrm{Cat}(\hat{x}_\eta)$, and subsequently we sample $z_s$ from $q(z_s | x, z_t)$. Note that $z_s$ depends on $x$ and so $\mathrm{Cat}(\hat{x}_\eta$) (before sampling $x$) may not be consistent with $\mathbb{E}_{g_\eta}[x | z_s]$. As a result, training the auxiliary model using soft samples $\hat{x}_\eta$ may introduce bias, depending on the process.
+
+% \dr{I find this, and also the notation above a bit confusing. Is $\hat{x}_\eta$ a probability distribution, or a sampler? I would propose writing $g_\eta(x|z_t)$ when we write about probabilities induced by $\hat{x}_\eta$ (which we also currently do when writing e.g. $\mathbb{E}_{g_\eta(x, z_s)}[x|z_s]$), and $\hat{x}_\eta(z_t)$ being the sampler. In that case
+% \begin{align}
+%     \mathrm{CE} \approx  -\sum_c (\hat{x}_\eta )_c \log \hat{x}_\theta(z_s))_c
+% \end{align}
+% Then it's also immediately clear why we need STE
+% }
+
+% An example of a process where this matters is uniform diffusion, and empirically we find that performance is better if this bias is corrected. Algorithmically this can be seen as replacing $\hat{x}_\eta$ by a hard sample drawn from $\mathrm{Categorical}(p=\hat{x}_\eta)$. For gradients of the generator, this step is ignored with a straight-through estimator. Another perspective is that for the generator loss, the gradients are the same as if the soft targets were used instead.
+
+% An exception is for example a masked diffusion process. Here $\mathbb{E}_{g_\eta(x | z_t)q(z_s|x,  z_t)}[x | z_s]$ follows the same distribution as $\mathrm{Cat}(p=x_\eta(z_t))$ for masked diffusion we did not observe meaningful differences between training the auxiliary model on soft probabilities $\hat{x}_\eta$ or hard sample $x$.
+
+\subsection{Temperature and top-p distillation}
+% In practice language models are often not sampled using unmodified logits. Instead, the models are modified to sample slightly more towards the mode. For example through lower temperature sampling or top-p selection.
+In practice language models are often sampled using modified logits, for example through lower temperature sampling or top-p selection. This results in the samples being slightly more towards the mode of the distribution.
+Similar to the continuous MMD algorithm, where teacher guidance is incorporated during distillation to improve the image quality, we aim to distill student generators, which incorporate this teacher mode seeking in their sampling.
+
+For temperature distillation, the modification is relatively straightforward: the new teacher logits are computed as $s_\theta(z_s) = \tfrac{1}{\tau} \log \hat{x}_{\theta}(z_s)$ where $\tau$ is the temperature.
+
+For top-p sampling, we need to be careful to avoid exploding gradients.
+In top-p sampling, the idea is to select a subset of categories corresponding with a cumulative probability just over $p$ and mask out the other categories.
+A typical top-p masking implementation takes in logits, and masks out the smallest categories with a very small value such as $-10^{20}$.
+This however could lead to gradient spikes, as the teacher log-probability now is in the order of $-10^{20}$. Note that the softmax Jacobian of $\hat{x}_\eta$ is not sufficiently small to cancel this term out. Under this naive implementation, top-p distillation diverges in our experiments.
+%
+Instead of masking to $-10^{20}$, we found that it works to dynamically lower the logits by a constant: $s_\theta(z_s) \leftarrow s_\theta(z_s) - (1-\mathrm{mask}_{\mathrm{top-p}}) \cdot \Delta$, which roughly lowers the probability of the masked out categories by a factor $1/e^\Delta$, ignoring the correction effect on the softmax normalization term. In experiments we use $\Delta=2$, although the precise constant does not really matter,  as small log-probability differences will be discounted through the softmax Jacobian of $\hat{x}_\eta$ for low-probability events.
+
+
+% \begin{table}[th]
+%     \centering
+%     \resizebox{\textwidth}{!}{
+%     \begin{tabular}{ll|ccc|l}
+%     \toprule
+%     \textbf{Training Configuration} && FID $\downarrow$ & NFE $\downarrow$ & TFLOPs $\downarrow$ \\\midrule
+%     DiT-M baseline 0.5B && 1.64 & 256  & 215.5 &  \\[2mm]
+%     DiT-M student MMD && 2.99  & 32 & 26.9 & (cosine shifted, 0 guidance)\\
+%     + Optimal NFE  &\Cref{sec:recipe_nfe}& 2.80   & 8 & 6.7 & (8 steps, 0 guidance)\\
+%     + Optimal Schedule &\Cref{sec:recipe_logsnr_schedule}& 1.91 & & & (cosine interpolated)\\
+%     + Teacher Guidance &\Cref{sec:recipe_guidance}& 1.82   &  &  &  (value depends per experiment)\\
+%     + Larger teacher (UViT-M 1.1B)&\Cref{sec:recipe_large_teacher}& 1.57  &  &  &  \\
+%     + Knowledge distillation   &\Cref{sec:knowledge_distillation}& \textbf{1.54}  &  &  &  \\[4mm]
+%     UViT-M 1.1B baseline &&  1.51  &  256 & 199.1 &  \\
+%     UViT-M MMD &&  1.61  & 8 &  6.2 & \\[2mm]
+%     \bottomrule
+%     \end{tabular}
+%     }
+%     \caption{\textbf{DIT-M} Effect of the design choices of our small student distillation recipe on class-conditional ImageNet-512 performance. We report FID of 50k generated samples against the entire training dataset. With this approach, the small student is able to match the big diffusion teacher's performance. \dr{I'm not sure if we should keep the third column or report those values in the text.}}
+%     \label{tab:recipe}
+% \end{table}
+
+
+% \paragraph{Model setup}
+% In this paper we study \emph{latent} image generative models. These latents are generated by an autoencoder trained using the unified framework for end-to-end autoencoder training from \cite{heek2025unified}.
+% The encoder has a relatively small convolutional structure with average-pool downsampling layers.
+% It produces latents of size $32 \times 32 \times 32$.
+% In this section, we train and evaluate a single-stage 0.5B DiT \citep{peebles2022scalable} operating on the 1024 latent tokens, which we coin \textbf{\textit{DiT-M}}.
+% After training, it achieves a class-conditional ImageNet-512 FID of 1.64 as displayed in \Cref{tab:recipe}.
+% To achieve this, we use 256 DDIM \citep{song2021ddim} steps and a guidance interval between the logSNR range $(-2, +5)$ with strength $w=1$.
+% The model was trained using $v$-prediction \citep{salimans2022progressive} and a sigmoid-weighted loss \citep{hoogeboom2025sid2}.
+
+% \paragraph{Distilation}
+% When we apply moment matching distillation (after setting some optimal optimizer hyperparameters, see \Cref{supp:learning_hyperparam}) to our student model we obtain an FID of 2.99 at 32 NFE (\emph{c.f.} second row in \Cref{tab:recipe}).
+% Note that the both the student model as well as the auxiliary model was initialized from a pre-trained DiT-M diffusion model, or in words this is \emph{score} distillation, no \emph{architecture} distillation.
+% In the following, we will motivate a few choices that can significantly boost this score at a fraction of the compute.
+
+% \subsection{Number of sampling steps (NFE)}
+% \label{sec:recipe_nfe}
+
+% The first parameter we investigate is the number of steps (or function evaluations) used for sampling.
+% Generally, it holds that more sampling steps is critical to obtain higher quality generations.
+
+% In \Cref{tab:recipe_nfe} we compare \textit{evaluating} a DiT-M model versus \textit{MDD distilling} the same model for a given number of sampling steps.
+% % From the results we first observe that MMD distilling a model yields superior results compared to evaluating the teacher model for the same number of sampling steps.
+% We observe that \textbf{reducing} the number of sampling steps (from NFE=32 to NFE=8) increases the performance resulting in an FID of 2.80 (from 2.99 for NFE=32).
+% We attribute this to the fact that as the number of steps grows, the student is more restricted to copying the teacher.
+% As noted in \citet{salimans2024multistep}, the student can outperform the teacher by averaging out inconsistencies that may arise in the teacher's sampling procedure.
+% We see this effect more clearly in \Cref{tab:recipe_nfe}.
+% In general, we found that the optimal NFE lies between 4 and 12 in our settings, where fewer steps than 4 probably is too demanding.
+
+% This suggests that it is optimal to first find the optimal step count for excellent generative quality, and then minimize the model parameters and FLOP count, which is the route we take in the following sections.
+% Further analysis on the influence of the NFE is provided in \Cref{supp:nfe}.
+
+% \begin{table}
+%     \centering
+%     \begin{tabular}{l|ccccccHHH}\toprule
+%         & 4 & 8 & 16 & 32 & 64 & 128 & 256 & 512 & 1024 \\\midrule
+%         DiT-M eval & 135.30 & 41.07 & 12.73 & 6.49 & 4.93 & 4.56 & 4.46 & 4.36 & 4.27 \\
+%         DiT-M MMD  & 2.86 & \bfseries 2.80 & 2.87 & 2.99 & 3.15 & 3.21 \\\bottomrule
+%     \end{tabular}
+%     \caption{FID performance for varying of number of sampling steps (NFE) when evaluating the DiT-M model compared to when MMD'ing the DiT-M model (without guidance).}
+%     \label{tab:recipe_nfe}
+% \end{table}
+
+
+% \subsection{LogSNR schedule}
+% \label{sec:recipe_logsnr_schedule}
+% The second axis that we found significant for optimal performance is the log-SNR schedule used for sampling.
+% We train all base diffusion models with a shifted (shift of -2.0) cosine schedule \citep{hoogeboom2023simple}.
+% However, as noted by \citet{hoogeboom2023simple}, shifting schedules can cause high frequency details
+% to be generated very late in the sampling process.
+% A solution is to \emph{interpolate} between a heavily shifted schedule and a less aggressive shift.
+% I.e.,
+% \begin{align}
+%     \lambda_\mathrm{I}(t) = t \, \mathrm{log\,SNR}^\mathrm{res}_{\mathrm{hi}}(t) + (1 - t) \, \mathrm{log\,SNR}^\mathrm{res}_{\mathrm{lo}}(t)\,,
+% \end{align}
+% which is especially useful when training with \emph{teacher guidance} (see next section).
+
+% After setting the correct schedule, we obtain an FID of 1.91 as reported in \Cref{tab:recipe}.
+% A more extensive overview of considered schedules can be found in~\Cref{supp:logsnr}.
+% An interesting direction for future work could be to \emph{learn} the optimal schedule for MMD training and sampling.
+
+
+% \subsection{Guidance}
+% \label{sec:recipe_guidance}
+% After having set the optimal NFE, we continue with applying \emph{teacher guidance}.
+% I.e., we replace $\mathbb{E}_q[x|z_t]$ (the target conditional expectation) with a guided target
+% % \begin{align}
+% %     \hat{x}_w(z_t; y) =  w \cdot \hat{x}_\theta(z_t; y) + (1 - w) \cdot \hat{x}_\theta(z_t) \,.
+% % \end{align}
+% % Note that this does not necessarily correspond to an expectation of some distribution.
+% % However, there are cases in which the equality can hold.
+% % In particular, when $q(x|y, z_t) \approx \mathcal{N}(x|\mu(y, z_t), \sigma^2)$ and $q(x|z_t) \approx \mathcal{N}(x|\mu(z_t), \sigma^2)$, i.e., equal variance Gaussians (here treated as constant), then
+% % we have
+% % \begin{align}
+% %  q^w(x|y, z_t) \propto q(x|z_t, y)^w q(x|z_t)^{1-w}.
+% % \end{align}
+% % Proceeding, we analyze the form of $q^w(x|y, z_t)$. By substituting the Gaussian forms of the conditional and unconditional distributions, we get:
+% % \begin{align}
+% %     q^w(x|y, z_t) &\propto \mathcal{N}(x|\mu_w(y, z_t), \sigma^2)
+% % \end{align}
+% % with $\mu_w(y, z_t) = w\mu(y, z_t) + (1-w)\mu(z_t)$\,.
+% % As such,
+% % \begin{align}
+% %     \mathbb{E}_{q^w(x|y, z_t)}[x|z_t, y] &= w \, \mathbb{E}_{q(x|y, z_t)}[x|z_t, y] + (1-w) \, \mathbb{E}_{q(x|z_t)}[x|z_t] \approx \hat{x}_w(z_t;y) \,,
+% % \end{align}
+% % providing a motivating example for using this target.
+
+% In \Cref{fig:nfe_vs_guidance}, we show the influence of teacher guidance on MMD'd results.
+% For various NFE, we see that there is typically a unique optimal guidance level.
+% Setting this level correct is crucial for optimal FID results.
+% After setting the optimal guidance level, we achieve an FID of 1.82 as reported in \Cref{tab:recipe}.
+% \begin{figure}
+%     % \captionsetup{justification=centering}
+
+%     \begin{subfigure}{0.475\textwidth}
+
+%         \includegraphics[width=\linewidth]{figures/nfe_vs_guidance.pdf}
+%         \caption{Teacher guidance for MMD should be set correctly for optimal generative quality.}
+%         \label{fig:nfe_vs_guidance}
+%     \end{subfigure}
+%     \hspace{0.05\textwidth}
+%     \begin{subfigure}{0.475\textwidth}
+%         \includegraphics[width=\linewidth]{figures/fid_vs_step_kd.pdf}
+%         \caption{Knowledge distillation is more data efficient and achieves slightly superior FID scores.}
+%         \label{fig:fid_vs_step_kd}
+%     \end{subfigure}
+%     \caption{Illustration of guidance (\cref{fig:nfe_vs_guidance}) and Knowledge Distillation (\cref{fig:fid_vs_step_kd}).}
+%     \label{fig:guidance_and_kd}
+% \end{figure}
+
+
+
+% \subsection{Large teacher}
+% \begin{algorithm}[t]
+% \begin{algorithmic}
+% \Require Small student model $\hat{x}_\eta$, big teacher model $\hat{x}_\theta$, dataset $\mathcal{D}$.
+% \State $\theta \gets \texttt{DiffusionTraining}(\theta, \mathcal{D})$ \Comment{Obtain a strong teacher through standard diffusion training.}
+% \State $\eta \gets \texttt{KnowledgeDistillation}(\eta, \theta, \mathcal{D})$ \Comment{Knowledge distill small student against teacher (Eq~\ref{eq:kd_loss}).}
+% \\
+% \State Initialize generator $\hat{x}_\eta$ using $\eta$. Initialize auxiliary $\hat{x}_\phi$ from teacher $\theta$. Fix teacher $\hat{x}_\theta$.
+% \\
+% % \State Apply Moment Matching Distillation \Cref{alg:mmd}.
+% \State $\eta \gets \texttt{MomentMatchingDistillation}(\hat{x}_\eta, \hat{x}_\theta, \hat{x}_\phi, \mathcal{D},\texttt{guidance=}w)$ \Comment{Run MMD for various $w$.}
+% \caption{Our proposed pipeline.}
+% \label{alg:recipe}
+% \end{algorithmic}
+% \end{algorithm}
+% \label{sec:recipe_large_teacher}
+% So far, finding the best setting for MMD'ing our model resulted in a FID of 1.82, so
+% %In this case,
+% we were unable to outperform a guided baseline achieving an FID of 1.64.
+% However, we can further improve our model at the same FLOP count by distilling against a bigger teacher.
+
+% In our experiments the performant teacher is a two-stage transformer, \emph{i.e.},
+% we train transformers at multiple resolutions (interleaved by downsampling operations) in the style of UViT models\citep{hoogeboom2023simple,hoogeboom2025sid2}.
+% This alone can boost performance significantly as we use relatively many more parameters or FLOPs per token.
+% However, recent trends in large-scale vision generative models move in the direction of single-stage transformers, as they can be more easily incorporated with language models in multi-modal settings.
+% Interestingly, we see that distilling from a two-stage transformer (1.1B) boosts the performance of a single-stage transformer significantly, achieving an FID of 1.57.
+
+% Note that for the \emph{auxiliary model} $\hat{x}_\phi(z_t)$ we use the teacher model architecture and the weights are initialized from the (big) teacher model at the start of the moment matching algorithm.
+% This is because at the optimum $g_\eta = q$, $\hat{x}_\phi(z_t)$ should be able to match $\hat{x}_\theta(z_t)$, i.e., the teacher model.
+% Preliminary experiments confirmed that using the student model architecture and weights for the auxiliary model decreases performance, hence we use the teacher model architecture and weights.
+
+
+% \subsection{Knowledge distillation}
+% \label{sec:knowledge_distillation}
+% In all our previous experiments, we initialized our student model from a pretrained DiT-M diffusion model.
+% However, we can obtain a stronger initialization point by directly training against the teacher from which we are going to distill.
+% That is, let $\hat{x}_\eta$ denote the student's $x$-prediction.
+% We optimize
+% \begin{align}
+%     \label{eq:kd_loss}
+%     \mathcal{L}^\star_{\mathrm{DPM}}(\eta) \approx \mathcal{L}_{\mathrm{KD}}(\eta) = \mathbb{E}_{q(x, t, z_t)} \left[w(t) \lVert \hat{x}_\theta(z_t) - \hat{x}_\eta(z_t) \rVert^2 \right]
+% \end{align}
+% with respect to $\eta$.
+% This is a much lower variance objective.
+% We typically see smoother and more data-efficient convergence trajectories, with the distilled model reaching typically lower FID scores than when initializing from a DPM objective.
+% This is visualized in \Cref{fig:fid_vs_step_kd} (right).
+
+% We find that keeping exactly the same settings (weighting, joint conditional-unconditional training, etc.) as how one would train a diffusion model was optimal.
+% We also tried knowledge distilling a student from a guided teacher, but did not find that that clearly improved the final distilled student.
+
+% Applying the moment matching algorithm to a student initialized by knowledge distillation against a teacher gives improved results--especially in the case of very small students as we will see later.
+% In the case of DiT-M, we get a marginal improvement of 0.03 FID points, leading to a final FID of 1.54.
+% Hence, our student model outperforms its DiT-M diffusion baseline (1.64), and is almost on par with its teacher model baseline (1.51).

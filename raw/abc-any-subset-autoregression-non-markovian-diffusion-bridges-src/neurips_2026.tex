@@ -1,0 +1,1700 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+%\usepackage[preprint,nonatbib]{neurips_2026}
+
+\usepackage[preprint,nonatbib]{neurips_2026}
+% TODO: reveal checklist
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+ % if you need to opt-in for a single-blind submission in the E&D track:
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage[table]{xcolor}
+\usepackage{appendix}
+\usepackage{algorithm}
+\usepackage{algpseudocode}  % part of algorithmicx
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{biblatex}
+\usepackage{titlesec}
+\usepackage{placeins}
+\usepackage{enumitem}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usepackage{wrapfig}
+\usetikzlibrary{arrows.meta, positioning, calc}
+
+\newcommand{\pdata}{p_{\normalfont{data}}}
+\newcommand{\pbase}{p_{\normalfont{base}}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\FF}{\mathcal{F}}
+
+\titlespacing*{\paragraph}{0pt}{0pt}{1em}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+\title{ABC: \textit{A}ny-Subset Autoregression via Non-Markovian Diffusion \textit{B}ridges in \textit{C}ontinuous Time and Space}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  Gabe Guo \thanks{Corresponding author: \texttt{gabeguo@stanford.edu}. All authors affiliated with Stanford University.} \\
+  \And
+  Thanawat Sornwanee \\
+  \And
+  Lutong Hao \\
+  \And
+  Elon Litman \\
+  \And
+  Stefano Ermon \\
+  \And
+  Jose Blanchet
+}
+
+\bibliography{bibliography}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{corollary}{Corollary}
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+Generating continuous-time, continuous-space stochastic processes (\textit{e.g.}, videos, weather forecasts) conditioned on partial observations (\textit{e.g.}, first and last frames) is a fundamental challenge.
+Existing approaches, (\textit{e.g.}, diffusion models), suffer from key limitations: (1) noise-to-data evolution fails to capture structural similarity between states close in physical time and has unstable integration in low-step regimes; (2) random noise injected is insensitive to the physical process's time elapsed, resulting in incorrect dynamics; (3) they overlook conditioning on arbitrary subsets of states (\textit{e.g.}, irregularly sampled timesteps, future observations).
+We propose \textbf{ABC}: \textit{\textbf{A}ny-Subset Autoregressive Models via Non-Markovian Diffusion \textbf{B}ridges in \textbf{C}ontinuous Time and Space}. Crucially, we model the process with \textit{one continual SDE} whose time variable and intermediate states track the \textit{real time and process states}.
+This has provable advantages: (1) the starting point for generating future states is the already-close previous state, rather than uninformative noise; (2) random noise injection scales with physical time elapsed, encouraging physically plausible dynamics with similar time-adjacent states.
+We derive SDE dynamics via changes-of-measure on path space, yielding another advantage: (3) path-dependent conditioning on arbitrary subsets of the state history and/or future.
+To learn these dynamics, we derive a path- and time-dependent extension of denoising score matching.
+Our experiments show \textbf{ABC}'s superiority to competing methods on multiple domains, including video generation and weather forecasting.
+
+\end{abstract}
+
+\section{Introduction}
+
+% What is the problem we care about, and why is it so important?
+\paragraph{Goal} Generating continuous-time, continuous-space stochastic processes is a fundamental problem.
+%For example, videos and movies represent continuous-time, continuous-space stochastic processes. %\footnote{Technically, the frame sampling rate and quantization make representations of videos and movies discrete-time and discrete-space, but the underlying signal they represent is still continuous-time and continuous-space.}
+%Other examples of continuous-time, continuous-space stochastic processes for which one may want generative models
+Examples include: videos, turbulent flows, stock prices, EEG readings, and weather forecasts.
+We are particularly interested in probabilistically infilling missing states, given only partial observations of the process, which may be irregularly sampled and even from the future (\textit{e.g.}, sporadically synced GPS readings, videos with low frame rate, first minute of a stock price). %This is a continuous-time generalization of the recently reintroduced any-subset probabilistic modeling \cite{guo2025reviving}, which also generalizes autoregressive modeling.
+
+% What approaches have people done, and why do they fall short?
+\paragraph{Existing Approaches Lack Inductive Bias} However, popular generative modeling techniques often do not fully leverage the underlying structure of such processes.
+Instead, they shoehorn existing techniques (typically some variants of flow \cite{albergo2023stochastic, lipman2022flow} and diffusion \cite{song2020score} models) made for static data.
+For example, naive approaches concatenate the states at all times of interest, and have flow/diffusion models generate them simultaneously; this runs into memory problems on long sequences.
+%If we have $L$ frames of movie data with frame size $\mathbb{R}^{D\times D}$, the model maps from Gaussian noise of size $\mathbb{R}^{L \times D \times D}$ to data of size $\mathbb{R}^{L \times D \times D}$ \cite{ho2022video}.
+
+\textbf{\textit{Lack of State Continuity:}} To solve this, autoregressive approaches generate the next few states conditioned on previous observations.
+Typically, each state is generated by a diffusion/flow model that maps Gaussian noise to data \cite{zhang2025frame, zhang2025pretraining}.
+This ignores a crucial fact: adjacent states have minimal difference (\textit{e.g.}, in a few seconds, videos barely evolve). So, starting from uninformative noise causes many issues, \textit{e.g.}, poor structural preservation, stiff SDE integration \cite{zhou2023denoising}; also, the jump from noise to data is a physically implausible transition. Section \ref{sec:results} shows this gives incoherent generations.
+
+%\textcolor{red}{say why our method fixes this (can use some technical terms to address how)}
+
+%\textcolor{red}{foreshadow what's going on with forward references for impatient poractiioners}
+
+%\textcolor{red}{put the algorithm as the first section. first talk about what we do.}
+
+%\textcolor{red}{intro, algorithm and comparison, results, derivation}
+
+%\textcolor{red}{dissect the loss function}
+
+\textit{\textbf{Lack of Time-Scaled Volatility:}} As a partial fix, diffusion bridges and stochastic interpolants \cite{zhou2023denoising, wang2024framebridge, lyu2024frame, li2023bbdm, liu2022let, peluchetti2023diffusion, peluchetti2023non, chen2024probabilistic} define generative SDEs whose endpoints are the states we transition between.\footnote{State-to-state flow models/ODEs would be inappropriate, as they are deterministic, but the task is fundamentally stochastic.} %This somewhat preserves the inductive bias that future states should be similar to previous states.
+Yet, they still do not reflect the underlying process's true dynamics. Regardless of what physical times they interpolate, the SDE always starts at \textit{auxiliary (non-physical) time} $0$ and ends at auxiliary time $1$, with the \textit{same exact volatility (aka noise) schedule}.
+This is inappropriate for processes where change in state relates to physical time (\textit{e.g.}, in movies, 1$^\text{st}$ to 2$^\text{nd}$ frame changes less than 1$^\text{st}$ to 20$^\text{th}$ frame), because these models inject the same volatility (\textit{i.e.}, perturbation size) into both transitions. This causes problems, \textit{e.g.}, flickering frames (Sec. \ref{sec:results}), incorrect trajectories (Thm. \ref{thm:non_bijective_path_measure}). %Indeed, our experiments show that this disproportionate volatility injection leads to "flickering" in such methods (Section \ref{sec:results}).
+
+\paragraph{Continuous-Time Any-Subset Generation is Underexplored} Furthermore, previous works largely neglect handling arbitrary subsets of conditioning states. This limits applicability in cases where data was irregularly time-sampled (\textit{e.g.}, stocks only record price when a transaction is made, GPS only transmits over strong 5G signal), or has non-causal conditioning (\textit{e.g.}, first and last movie frames).
+
+{
+\setlength{\textfloatsep}{0pt}
+\setlength{\intextsep}{0pt}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{diagrams/ABC_System_Diagram.pdf}
+    % \includegraphics[width=0.34\linewidth]{diagrams/ASARM PGM.pdf}
+    \setlength{\abovecaptionskip}{-10pt}
+    \caption{\textbf{Overview.}}
+\end{figure}
+}
+
+% What do we propose, and why is it better?
+\paragraph{Our Approach} We propose \textbf{ABC}: \textit{\textbf{A}ny-Subset Autoregressive Models via Non-Markovian Diffusion \textbf{B}ridges in \textbf{C}ontinuous Time and Space}.
+Our key insight is to model the underlying process with \textit{one continual SDE} whose time variable and intermediate states correspond to \textit{actual physical time and process states}. This makes volatility adaptive to times elapsed (Thm. \ref{thm:non_bijective_path_measure} shows baseline methods cannot attain this) and encourages state change to scale with time change.
+To guarantee that the SDE matches the finite-dimensional distribution at times of interest, we set its drift via Doob h-transform (Thm. \ref{thm:new_sde}) \cite{girsanov1960transforming, doob1984classical}.
+Via Gaussian process regression \cite{williams2006gaussian}, we derive a simulation-free training objective for this drift that generalizes denoising score matching to the non-Markovian case with timestep-sensitive noising kernels (Thm. \ref{thm:path_dependent_score}) \cite{song2019generative, song2020score, vincent2011connection}. We parameterize this drift with a cross-attention transformer \cite{peebles2023scalable}; it can condition on arbitrary (irregular) subsets of observed states and the future, similar to the re-popularized \textit{any-subset autoregressive models} \cite{guo2025reviving, shih2022training}.
+Our work (1) unifies diffusion and any-subset autoregressive models; (2) generalizes any-subset autoregression to continuous time and space; (3) generalizes diffusion models to non-Markovian cases.
+
+%Furthermore, our approach generalizes the design space of multiple popular generative modeling paradigms, particularly autoregressive models and diffusion models. With respect to autoregressive models, most previous work has only modeled discrete-time (and discrete-space) processes (\textit{e.g.}, LLMs): to our knowledge, our work can be interpreted as the first continuous-time, continuous-space autoregressive model. With respect to diffusion models and diffusion bridges, our work can be interpreted as a path-dependent, non-Markovian generalization. In contrast, almost all prior work focuses on the Markovian case \cite{song2019generative, song2020score}; and the few non-Markovian formulations only consider handcrafted, rather than learned, memory kernels \cite{nobis2024generative, nobis2025fractional}.
+
+% What is the outcome of our work?
+
+\paragraph{Results}
+
+Our experiments show that (1) we address the long-overlooked problem of continuous-time any-subset generative modeling; (2) time-responsive volatility is important for modeling time series; (3) data-to-data bridges beat noise-to-data generation.
+Competing methods are essentially ablations on our method, up to minor derivation differences: conditional diffusion bridges (\textit{e.g.}, DDBM) \cite{zhou2023denoising, liu2022let} with fixed volatility schedules ablate (2); noise-to-data diffusion (\textit{e.g.}, SMLD) \cite{song2020score} ablates (3).
+We validate ABC's advantages over these baselines on video generation and weather forecasting.
+\footnote{Sampled videos: \href{https://abc-diffusion.github.io/}{https://abc-diffusion.github.io/}. \textcolor{blue}{Code: \href{https://github.com/gabeguo/abc_diffusion}{https://github.com/gabeguo/abc\_diffusion}.}
+}%Model weights: \href{https://huggingface.co/therealgabeguo/abc}{https://huggingface.co/therealgabeguo/abc}. Preprocessed data: \href{https://huggingface.co/datasets/therealgabeguo/abc_data}{https://huggingface.co/datasets/therealgabeguo/abc\_data}.
+%
+
+%\paragraph{Contributions}
+Our contributions are:
+%\begin{itemize}
+\textit{\textbf{(C1)}} We propose \textbf{ABC}: an SDE generative model that generalizes autoregression to continuous time and space, and addresses the long-overlooked any-subset case.
+\textit{\textbf{(C2)}} We prove that via its SDE time and state corresponding to physical process time and state, ABC's unique inductive biases of data-to-data generative dynamics and time-adaptive volatility lead to faithful modeling.
+\textit{\textbf{(C3)}} We derive a scalable training objective that extends denoising score matching to non-Markovian, time-dependent cases.
+\textit{\textbf{(C4)}} We validate ABC on practical tasks.
+%\end{itemize}
+
+
+\section{Preliminaries}
+
+\paragraph{Any-Subset Autoregressive Models}
+Consider a time series $x_{t_0}, \ldots, x_{t_{L-1}}$, where $t_0 < t_1 < t_2 < \ldots < t_{L-1}$. Vanilla autoregressive (AR) models predict $p(x_{t_{L-1}}, \ldots, x_{t_i} | x_{t_{i-1}}, \ldots, x_{t_0})$, \textit{i.e.}, the future conditioned on the past. Any-subset autoregressive models predict $p(\mathbf{x}_{t_{\sigma(\geq i)}} | \mathbf{x}_{t_{\sigma(< i)}})$, where $\sigma: \{0, 1, \ldots, L-1\} \rightarrow \{0, 1, \ldots, L-1\}$ is a bijective mapping; that is, they predict the states in a permuted order that may not be causal in time \cite{guo2025reviving}.
+
+Autoregressive models have four categories: (1) discrete space, discrete time; (2) continuous space, discrete time; (3) discrete space, continuous time; (4) continuous space, continuous time. Most existing models (\textit{e.g.}, LLMs) are discrete-space, discrete-time (one token/timestep). There are also some continuous-space, discrete time models for video \cite{ho2022video, chen2024probabilistic, zhang2025frame, zhang2025pretraining} and images \cite{li2024autoregressive}.
+
+Very few popular generative models (discrete or continuous space) instantiate continuous-time autoregression, in which state-to-state transitions should mimic the physical time evolution of the real-world process. Approaches that could take in continuous time inputs, but construct auxiliary generative SDEs/ODEs to bridge between states (\textit{e.g.}, noise-to-data diffusion/flow), do not count, as they only model a finite subset of process times \cite{chen2024probabilistic}.
+
+\paragraph{Diffusion Bridge Models}
+Diffusion bridge models map between two distributions $x_0 \sim p_\text{data}(x_0), x_1 \sim p_\text{data}(x_1 | x_0)$, via an SDE whose drift is trained via denoising score matching \cite{vincent2011connection}. There are multiple related formulations \cite{zhou2023denoising, liu2022let, albergo2023stochastic, peluchetti2023diffusion, peluchetti2023non}; we show Zhou et al's \cite{zhou2023denoising} (switching time convention to generate in forward time), as it generalizes denoising diffusion models \cite{song2020score, song2019generative}:
+\begin{align}
+    dx_t &= \left(-a(t)x_t + \sigma(t)^2 \left[\mathbf{s_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p(x_0 | x_t)\right]\right)dt + \sigma(t)dB_t, x_0 \sim p_\text{data}(x_0) \label{eqn:trad_diffusion_bridge} \\
+    \mathbf{\theta^*} &= \underset{\mathbf{\theta}}{\text{argmin }}\mathbb{E}_{t \sim \mathcal{U}[0, 1)}\underset{\substack{x_0, x_1 \sim p_\text{data} \\ x_t \sim p_\text{base}(x_t | x_0, x_1)}}{\mathbb{E}}\left[w(t)\|\mathbf{s_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p_\text{base}(x_t | x_0, x_1)\|^2\right] \label{eqn:trad_dsm}
+\end{align}
+where $p_\text{base}(x_t | x_0, x_1)$ is a Gaussian transition kernel, \textit{i.e.}, distribution of a diffusion bridge pinned at endpoints $x_0, x_1$ \cite{zhou2023denoising, steele2001stochastic}.
+To recover the familiar noise-to-data diffusion models, set $x_0 \sim \mathcal{N}(0, I)$ \cite{song2020score, song2019generative}.
+Most diffusion models are Markovian, in that their dynamics are path-independent. A few works explore non-Markovian diffusions \cite{nobis2024generative, nobis2025fractional}, but rely on handcrafted memory kernels, \textit{e.g.}, fBM.
+
+\paragraph{Additional Related Works} Comprehensive view of related works in Section \ref{sec:related_work}.
+
+
+\section{Generative SDE for Time Series}
+
+\input{diagrams/pgm}
+
+\subsection{Desired Time Series}
+Here, \textit{time series} means continuous-space, continuous-time stochastic process in $\mathbb{R}^d$. Abusing notation, we use $x_t$ and $X(t)$ interchangeably to denote process state at time $t$.
+WLOG, we want to generate the finite-dimensional %\footnote{This is a finite-dimensional marginal, rather than a joint, as we marginalize over the infinite-dimensional support of the path measure.}
+state distribution $\pdata(x_{t_1}, \ldots, x_{t_L} | x_0)$ of a time series at times $0 < t_1 <\ldots < t_{L}$, given initial condition $x_{0}$. We assume $\pdata$ is only observable via samples, \textit{i.e.}, dataset. As an example, $x_{0}$ is a video's first frame, and $x_{t_1} \ldots x_{t_{L}}$ are the remaining frames (maybe irregularly spaced). Section \ref{subsec:any_subset} addresses non-causal conditioning and arbitrary time grids.
+
+\subsection{Data-Generating Dynamics via Change-of-Measure}
+
+Since we want our diffusion process to share the same physical time as the data generating process, we start by defining a data-independent base process:
+\begin{align}
+    dX_t &= -a(t)X_tdt + \sigma(t)dB_t \label{eqn:base_process_main}
+\end{align}
+where $a(t), \sigma(t)$ are appropriately chosen to represent the volatility structure of the data generating process, and $B$ is a Brownian motion under the base measure $\mathbb{P}$. This is a Gaussian process conditioned on the initial point $X_0$. Since this process is data-independent, it can differ from the data generating process. However, we can use path-dependent change-of-measure (via Doob-h transform) \cite{doob1984classical, girsanov1960transforming} to change the base measure $\mathbb{P}$ into $\mathbb{Q}$ \textit{such that the finite-dimensional distribution matches with that of the data}. This allows the process $X$ under the new measure $\mathbb{Q}$ to become a data-generating, non-Gaussian, non-Markov process whose diffusion time corresponds to physical process time. \footnote{The importance of non-Markov continuous-time processes is also present even when the finite-dimensional (therefore discrete-time) observation is Markov. This happens because continuous-time Markov does not admit flexible correlation structure. An example and discussions are in Figure~\ref{fig:nonmarkov}.} %Girsanov's theorem tells us what the new drift will be with respect to the new Brownian motion $B^{\mathbb{Q}}$. %We then argue that we can create a new process $X^{\text{new}}$ under $\mathbb{P}$ to match the target distribution.
+
+Given a process at time $t$, we know the current path history $(X_s)_{s\in [0,t]}$, and seek to find a drift. For Markov processes, we can write the drift as a function of $(t,X_t)$. In the general non-Markov case, we may require the drift to condition on the entire path. We show that it is sufficient to match the finite-dimensional distribution of the data generating process by choosing the drift to be of the form $s\left(t,X_t; \mathbf{X}_{0:i^*}\right)$, where $\mathbf{X}_{0:i^*}$ is a past observation on the time grid $(0, t_1, \dots, t_L)$:
+\begin{align}
+    \mathbf{X}_{0:i^*} := \left[(0, X_0), (t_1, X_1), \dots, (t_{i^*}, X_{t_{i^*}})\right] \label{eqn:all_states}
+\end{align}
+with $i^* := \max\{i: t_i < t\}$. The non-causal case in Section \ref{subsec:any_subset} will allow the argument of the drift $u$ to include future times.
+
+We denote $\pbase$ as a probability distribution of $(X_t)_{t\in [0, t_L]}$ under $\mathbb{P}$, so
+\begin{align}
+    p_\text{base}(x_t | x_{t_{i^*}}, x_{t_{i^*+1}}) \sim \mathcal{N}\left(\mu_{t | t_{i^*}, t_{i^*+1}}(x_{t_{i^*}}, x_{t_{i^*+1}}), \Sigma_{t | t_{i^*}, t_{i^*+1}}\right), \label{eqn:sampling_dist_noising_kernel_main}
+\end{align}
+where the affine function $\mu_{t | t_{i^*}, t_{i^*+1}}$ and the constant matrix $\Sigma_{t | t_{i^*}, t_{i^*+1}}$ are primitives of $(a, \sigma)$ obtained via Gaussian regression as shown in Lemma~\ref{lem:gaussian_kernels} in Appendix~\ref{appendix:B}.
+
+\begin{theorem}
+    \label{thm:new_sde}
+    Under regularities in Appendix~\ref{appendix:B}, by defining a process $(X^{\text{new}}_t)_{t \in [0, t_L]}$ following
+    \allowdisplaybreaks
+    \begin{align}
+        dX^{\text{new}}_t &= \left[-a(t)X^{\text{new}}_t + \sigma(t)^2 s\left(t,X^{\text{new}}_t; \mathbf{X}^{\text{new}}_{0:i^*}\right)\right]dt + \sigma(t)dB_t \label{eqn:new_sde}
+    \end{align}
+    with its initial condition $X^{\text{new}}_0 \sim p_{\text{data}}(x_0)$ and Brownian motion $B_t$, and
+    where the score
+    \begin{align}
+        s\left(t,x_t; \mathbf{x}_{0:i^*}\right) &= -\nabla_{x_t}\log \pbase (x_t | x_{t_{i^*}})\notag\\&\hspace{14pt}
+        + \nabla_{x_t}\log \int \pdata (x_{t_{i^* + 1}} | x_0, \ldots, x_{t_{i^*}}) \pbase (x_t | x_{t_{i^*}}, x_{t_{i^*+1}}) dx_{t_{i^*+1}}\label{eqn:expanded_score_main},
+    \end{align}
+    we have that $\left(X_0^{\text{new}}, X_{t_1}^{\text{new}}, \dots, X_{t_L}^{\text{new}}\right)$ will have the same joint distribution as $\pdata(x_0, x_{t_1}, \ldots, x_{t_L})$.
+\end{theorem}
+Formal proof in Appendix~\ref{appendix:B}. We use Doob's h-transform \cite{doob1984classical, girsanov1960transforming} to find $\mathbb{Q}$ that makes the finite-dimension distribution of $X$ under $\mathbb{Q}$ follow the data distribution.%, given that $B_t$ is Brownian motion. %Later, we use Girsanov's theorem \cite{girsanov1960transforming} to show that $X^{\text{new}}$ under $\mathbb{P}$ (that is, with $B_t$ as Brownian motion) shares the same law as $X$ under $\mathbb{Q}$.
+
+%\textcolor{red}{add discussion about what the score mean}
+This theorem suggests that we can transform any data-independent base process $X$ (up to regularities) into a new process $X^{\text{new}}$ whose finite-dimension distribution matches the data process. Intuitively, this comes from the added score term, which "pulls" the SDE towards regions of high data density at the prescribed times, conditioned on the relevant path history.
+In contrast to previous works, our score term $s\left(t,X^{\text{new}}_t; \mathbf{X}^{\text{new}}_{0:i^*}\right)$ \textit{allows non-Markov structure, thereby admitting flexible correlations.}
+
+
+
+%It is an adapted functional of the observed history (Eqn. \ref{eqn:expanded_score_main}), which we parameterize by a neural network $\mathbf{f}_\theta(t, t_{i^*+1}, \mathbf{x}_{0:t})$.
+% to learn the score function $\nabla_{x_t} \text{log }u(t, \mathbf{x}_{0:t})$ with a neural network $\mathbf{f}_\theta(t, t_{i^*+1}, \mathbf{x}_{0:t})$ that takes the current state, current time, next desired time, and all the observed states of interest as input.
+% \textcolor{orange}{(Formally, the drift correction is expressed through an adapted functional of the observed history. In practice, we parameterize this functional by a neural network $\mathbf{f}_\theta(t, t_{i^*+1}, \mathbf{x}_{0:t})$.)}
+%\textit{In contrast to the existing Markovian frameworks, our framework conditions on path history via $\mathbf{x}_{0:t}$, making ours non-Markovian.}
+
+\paragraph{Sampling Algorithm}
+See Algorithm \ref{alg:inference}. To generate time series data, we simulate the SDE according to Eqn. \ref{eqn:new_sde}. %Assuming $A(t)$ and $\sigma(t)$ are predefined, and that we have access to the oracle path-conditioned score function $\nabla_{x_t} \text{log }u(t, \mathbf{x}_{0:t})$  -- which we will ultimately learn with a neural network $\mathbf{f}_\theta(t, t_{i^*+1}, \mathbf{x}_{0:t})$ --
+That is, given $a(t), \sigma(t)$, and $s\left(t,x_t; \mathbf{x}_{0:i^*}\right)$, we discretize: $dt \leftarrow \Delta t$. Then, we generate Gaussian increments for $dB_t \sim \mathcal{N}(0, \Delta t)$, and plug all these variables into the equation to get $dX_t$. We iterate by adding $dX_t$ to $X_t$ and $\Delta t$ to $t$. When $t$ is sufficiently close to one of the $t_i$ of interest, we output the corresponding $X_t$ value, stopping after we cross $t_L$.
+%The dynamics, as we will show in Section \ref{sec:comparison}, are closely related to and generalize diffusion generative model dynamics \cite{song2020score, zhou2023denoising}.
+\textit{This can be interpreted as continuous-time autoregression, which is underexplored in prior work.}
+
+\textit{A distinguishing feature of our sample generation is that the computational budget and volatility injected are determined by the physical time difference between consecutive states}. This encourages the model to make fewer changes in the "easy" transitions (\textit{i.e.}, similar states close in time), and spend more effort on "hard" transitions (\textit{e.g.}, states far apart in time, with more variation in outcomes).
+
+\subsection{Path- and Time-Dependent Bridge Score Matching}
+
+Next, we will show how the score function $s$ in Theorem~\ref{thm:new_sde} can be learned with neural networks.
+
+\begin{theorem}
+    \label{thm:path_dependent_score}
+    Under regularities in App.~\ref{appendix:B},
+    by defining the path-dependent bridge score matching loss
+    \begin{align}
+        \mathcal{L}_{\text{DSM}}(\hat{s}) := \displaystyle \underset{t \sim \mathcal{U}(0, t_{L-1})}{\mathbb{E}} \mathbb{E}_{\substack{\pdata(x_0, \ldots, x_{t_{i^* + 1}}) \\ \pbase(x_t | x_{t_{i^* + 1}}, x_{t_{i^*}})}} \left[\left\|
+        \hat{s}\left(t,x_t; \mathbf{x}_{0:i^*}\right) - \nabla_{x_t} \log \pbase(x_{t_{i^* + 1}} | x_t)\right\|_2^2\right]\label{eqn:simplified_dsm_main},
+    \end{align}
+    we have that the actual score function $s$ in Theorem~\ref{thm:new_sde} minimizes $\mathcal{L}_{\text{DSM}}$.
+\end{theorem}
+The proof is in Appendix \ref{sec:proof_thm_2} by a bias-variance decomposition and identifying the unique minimizer as the conditional mean of $\nabla_{x_t}\log\pbase(x_{t_{i^*+1}}\mid x_t)$.
+
+This theorem suggests we can train a score function by considering the empirical distribution and class of functions specified by neural networks. Algorithm \ref{alg:train} shows the training loop. The flexibility of $s$ allows time re-weighting, since the proof is done in a point-wise in time manner. We select weight $w(t, t_{i^*}, t_{i^*+1}) = \frac{C_t(t_{i^*+1}, t_{i^*+1})}{\Phi(t, t_{i^*+1})}$, where $C$ is defined in Eq. \ref{eqn:cov_kernel} and $\Phi$ is defined in Eq. \ref{eqn:phi}.
+This loss roughly generalizes score matching losses popularly used for diffusion models \cite{song2020score, zhou2023denoising}, up to minor problem formulation differences (Appendix \ref{sec:comparison}). \textit{Distinct from prior works, our loss is path-dependent, and the target scales with the physical process time.}
+
+\subsection{Any-Subset and Non-Causal Extension}\label{subsec:any_subset}
+
+\textit{This subsection underpins a continuous-time generalization of any-subset autoregression \cite{guo2025reviving, shih2022training}.}
+
+\paragraph{Any-Subset}
+
+We've focused on finite-dimensional  distribution $p_\text{data}(x_0, x_{t_1}, \ldots, x_{t_L})$, but what if we want
+$p_\text{data}\left(x_0, x_{t_1'}, \ldots, x_{t_L'}\right)$ of the same process at \textit{other} times $t_{1}' < \ldots < t_{L}'$? Similarly, we can adjust the loss  $\mathcal{L}_{\text{DSM}}(\hat{s})$ to also include different variations of time measurements while sharing the same neural network model $\hat{s} = f_\theta$.
+Note that in this multi-task setting, the next time on the grid is no longer uniquely determined by the past observation times, so we must input this desired future time $t_{i^*+1}$ to the neural network (combined with path history, this indexes the tasks):
+\begin{equation}
+    \mathbf{f}_{\theta^*}(t, x_t, t_{i^* + 1}, \mathbf{x}_{0:i^*})
+\end{equation}
+\textit{This multi-task loss over arbitrary subsets of the path is a unique feature of our method.}
+
+
+\paragraph{Non-Causal}
+There is sometimes "peek ahead" knowledge of future states the process will reach. We may want to generate $X^{\text{new}}$ given that some observation
+\begin{align}
+    \mathcal{O} = [(t_j, x_{t_j})]_{j \in J}
+\end{align}
+for some $J\subseteq \{1,\dots,L\}$ is specified beforehand. At the current physical time $t$, we denote the already-generated constraint $\mathcal{O}_{\le t} := \{(s,x_s)\in \mathcal{O}: s\le t\}$ and yet-to-be-generated constraint $\mathcal{O}_{> t} := \{(s,x_s)\in\mathcal{O}: s > t\}$. The constraints' values will not change with time $t$ but will change their membership: from $\mathcal{O}_{>t}$ to $\mathcal{O}_{\le t}$. Note that when the physical time $t$ is sufficiently small, $\mathcal{O}_{>t} = \mathcal{O}$, meaning that all specified constraints are yet to be generated.
+
+The already generated $\mathcal{O}_{\le t}$ is already a part of the observed-and-generated $\mathbf{x}_{0:i^*}$, so it will not pose any problem to our framework. However, the yet-to-be-generated constraint $\mathcal{O}_{> t}$ is known but not included in the state $\mathbf{x}_{0:i^*}$ at time $t$. Therefore, we have to conditionally train our score function $s$ to incorporate this peek ahead knowledge: by changing the score from $s\left(t,X_t; \mathbf{X}_{0:i^*}\right)$ to $s\left(t,X_t; \mathbf{X}_{0:i^*}, \mathcal{O}\right)$, the score matching loss becomes
+\begin{align}
+    \mathcal{L}_{\text{DSM}}(\hat{s}) := \displaystyle \underset{t \sim \mathcal{U}(0, t_{L-1})}{\mathbb{E}} \mathbb{E}_{\substack{\pdata(x_0, \ldots, x_{t_L}) \\ \pbase(x_t | x_{t_{i^* + 1}}, x_{t_{i^*}})\\
+    \mathcal{O} \vert x_0, \ldots, x_{t_L}}
+    } \left[\left\|
+    \hat{s}\left(t,x_t; \mathbf{x}_{0:i^*}, \mathcal{O}\right) - \nabla_{x_t} \log \pbase(x_{t_{i^* + 1}} | x_t)\right\|_2^2\right]\raisetag{12pt}\label{eqn:simplified_dsm_main_non_causal}.
+\end{align}
+Note that $\mathcal{O}$ is sampled by randomly selecting observation time indices $J \subseteq \{1, \dots, L\}$ before setting $\mathcal{O}$ accordingly. In the full expressivity setting, this is equivalent to training a score function $s_{\mathcal{O}}$ specifically for each observation $\mathcal{O}$; this ensures the approach's validity. The implementation uses a shared network, which processes $\mathbf{x}_{0:t}$ and $\mathcal{O}$ identically, as an additional layer of multitask learning.
+
+One caveat of this approach is that for any observation $(t_j, x_{t_j}) \in \mathcal{O}$, the corresponding process $(X_t)_{t \in [0, t_L]}$ must have $X_{t_j}$ being exactly $x_{t_j}$. This makes the conditional distribution $\pdata(x_{t_1}, \dots, x_{t_L}\vert x_0, \mathcal{O})$ not have full-support, violating the regularity condition for Theorem~\ref{thm:new_sde}. For tractability, observations at future times $t_j$ can be modeled as Gaussian distributions centered on observed values $x_{t_j}$ with vanishingly small variance, instead of Dirac distributions.
+
+Furthermore, with the learned score (explicitly including future index $t_{i^*+1}$ for multi-task learning)
+%Another caveat is that the trained score is done in a form of
+%\begin{equation}\label{eqn:non_causal_network}
+    $\mathbf{f}_{\theta^*}(t, x_t, t_{i^* + 1}, \mathbf{x}_{0:i^*}, \mathcal{O}) \approx s(t, x_t; \mathbf{x}_{0:i^*}, \mathcal{O})$,
+%\end{equation}
+%(Recall $i^*$ is a function of $t$, so we can include $t_{i^*+1}$ without violating validity; in the any-subset case, $t_{i^*+1}$ is essential to allow the model to distinguish tasks.) The discrepancy between the actual score $s(t, x_t; \mathbf{x}_{0:i^*}, \mathcal{O})$ and the learned score $\mathbf{f}_{\theta^*}(t, x_t, t_{i^* + 1}, \mathbf{x}_{0:i^*}, \mathcal{O})$, can come from training error as well as finite sample error. Overall,
+the sampling conditioned on observation $\mathcal{O}$ via
+\begin{align}
+    dX^{\text{new}}_t &= \left[-a(t)X^{\text{new}}_t + \sigma(t)^2 \mathbf{f}_{\theta^*}\left(t, X^{\text{new}}_t, t_{i^* + 1}, \mathbf{X}_{0:i^*}, \mathcal{O}\right)\right]dt + \sigma(t)dB_t
+\end{align}
+may fail to satisfy $X^{\text{new}}_{t_j} = x_{t_j}$ for some $(t_j, x_{t_j}) \in \mathcal{O}$.
+One engineering "hack" to circumvent this is to parameterize the score function
+\begin{align}
+    \mathbf{f}_{\theta^*}\left(t, X^{\text{new}}_t, t_{i^* + 1}, \mathbf{X}_{0:i^*}, \mathcal{O}\right) = \mathbf{f}_{\theta^*}^\text{res}\left(t, X^{\text{new}}_t, t_{i^* + 1}, \mathbf{X}_{0:i^*}, \mathcal{O}\right) + \nabla_{x_t} \log \pbase(x_{t_{i^{\mathcal{O}_{>t}}}}\vert x_t) \label{eqn:residual_bb}
+\end{align}
+%We can circumvent this problem by adding a mild Brownian bridge term (with added epsilon in the denominator for stability), making the sampled process become
+% \begin{align}
+%     dX^{\text{new}}_t &= \left[-a(t)X^{\text{new}}_t + \sigma(t)^2 \mathbf{f}_{\theta^*}\left(t, X^{\text{new}}_t, t_{i^* + 1}, \mathbf{X}_{0:i^*}, \mathcal{O}\right) + \eta \nabla_{x_t} \log \pbase(x_{t_{i^{\mathcal{O}_{>t}}}}\vert x_t)\right]dt\notag\\ &\hspace{15pt}+ \sigma(t)dB_t,
+% \end{align}
+% where $\eta \ge 0$ is a tunable strength parameter (we set it to $1$) and
+where $t_{i^{\mathcal{O}_{>t}}} := \min \{s: (s,x_s)\in \mathcal{O}_{>t}\}$ is the next future constraint time to fulfill
+\footnote{Note $t_{i^{\mathcal{O}_{>t}}}$, in general, can be different from $t_{i^*+1}$: $t_{i^*+1}$ is the time for the next state we will generate in the finite-dimensional distribution, while $t_{i^{\mathcal{O}_{>t}}}$ is the time for the next future state whose value we know in advance.}.
+%Given a strength $\eta>0$, w
+When the current physical time $t$ approaches the next constraint time $t_{i^{\mathcal{O}_{>t}}}$, the drift $\nabla_{x_t} \log \pbase(x_{t_{i^{\mathcal{O}_{>t}}}}\vert x_t)$ dominates, and the process behaves
+%will behave in a neighborhood $(t_{i^{\mathcal{O}_{>t}}}-\epsilon, t_{i^{\mathcal{O}_{>t}}})$ with small $\epsilon>0$
+like a Brownian bridge (in practice, the denominator has a small stability epsilon) whose right endpoint is our desired constraint $(t_{i^{\mathcal{O}_{>t}}}, x_{t_{i^{\mathcal{O}_{>t}}}})$.%, %This ensures that every constraint in $\mathcal{O}$ will be satisfied
+%even when the learned part of the score $\mathbf{f}$ may not be correct.
+
+\section{Special Cases and Ablations}\label{sec:ablation}
+
+\paragraph{AR Conditional Diffusion Bridges}%\label{subsec:cond_diffusion_bridge}
+
+When autoregressively\footnote{For any-subset regression, we can analogously parameterize networks as in Section \ref{subsec:any_subset}.} %\footnote{For any-order autoregression \cite{guo2025reviving, shih2022training}, simply relax the constraint that $t_1 < \ldots < t_L$.}
+modeling $p_\text{data}(x_{t_1, \ldots, }x_{t_L} | x_0)$:
+\begin{equation}\label{eqn:cond_bridge_autoregressive_factorization}
+    p_\text{data}(x_{t_1, \ldots, }x_{t_L} | x_0) = \prod_{i=1}^{L}p_\text{data}(x_{t_i} | x_0, \ldots, x_{t_{i-1}}),
+\end{equation}
+why do we need a continual SDE $X^{\text{new}}$ as defined in Theorem~\ref{thm:new_sde}?
+
+Since these are distribution matching problems, instead of sampling a single process ranging from the physical time of $0$ directly to the terminal $t_L$, we could instead \textit{autoregressively sample} $L$ chained conditional diffusion bridges (with their own unscaled generative time variables $\tau \in [0, 1]$) that correspond to the transitions from physical times $t_{i-1}$ to $t_{i}$.
+That is, generating
+\begin{align}
+    \left(\tilde{X}^{(i)}_\tau\right)_{\tau \in [0,1]}
+\end{align}
+for each $i \in \{1,2,\dots,L\}$, such that $\tilde{X}^{(i)}_1 \sim p_\text{data}(x_{t_{i}} | x_{0}, \ldots, x_{t_{i-1}})$, with the initial condition coming from the previous bridge: $\tilde{X}^{(i)}_0 = \tilde{X}^{(i-1)}_1$ (edge case $\tilde{X}^{(1)}_0 = x_0$).
+Then, define a process $(Y_t)_{t\in [0,t_L]}$ by rescaling and concatenating the processes $\tilde{X}^{(i)}$'s together such that
+\begin{align}
+\label{eqn:time_shifted_bridge}
+    Y_t := \tilde{X}^{(i^*)}_{\frac{t-t_{i^*}}{t_{i^*+1}-t_{i^*}}}
+\end{align}
+This will map the process $\tilde{X}^{(i)}$ and its corresponding bridge time $\tau \in [0,1]$ into part of the process $Y$ over the physical time $t \in [t_{i-1}, t_i]$.
+The path of $Y$ is continuous (due to the initial condition of each bridge being the previous bridge's terminal state), and $Y$ agrees with $\pdata$ on finite-dimensional distribution at time $0, t_1, \dots, t_L$ (due to the autoregressive factorization).
+
+Each of the $L$ conditional diffusion bridge processes $\tilde{X}^{(i)}, \ldots, \tilde{X}^{(L)}$ can \textit{share the same coefficient functions} $\tilde{a}(\tau), \tilde{\sigma}(\tau)$ and \textit{one common conditional network} $\tilde{\mathbf{f}}_\theta$:
+\begin{equation}\label{eqn:cond_diffusion_bridge}
+    d\tilde{X}^{(i)}_{\tau} = \left[-\tilde{a}(\tau)\tilde{X}^{(i)}_{\tau} + \tilde{\sigma}(\tau)^2\tilde{\mathbf{f}}_\theta\left(\tau, \tilde{X}^{(i)}_{\tau}; \mathbf{x}_{0:t_{i-1}}\right)\right]d\tau + \tilde{\sigma}(\tau)dB^{(i)}_{\tau}
+\end{equation}
+
+
+This fractured SDE formulation is almost the \textit{same as probabilistic forecasting with stochastic interpolants (PFI) \cite{chen2024probabilistic} and autoregressively conditioned denoising diffusion bridge models (DDBM) \cite{zhou2023denoising}} (\textit{e.g.}, volatility doesn't adapt to physical time), save for minor parameterization differences (Sec. \ref{sec:comparison}, \ref{sec:pfi_comparison}).
+But, even as this model can be correct on finite-dimensional distributions, it generally cannot capture the correct volatility structure or path measure, as seen in the next theorem.
+
+\begin{theorem}
+\label{thm:non_bijective_path_measure}
+    For some (generic) time grid $0, t_1, \dots, t_L$, and volatility schedule $\sigma$, for any base drift schedules $a, \tilde{a}$, volatility schedule for the fractured process $\tilde{\sigma}$, score functions $\textbf{f}_{\theta}, \tilde{\textbf{f}}_{\theta}$,
+    the process $Y$ defined in~\ref{eqn:time_shifted_bridge}
+    generally is not equal in distribution to the process $X^{\text{new}}$ as defined in Theorem~\ref{thm:new_sde}. Moreover, the two processes can be distinguished almost surely.
+\end{theorem}
+Proof in App.~\ref{sec:proof_hacky_bridge_bad}.
+It uses the fact that the fractured processes $\tilde{X}^{(i)}$ share the same volatility schedule $\tilde{\sigma}$. Under generic $0,t_1, \dots,t_L$ and generic $\sigma$, we get mismatch in
+quadratic variations of $Y$ and $X^{\text{new}}$. %We can then always distinguish these two processes almost surely with a statistical test for quadratic variation, meaning that the two processes are different in the path space.
+
+Theorem \ref{thm:non_bijective_path_measure} tells us that the shared choice of $\tilde{\sigma}$ across all the bridge processes $\tilde{X}_i$ (as in Equation \ref{eqn:cond_diffusion_bridge}) generally leads to different dynamics in the generation process than achieved with our ABC method's continual SDE (Equation \ref{eqn:new_sde}).
+This is important when we care about the dynamics of the process in between waypoints. For instance, stock prices shouldn't have the same total volatility in the first five seconds of the day ($t_1 - t_0 = 5$ seconds) as in the next five hours ($t_2 - t_1 = 5$ hours).
+
+\paragraph{Noise-to-Data Diffusion}%\label{subsec:noise_to_data_diffusion}
+
+We define conditional diffusion bridges, as in Eqn. \ref{eqn:cond_diffusion_bridge}, but \textit{with noise as initial condition}: $\tilde{X}^{(i)}_0 \sim \mathcal{N}(0, I)$. This is closely related to denoising diffusion models (DDPM, SMLD) \cite{song2020score}, which are cases of DDBM \cite{zhou2023denoising}.
+However, noise-to-data diffusion (1) has physically nonsensical dynamics, only giving meaningful samples at $t = 1$; (2) lacks the inductive bias of similarity between adjacent states; (3) has stiff numerical integration at low discretization steps.
+
+\section{Experimental Setup}
+
+\newcounter{rq}
+\newcommand{\researchq}[2]{%
+  \refstepcounter{rq}%
+  \paragraph{\textit{RQ\therq \ (#2)}}\label{rq:#1}
+}
+\newcommand{\rqref}[1]{RQ\ref{rq:#1}}
+
+\researchq{asarm_continuous}{Task} Conventionally, autoregressive modeling is in discrete time and space; can we generalize it to continuous time and space? We also wish to address signals with non-causal conditioning, further extending the framework to \textit{any-subset} modeling \cite{guo2025reviving, shih2022training}.
+
+\researchq{time_scaling}{Method}
+We investigate the impact of adjusting the generative SDE's volatility to the physical time elapsed, as opposed to a fixed volatility schedule that ignores real-world time scaling.
+
+\researchq{data_to_data}{Method}
+We assess how effective a generative SDE that maps from data to data is in modeling time series, as opposed to the popular SDEs that map from data to noise \cite{song2020score}.
+
+\paragraph{Dataset}
+We have two \textit{video generation} datasets: CelebV-HQ \cite{zhu2022celebv} and Sky Timelapse \cite{zhang2020dtvnet}; see Section \ref{subsec:video_dataset}.
+We evaluate \textit{weather modeling} on the SEVIR VIL dataset \cite{veillette2020sevir}; see Section \ref{sec:sevir_additional_details}. %for setup details.
+%We use 25-frame radar reflectivity clips from the 2019 VIL files, with a center clip start at frame 12, yielding 13 context frames and 12 forecast frames. We split events at 2019-06-01, reserve 10\% of the pre-cutoff events for validation, and obtain 2,729 training events, 334 validation events, and 847 test events. Training is performed on resized $128\times128$ single-channel VIL fields, while evaluation is reported at the native SEVIR spatial resolution.
+
+\paragraph{Training Details}
+For each clip, we sample the number of conditioning frames $L \sim \mathcal{U}[1, 16]$. After selecting $L$, the first frame is always used as conditioning, and all the other frames have uniform probability of getting picked: this gives irregularly sampled times. See Section \ref{subsec:training_details} and Algorithm \ref{alg:train}.
+
+\paragraph{Inference Settings}
+Towards \rqref{asarm_continuous} (continuous-time any-subset modeling), we test video infilling at multiple subsampled time resolutions: 32 and 16 evenly spaced frames per SDE time unit (validating that continuous-time formulation aids in variable resolution modeling). Towards non-causal conditioning, we prompt every $K$th frame, where $K \in \{4, 8, 16\}$. As the frames get filled in, the model is conditioned on its own generations (except that we teacher-force the conditioning frames), also adding a causal aspect. We conduct with $\{250, 500\}$ discretization steps of the SDE over $t \in [0, 1]$ (where $t = 1$ has the last frame). Section \ref{sec:sevir_additional_details} has weather experiment details.
+See Algorithm \ref{alg:inference}.
+
+\paragraph{Metrics} For video modeling, we use FVD \cite{fvd_unterthiner2018towards, ge2024content} and FID \cite{fid_heusel2017gans} metrics. FVD measures the temporal consistency of videos, and FID measures the per-frame quality of videos. See Section \ref{subsec:evaluation_details}.
+For SEVIR, we report pixelwise MAE, MSE, and RMSE, together with thresholded CSI (critical success index), POD (probability of detection), false alarm rate, and bias at the standard VIL thresholds $\{16,74,133,160\}$ \cite{veillette2020sevir}. %: these metrics are computed only on the unobserved/forecast frames.
+See Section \ref{sec:sevir_additional_details}.
+
+\paragraph{Model Architecture}
+Our architecture extends DiT \cite{peebles2023scalable}. See Section \ref{sec:architecture} for more details.
+
+\paragraph{Baselines}
+The point of the evaluation is to answer \rqref{asarm_continuous}, \rqref{time_scaling}, and \rqref{data_to_data}. %Comparison against SoTA video generation models is inappropriate, because the performance comes from a myriad of factors orthogonal to our study (\textit{e.g.}, architectural and engineering improvements \cite{zhang2025frame, ma2024latte}, scaling model size and data \cite{sun2025ar}), making it difficult to disentangle the cause of performance gains. Furthermore, existing work largely ignores continuous-time any-subset tasks \cite{chen2024diffusion}.
+We construct carefully controlled comparison against Section \ref{sec:ablation}'s baselines, which also correspond to competitive probabilistic modeling methods from recent literature. %: autoregressively conditioned diffusion bridges, and noise-to-data diffusion.
+Comparison to autoregressively conditioned diffusion bridges answers \rqref{time_scaling}; and is basically DDBM \cite{zhou2023denoising, albergo2023stochastic, peluchetti2023diffusion, peluchetti2023non, liu2022let} and PFI \cite{chen2024probabilistic} (see Sec. \ref{sec:comparison}, \ref{sec:pfi_comparison}).
+Comparison to noise-to-data diffusion answers \rqref{data_to_data}; and is basically DDPM/SMLD \cite{song2020score, song2019generative, ho2020denoising}.
+All methods take the same conditioning and use the same architecture, so the computational complexity is the same; they also have the same training setup.
+See Section \ref{subsec:sde_parameter_selection}.
+
+\section{Results}\label{sec:results}
+
+\textit{Our experiments show that our ABC models outperform diffusion models at generating time series, due to our inductive biases of data-to-data transitions and time-adaptive computation.}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\linewidth]{toy_experiments/marginals.png}
+    \includegraphics[width=0.45\linewidth]{toy_experiments/trajectories.png}
+    \caption{\textbf{Insufficiency of Autoregressive Conditional Diffusion Bridges:} See Section \ref{sec:stitched-vs-conditioned}.}\label{fig:insufficient_stiched_bridge}
+\end{figure}
+
+\paragraph{Toy Experiment}
+
+Fig. \ref{fig:insufficient_stiched_bridge} illustrates Thm. \ref{thm:non_bijective_path_measure} on Brownian motion pinned at $B(4/5) = -1, B(1) = B(0) = +1$. Chained diffusion bridges $Y(t)$, while capturing finite-dimensional marginals, have incorrect quadratic variation. Modeling with one continual SDE correctly captures the dynamics.
+
+%, underscoring the need for a continual SDE whose total quadratic variation scales with physical process time, rather than naively constructing autoregressively chained diffusion bridges (Eqn \ref{eqn:cond_diffusion_bridge}) that vary only in score-based drift.
+
+
+\paragraph{Video Modeling}
+
+\begin{wrapfigure}{R}{0.51\textwidth}
+    \vspace{-\intextsep}
+    \centering
+    \includegraphics[width=0.49\textwidth]{results_numbers_and_figures/frame_grid.png}
+    \caption{\textbf{Comparison:} ABC beats conditional diffusion bridges (with equal $\sigma$) and noise-to-data diffusion models. Generated with 250 steps, and conditioning every eight (plus final) frames, although the model can overwrite prompts (to assess adherence). \textbf{Visit \texttt{\href{https://abc-diffusion.github.io/}{https://abc-diffusion.github.io/}} or supplementary material.}}\label{fig:sky_timelapse_comparison}
+    \vspace{-\intextsep}
+\end{wrapfigure}
+
+\textbf{\textit{View generated videos at \textup{\texttt{\href{https://abc-diffusion.github.io/}{https://abc-diffusion.github.io/}}}.}} See Tables \ref{tab:sky_NON_causal_fvd} and \ref{tab:celebvhq_NON_causal_fvd} for FVD scores.
+Judging by FVD on non-causal generation, ABC is generally superior to the baselines across these video modeling datasets. The only baselines that are sometimes competitive are certain settings of the conditional diffusion bridge, depending on the hyperparameters. The noise-to-data diffusion model is not competitive at all (as expected from its numerical stiffness and implausible dynamics), \textit{validating our hypothesis from \rqref{data_to_data}}.
+
+However, FVD mainly assesses temporal consistency, but underemphasizes per-frame quality. FID scores in the appendix (Tables \ref{tab:celebvhq_NON_causal_fid}, \ref{tab:sky_NON_causal_fid}), indicate that conditional diffusion bridge models (\textit{e.g.}, Sky-Timelapse $\sigma=0.3$) which beat ABC on FVD are often not competitive on FID (per-frame quality); creating flickering \href{https://abc-diffusion.github.io/}{videos}. In the overall ranking across FVD and FID (Tables \ref{tab:celebvhq_non_causal_overall_avg_rank}, \ref{tab:sky_non_causal_overall_avg_rank}), \textit{ABC clearly prevails, answering \rqref{time_scaling} in the affirmative: time-adaptive volatility is important}.
+
+% Finally, we see that the more conditioning frames we give the model (\textit{e.g.}, pin every 4 vs. 8 vs. 16), the FVD score gets lower, signifying better adherence to the ground-truth signal. \textit{This confirms the hypothesis in \rqref{asarm_continuous} that non-causal (any-subset autoregressive) conditioning is helpful.}
+We also conduct experiments on strictly causal (forward in time) prompting (Section \ref{sec:causal_sky_timelapse}, \ref{sec:celebv_hq_causal}); this is not our training's focus, but ABC nonetheless achieves Pareto optimality. This \textit{flexibility across causal and non-causal prompting further confirms \rqref{asarm_continuous}}.
+Section \ref{sec:more_results} has additional results: ablation on full-path conditioning, sensitivity to hyperparameter choice, FID scores, causal evaluations, scaling.
+%Finally, to measure the benefit of conditioning on the path (\rqref{asarm_continuous}), we strip down ABC's conditioning input to only the frames at $\{0, t\}$; Table \ref{tab:ablation_conditioning} shows that our proposed path path-dependent drift is far superior.
+
+\input{results_numbers_and_figures/sky_timelapse_non_causal}
+\input{results_numbers_and_figures/celebv_hq_non_causal}
+
+\paragraph{Weather Modeling}
+Table \ref{tab:sevir_main_metrics} %and \ref{tab:sevir_detection_metrics}
+shows that ABC also performs strongly on SEVIR. In the non-causal setting, ABC Non-Causal achieves the best overall performance, outperforming both conditional diffusion bridges and noise-to-data diffusion; this again supports \rqref{time_scaling} and \rqref{data_to_data}. ABC also performs well in the strictly causal setting, showing that the same framework can handle both sparse non-causal conditioning and standard forecasting. See Sections \ref{sec:sevir_additional_details} and \ref{sec:sevir_additional_results} for more details.
+
+\input{results_numbers_and_figures/sevir}
+
+
+\section{Discussion, Limitations, Conclusion}
+Future work should investigate sampling schemes, \textit{e.g.}, hybrid ODE-SDE; coarse-to-fine by causally generating every $K$ frames at low sampling rate before infilling the $K-1$ frames in between.
+For a mathematically faithful implementation, we made the transformer network attend to the entire history, but efficient architectures like SSMs \cite{gu2023mamba} selectively compress history.
+Future work could also consider text-to-image generation \cite{rombach2022high}.
+Finally, future work should investigate generating chunks of states at a time, \textit{e.g.}, augment SDE state to four frames; this fits into our framework.%, although these engineering considerations were outside our scope.
+
+In summary, we introduce \textbf{ABC}: an SDE-based generalization of any-subset autoregressive generative models to continuous time and space. We rigorously derived a training objective generalizing denoising score matching to path- and time-dependent cases. Finally, we theoretically and empirically showed that its inductive biases of data-to-data generative trajectories and time-adaptive volatility lead to faithful modeling of stochastic processes, such as videos and weather.
+%Finally, we validated \textbf{ABC} on high-dimensional real-world data, including weather patterns and videos.
+
+
+
+
+\clearpage
+
+\section*{Acknowledgements}
+
+\textcolor{blue}{
+This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research, Department of Energy Computational Science Graduate Fellowship under Award Number(s) DE-SC0025528 to G. Guo.
+This research used resources of the National Energy Research Scientific Computing Center, a DOE Office of Science User Facility supported by the Office of Science of the U.S. Department of Energy under Contract No. DE-AC02-05CH11231 using NERSC award ASCR-ERCAP0038735 to G. Guo.
+Research supported by the NVIDIA Academic Grant Program using A100 GPU-Hours on Brev, awarded to S. Ermon.
+Research supported by the Stanford Institute for Human-Centered Artificial Intelligence (HAI)'s Google Cloud Credits Program, awarded to S. Ermon.
+J. Blanchet gratefully acknowledges support from DoD through the grants Air Force Office of Scientific Research under award number FA9550-20-1-0397 and ONR 1398311, also support from NSF via grants 2229012, 2312204, 2403007 is gratefully acknowledged.
+}
+
+\textcolor{blue}{We thank Jerry W Liu, Peter Pao-Huang, John Yao, Tristan Saidi for helpful feedback.}
+
+
+
+
+
+\printbibliography
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\appendix
+
+\newpage
+\clearpage
+
+\section{Data-Generating SDE via Doob
+h-Transform}
+\label{appendix:B}
+In this section we prove Theorem \ref{thm:new_sde} and establish the regularity conditions.
+
+% Essentially, we make $(X_{t_1}, \ldots, X_{t_L})$ given $X_0=x_0$ under $\mathbb{Q}$ coincide with $p_\text{data}(x_{t_1}, \ldots, x_{t_L} | x_0)$ via Girsanov's Theorem \cite{girsanov1960transforming} (or Doob's h-transform \cite{doob1984classical}) based on finite observations $x_0, x_{t_1}, \dots, x_{t_{i^*}}$. We then algebraically rearrange the additional drift from this change of measure, to facilitate learning.
+
+Let $0 = t_0 < t_1 < \cdots < t_L$ be fixed physical times and $x_0 \in \RR^d$ an
+initial condition.  The \emph{base (prior) process} $(X_t)_{t\in[0,t_L]}$ is the
+Ornstein--Uhlenbeck (OU) SDE
+\begin{equation}\label{eqn:ou}
+  dX_t = -a(t)X_t\,dt + \sigma(t)\,dW_t,\qquad X_0=x_0,
+\end{equation}
+where $W$ is a $d$-dimensional $\PP$-Brownian motion (the base-process driver),
+$a:[0,t_L]\to\RR$, and $\sigma:[0,t_L]\to(0,\infty)$.  We reserve the symbol $B$
+for the $\QQ$-Brownian motion constructed in Step~5.  Denote by $\PP$ the induced
+law on path space $C([0,t_L];\RR^d)$, and by $\pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)$
+the finite dimensional density under $\PP$.
+
+Recall that at time $t \in (t_{i^*}, t_{i^*+1})$, we write the \emph{observed past} as
+\begin{equation}\label{eqn:xhist}
+  \mathbf{x}_{0:i^*} := [(0,x_0)]\oplus[(t_j,x_{t_j})\mid j\leq i^*],
+\end{equation}
+where $i^*$ is the index of the most recent observation,
+$i^* := \max\{i: t_i < t\}$.
+The current state $x_t$ is \emph{not} included in $\mathbf{x}_{0:i^*}$; it appears
+as a separate explicit argument in all functions below.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Regularity Conditions}\label{sec:regularity}
+
+The following conditions are assumed throughout the proof.  Each plays a distinct role.
+
+\begin{enumerate}[label=\textbf{(R\arabic*)}]
+
+\item \label{reg:sde}
+  \textbf{Well-posedness of the base SDE.}
+  $a$ and $\sigma$ are bounded and measurable on $[0,t_L]$, and $\sigma(t)\geq\sigma_{\min}>0$
+  for all $t$.
+  Under these conditions, the linear SDE \eqref{eqn:ou} has a unique strong solution, and
+  the finite dimensional distribution $\pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)$ is a
+  non-degenerate Gaussian for every $x_0$.
+  The lower bound on $\sigma$ is essential: it prevents the base process from
+  degenerating into a deterministic ODE, which would violate absolute continuity.
+
+\item \label{reg:abscon}
+  \textbf{Absolute continuity.}
+  For $\PP$-a.e. $x_0$,
+  $\pdata(x_{t_1},\ldots,x_{t_L}\mid x_0)\ll\pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)$,
+  i.e., the data distribution assigns no mass to sets that the base process
+  cannot reach.  This guarantees the Radon--Nikodym derivative
+  $\frac{d\QQ}{d\PP}=\frac{\pdata}{\pbase}$ exists as an $L^1(\PP)$ density.
+  It is implied by \ref{reg:sde} whenever $\pdata$ is a continuous distribution
+  without atoms, since the OU process has full Gaussian support.
+
+\item \label{reg:fullsupport}
+  \textbf{Full support / strict positivity.}
+  $\pdata(x_{t_1},\ldots,x_{t_L}\mid x_0)>0$ $\pbase$-almost everywhere.
+  This ensures the change-of-measure martingale $Z_t:=\EE_\PP[d\QQ/d\PP\mid\FF_t]$
+  satisfies $Z_t>0$ $\PP$-almost surely, so that $\log Z_t$ and the score
+  $\nabla_{x_t}\log u$ are well-defined.
+
+\item \label{reg:squareint}
+  \textbf{Square-integrability of the Radon--Nikodym derivative.}
+  $\EE_\PP[(d\QQ/d\PP)^2]<\infty$, equivalently $Z_T\in L^2(\PP)$.
+  This implies $Z_t\in L^2(\PP)$ for all $t$ (by the conditional Jensen inequality),
+  which is the integrability condition required for $Z_t$ to be a bona fide
+  (not merely local) $\PP$-martingale.  It holds whenever $\pdata/\pbase$ is
+  square-integrable under $\pbase$, a mild condition on the tails of $\pdata$.
+
+\item \label{reg:smooth}
+  \textbf{Smoothness of $u$.}
+  The function $u(t,x_t;\mathbf{x}_{0:i^*}):=Z_t$ satisfies $u>0$,
+  $u\in C^{1,2}$ jointly in $(t,x_t)$ on each open interval $(t_{i^*},t_{i^*+1})$,
+  and the gradient $\nabla_{x_t}\log u$ is locally square-integrable in $t$.
+  The $C^{1,2}$ condition is needed to apply It\^o's formula to $u$ and to $\log u$.
+  It follows from standard parabolic PDE regularity when $\pdata$ has sufficiently
+  smooth conditional densities; in our setting it holds on the open intervals because
+  the OU Green's function (the base transition kernel) is smooth.
+
+\item \label{reg:novikov}
+  \textbf{Novikov's condition.}
+  \[
+    \EE_\PP\left[\exp\left(
+      \tfrac{1}{2}\int_0^{t_L}
+      \|\sigma(s)\,\nabla_{x_s}\log u(s,x_s;\mathbf{x}_{0:i^*_s})\|^2\,ds
+    \right)\right]<\infty.
+  \]
+  This is the classical sufficient condition \cite{novikov1972identity}
+  that upgrades a local $\PP$-martingale to a true $\PP$-martingale.  It is invoked
+  in Step~4 of the proof below to guarantee that the Dol\'eans--Dade exponential
+  $Z_t$ is a true martingale and that Girsanov's theorem \cite{girsanov1960transforming} applies without qualification.
+  In practice it is satisfied because the score $\nabla_{x_t}\log u$ coincides with
+  the neural-network output $\mathbf{f}_\theta$, which is bounded on compact time
+  intervals under any finite-parameter model.
+
+\item \label{reg:markov}
+  \textbf{Markov property of the base process.}
+  For $s<t<\tau$ all in $[0,t_L]$,
+  $\pbase(x_\tau\mid x_{[0,t]})=\pbase(x_\tau\mid x_t)$ under $\PP$.
+  The OU process is a Markov process driven by Brownian motion, so this holds
+  automatically.  It is used in Step~6 to factor the conditional base density
+  and reduce the integral over future states to a one-step expectation over
+  $x_{t_{i^*+1}}$ alone.
+
+\end{enumerate}
+
+\subsection{Gaussian Base Process: Score Target and Noising Kernel}
+
+The following lemma establishes closed-form expressions for the two quantities
+that enter both the SDE drift and the training loss: the \emph{score target}
+$\nabla_{x_t}\log\pbase(x_{t_{i^*+1}}\mid x_t)$ and the \emph{noising kernel}
+$\pbase(x_t\mid x_{t_{i^*}},x_{t_{i^*+1}})$.  Both follow from the Gaussian
+process structure of the OU base process.
+
+Define the resolvent and covariance kernel of the OU base process \eqref{eqn:ou}
+conditioned on $x_{t_{i^*}}$:
+\begin{align}
+  \Phi(s,t) &:= \exp\left(\int_s^t -a(u)\,du\right), \label{eqn:phi}\\
+  C_{t_{i^*}}(\tau_a,\tau_b)
+  &:= \int_{t_{i^*}}^{\min(\tau_a,\tau_b)}
+      \Phi(s,\tau_a)\,\Phi(s,\tau_b)\,\sigma(s)^2\,ds. \label{eqn:cov_kernel}
+\end{align}
+
+\begin{lemma}[Closed-form score target and noising kernel]\label{lem:gaussian_kernels}
+Let $t_{i^*}\leq t < t_{i^*+1}$.  Under the OU base process \eqref{eqn:ou} with
+regularity condition \ref{reg:sde}:
+\begin{enumerate}[label=(\roman*)]
+
+\item \textbf{Score target.}
+  The conditional distribution $x_{t_{i^*+1}}\mid x_t$ under $\pbase$ is
+  Gaussian with mean $\Phi(t,t_{i^*+1})x_t$ and variance $C_t(t_{i^*+1},t_{i^*+1})I$.
+  Consequently,
+  \begin{equation}\label{eqn:score_target}
+    \nabla_{x_t}\log\pbase(x_{t_{i^*+1}}\mid x_t)
+    = \frac{\Phi(t,t_{i^*+1})}{C_t(t_{i^*+1},t_{i^*+1})}
+      \bigl(x_{t_{i^*+1}}-\Phi(t,t_{i^*+1})x_t\bigr).
+  \end{equation}
+  This quantity is non-singular and linear in $(x_t, x_{t_{i^*+1}})$ for all
+  $t\in[t_{i^*},t_{i^*+1})$.
+
+\item \textbf{Noising kernel.}
+  The conditional distribution $x_t\mid (x_{t_{i^*}},x_{t_{i^*+1}})$ under
+  $\pbase$ is Gaussian with
+  \begin{align}
+    \mu_{t\mid t_{i^*}, t_{i^*+1}}(x_{t_{i^*}}, x_{t_{i^*+1}})
+    &= \Phi(t_{i^*},t)x_{t_{i^*}}
+       + \frac{C_{t_{i^*}}(t,t_{i^*+1})}{C_{t_{i^*}}(t_{i^*+1},t_{i^*+1})}
+         \bigl(x_{t_{i^*+1}}-\Phi(t_{i^*},t_{i^*+1})x_{t_{i^*}}\bigr),
+       \label{eqn:noising_mean}\\
+    \Sigma_{t\mid t_{i^*}, t_{i^*+1}}
+    &= \left(C_{t_{i^*}}(t,t)
+       - \frac{C_{t_{i^*}}(t,t_{i^*+1})^2}{C_{t_{i^*}}(t_{i^*+1},t_{i^*+1})}\right)I.
+       \label{eqn:noising_var}
+  \end{align}
+  The variance $\Sigma_{t\mid t_{i^*+1}}$ is strictly positive for
+  $t\in(t_{i^*},t_{i^*+1})$ and vanishes at both endpoints.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+Part~(i) follows from the explicit variation-of-constants solution of the linear SDE
+\eqref{eqn:ou} and Itô's isometry; see \cite{oksendal2003stochastic}, Chapter~5.
+The score formula is then the log-gradient of the resulting Gaussian density.
+Part~(ii) is Gaussian process conditioning applied to the jointly Gaussian pair
+$(x_t, x_{t_{i^*+1}})$ given $x_{t_{i^*}}$; the mean and variance
+\eqref{eqn:noising_mean}--\eqref{eqn:noising_var} follow from the standard
+formulas of \cite{bishop2006pattern} (equations 2.81--2.82), with covariances
+computed via Itô's isometry and the independence of non-overlapping Brownian
+increments \cite{oksendal2003stochastic}.
+
+The OU process \eqref{eqn:ou} has the explicit variation-of-constants solution,
+verified by differentiating with the Leibniz integral rule:
+\begin{equation}\label{eqn:ou_solution}
+  x_t = \Phi(t_{i^*},t)\,x_{t_{i^*}}
+        + \int_{t_{i^*}}^{t}\Phi(s,t)\,\sigma(s)\,dW_s.
+\end{equation}
+
+\medskip\noindent\underline{Part~(i): Score target.}
+Setting $t_{i^*}\leftarrow t$ in \eqref{eqn:ou_solution} and letting the process
+run to $t_{i^*+1}$:
+\begin{equation}\label{eqn:x_next}
+  x_{t_{i^*+1}} = \Phi(t,t_{i^*+1})\,x_t
+                  + \int_t^{t_{i^*+1}}\Phi(s,t_{i^*+1})\,\sigma(s)\,dW_s.
+\end{equation}
+Since $W$ has independent increments, the stochastic integral has zero mean.
+By Itô's isometry:
+\[
+  \mathrm{Var}(x_{t_{i^*+1}}\mid x_t)
+  = \int_t^{t_{i^*+1}}\Phi(s,t_{i^*+1})^2\,\sigma(s)^2\,ds\cdot I
+  = C_t(t_{i^*+1},t_{i^*+1})\,I.
+\]
+Hence $x_{t_{i^*+1}}\mid x_t\sim\mathcal{N}\left(\Phi(t,t_{i^*+1})x_t,\;
+C_t(t_{i^*+1},t_{i^*+1})I\right)$.
+Taking the log-gradient of this Gaussian density with respect to $x_t$:
+\begin{align*}
+  \nabla_{x_t}\log\pbase(x_{t_{i^*+1}}\mid x_t)
+  &= \nabla_{x_t}\left[
+       -\frac{\|x_{t_{i^*+1}}-\Phi(t,t_{i^*+1})x_t\|^2}
+             {2\,C_t(t_{i^*+1},t_{i^*+1})}
+     \right] \\
+  &= \frac{\Phi(t,t_{i^*+1})}{C_t(t_{i^*+1},t_{i^*+1})}
+     \bigl(x_{t_{i^*+1}}-\Phi(t,t_{i^*+1})x_t\bigr),
+\end{align*}
+which is \eqref{eqn:score_target}.  Non-singularity holds because
+$C_t(t_{i^*+1},t_{i^*+1})=\int_t^{t_{i^*+1}}\Phi(s,t_{i^*+1})^2\sigma(s)^2\,ds>0$
+for all $t<t_{i^*+1}$, by \ref{reg:sde} ($\sigma\geq\sigma_{\min}>0$).
+
+\medskip\noindent\underline{Part~(ii): Noising kernel.}
+Conditioned on $x_{t_{i^*}}$, both $x_t$ and $x_{t_{i^*+1}}$ are affine functions
+of $W$ (by \eqref{eqn:ou_solution}), so the pair is jointly Gaussian with means
+\[
+  \mu_t (x_{t_{i^*}})= \Phi(t_{i^*},t)\,x_{t_{i^*}},
+  \qquad
+  \mu_{t_{i^*+1}}(x_{t_{i^*}}) = \Phi(t_{i^*},t_{i^*+1})\,x_{t_{i^*}}.
+\]
+We compute the covariances using Itô's isometry.
+Off-diagonal entries of the covariance matrix are zero because $W$ has
+independent components.  For the diagonal entries, the cross-covariance
+involves the inner product of the two stochastic integrals:
+\begin{align*}
+  \Sigma_{t,t_{i^*+1}}[j,j]
+  &= \EE_\PP\left[
+       \int_{t_{i^*}}^t \Phi(s,t)\sigma(s)\,dW_s[j]
+       \cdot
+       \int_{t_{i^*}}^{t_{i^*+1}}\Phi(s,t_{i^*+1})\sigma(s)\,dW_s[j]
+     \right].
+\end{align*}
+Split the second integral at $t$; the piece over $(t,t_{i^*+1})$ is independent of
+the first integral (non-overlapping increments), contributing zero.  Itô's isometry
+on the overlapping part $[t_{i^*},t]$ gives
+\[
+  \Sigma_{t,t_{i^*+1}}[j,j]
+  = \int_{t_{i^*}}^{t}\Phi(s,t)\,\Phi(s,t_{i^*+1})\,\sigma(s)^2\,ds
+  = C_{t_{i^*}}(t,t_{i^*+1}).
+\]
+By the same argument,
+\[
+  \Sigma_{t,t} = C_{t_{i^*}}(t,t)\,I,
+  \qquad
+  \Sigma_{t_{i^*+1},t_{i^*+1}} = C_{t_{i^*}}(t_{i^*+1},t_{i^*+1})\,I,
+  \qquad
+  \Sigma_{t,t_{i^*+1}} = C_{t_{i^*}}(t,t_{i^*+1})\,I.
+\]
+Applying the standard Gaussian conditional formulas
+(\cite{bishop2006pattern}, equations 2.81--2.82):
+\begin{align*}
+  \mu_{t\mid t_{i^*},t_{i^*+1}}(x_{t_{i^*}}, x_{t_{i^*+1}})
+  &= \mu_t (x_{t_{i^*}}) + \Sigma_{t,t_{i^*+1}}\Sigma_{t_{i^*+1},t_{i^*+1}}^{-1}
+     (x_{t_{i^*+1}}-\mu_{t_{i^*+1}}(x_{t_{i^*}})), \\
+  \Sigma_{t\mid t_{i^*+1}}
+  &= \Sigma_{t,t} - \Sigma_{t,t_{i^*+1}}\Sigma_{t_{i^*+1},t_{i^*+1}}^{-1}
+     \Sigma_{t_{i^*+1},t},
+\end{align*}
+and substituting the scalar covariances yields
+\eqref{eqn:noising_mean}--\eqref{eqn:noising_var}.
+
+Strict positivity of $\Sigma_{t\mid t_{i^*+1}}$ on $(t_{i^*},t_{i^*+1})$ follows
+from the Cauchy--Schwarz inequality applied to the covariance kernel: by applying the
+ Cauchy-Schwarz inequality and the non-negative integration from time $t=t$ to $t_{i^*+1}$, we have that
+\[
+  C_{t_{i^*}}(t,t_{i^*+1})^2
+  \;\leq\;
+  C_{t_{i^*}}(t,t)\cdot C_{t_{i^*}}(t_{i^*+1},t_{i^*+1}),
+\]
+with strict inequality when $t\in(t_{i^*},t_{i^*+1})$, since the integrand
+$\Phi(s,t)\Phi(s,t_{i^*+1})\sigma(s)^2$ is not a scalar multiple of
+$\Phi(s,t)^2\sigma(s)^2$ (the resolvent $\Phi(s,\cdot)$ is strictly monotone in
+its second argument for $a(t)\neq 0$, and bounded away from a constant ratio by
+\ref{reg:sde}).
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Proof of Theorem \ref{thm:new_sde}} \label{sec:proof_thm_1}
+\begin{remark}
+    $s(t,x_t;\mathbf{x}_{0:i^*})$ in the theorem statement is simply another notation for the oracle score
+$\nabla_{x_t}\log u(t,x_t;\mathbf{x}_{0:i^*})$, where $u$ is the Doob
+$h$-function (Step~2 in proof).  They are the same analytical object. The proof uses $W_t$ for the
+$\PP$-Brownian motion and $B_t$ for the $\QQ$-Brownian motion (Step~5 in proof).
+
+Learning $s$ from data is addressed separately in
+Appendix~\ref{appendix:C}. The neural network $\mathbf{f}_\theta$ is a parametric approximation introduced that learns $s$; the two
+coincide, $\mathbf{f}_{\theta^*}=s$, only at the minimizer of the score matching
+loss.
+\end{remark}
+
+\begin{proof}[Proof of Theorem \ref{thm:new_sde}] The proof has seven steps. Steps 1--2 establish the target measure $\QQ$; Steps 3--6 extract the modified SDE dynamics via
+Girsanov's theorem; Step 7 derives the score.
+
+\noindent\textbf{Step 1: Base process and target change-of-measure.}
+We take the OU process \eqref{eqn:ou} as the base process under $\PP$.  Its
+transition densities are Gaussian by linearity, and by \ref{reg:sde} the finite dimensional
+distribution $\pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)$ is a non-degenerate Gaussian
+with full support on $(\RR^d)^L$.
+
+We wish to define a new measure $\QQ$ on path space such that $(X_0,X_{t_1},\ldots,X_{t_L})$
+under $\QQ$ has joint density $\pdata(x_0,x_{t_1},\ldots,x_{t_L})$.
+Equivalently, conditioned on $X_0=x_0$, the grid $(X_{t_1},\ldots,X_{t_L})$
+should have density $\pdata(\cdot\mid x_0)$.  By
+\ref{reg:abscon}, the Radon--Nikodym derivative is well-defined on the
+$\sigma$-algebra generated by the grid:
+\begin{equation}\label{eqn:rnd}
+  \frac{d\QQ}{d\PP}\bigg|_{\sigma(X_{t_1},\ldots,X_{t_L})}
+  = \frac{\pdata(x_{t_1},\ldots,x_{t_L}\mid x_0)}
+         {\pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)}.
+\end{equation}
+For any event $A$ in the path $\sigma$-algebra, $\QQ(A)=\EE_\PP[\mathbbm{1}_A\,d\QQ/d\PP]$.
+By construction, for every Borel set $S\subseteq(\RR^d)^L$,
+\[
+  \QQ\left((X_{t_1},\ldots,X_{t_L})\in S\right)
+  = \int_S \pdata(x_{t_1},\ldots,x_{t_L}\mid x_0)\,dx_{t_1}\cdots dx_{t_L},
+\]
+so the grid under $\QQ$ has exactly the desired density.
+
+%=======================================================================
+\noindent\textbf{Step 2: The Doob $h$-transform is a $\PP$-martingale.}
+In order to extract the SDE dynamics under $\QQ$, we need the
+Radon--Nikodym derivative \cite{radon1913theorie, nikodym1930generalisation} as a process indexed by $t$.  Define
+\begin{equation}\label{eqn:Zt}
+  Z_t
+  := h(t,x_t;\mathbf{x}_{0:i^*})
+  := \EE_\PP\left[
+       \frac{d\QQ}{d\PP}\,\bigg|\,\FF_t
+     \right]
+   = \EE_\PP\left[
+       \frac{\pdata(X_{t_1},\ldots,X_{t_L}\mid X_0)}
+            {\pbase(X_{t_1},\ldots,X_{t_L}\mid X_0)}
+       \,\bigg|\,\FF_t
+     \right].
+\end{equation}
+This is the \emph{Doob $h$-function} \cite{doob1984classical}: a positive
+$(\FF_t,\PP)$-adapted process obtained by conditioning the terminal
+Radon--Nikodym derivative on the current information.
+
+\medskip\noindent\underline{$Z_t$ is a $\PP$-martingale.}
+For any $\tau>t$, the tower property of conditional expectation gives
+\[
+  \EE_\PP[Z_\tau\mid\FF_t]
+  = \EE_\PP\left[\EE_\PP\left[\frac{d\QQ}{d\PP}\,\bigg|\,\FF_\tau\right]\,\bigg|\,\FF_t\right]
+  = \EE_\PP\left[\frac{d\QQ}{d\PP}\,\bigg|\,\FF_t\right]
+  = Z_t.
+\]
+By \ref{reg:squareint}, $Z_t\in L^2(\PP)$ for all $t$, so this is a true (square-integrable)
+martingale, not merely a local one.
+
+\medskip\noindent\underline{Normalisation $Z_0=1$.}
+At $t=0$, $\FF_0=\sigma(X_0)$ and conditioning on $X_0=x_0$ gives
+\[
+  Z_0
+  = \EE_\PP\left[\frac{d\QQ}{d\PP}\right]
+  = \int \frac{\pdata(x_{t_1},\ldots,x_{t_L}\mid x_0)}
+              {\pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)}
+    \pbase(x_{t_1},\ldots,x_{t_L}\mid x_0)\,dx_{t_1}\cdots dx_{t_L}
+  = 1.
+\]
+
+%=======================================================================
+\noindent\textbf{Step 3: It\^o's lemma on $Z_t$.}
+To obtain the dynamics of $Z_t$ along the OU paths, write $Z_t=u(t,x_t;\mathbf{x}_{0:i^*})$,
+making explicit the dependence on $(t,x_t)$ and on the already-realized path
+history $(x_0,x_{t_1},\ldots,x_{t_{i^*}})$ from the filtration.  The realized history
+is $\FF_t$-measurable and plays the role of a parameter;
+only the current state $x_t$ is ``live'' in the It\^o sense.
+
+By \ref{reg:smooth}, $u\in C^{1,2}$ in $(t,x_t)$.
+Applying It\^o's formula \cite{ito1944109, ito1951stochastic} to $u(t,x_t;\mathbf{x}_{0:i^*})$ along \eqref{eqn:ou}:
+\begin{equation}\label{eqn:ito_u}
+  dZ_t
+  = \left(\frac{\partial u}{\partial t}
+    + \tfrac{1}{2}\mathrm{Tr}\bigl(\sigma(t)^2\nabla_{x_t}^2 u\bigr)
+    - a(t)x_t\cdot\nabla_{x_t}u\right)dt
+  + \nabla_{x_t}u\cdot\sigma(t)\,dW_t.
+\end{equation}
+Since $Z_t$ is a $\PP$-martingale (Step~2), its $dt$-drift must vanish
+$\PP$-almost surely.  The $dW_t$ term already has zero mean, so the bracketed
+expression in \eqref{eqn:ito_u} equals zero, leaving
+\begin{equation}\label{eqn:dZt}
+  dZ_t = \nabla_{x_t}u(t,x_t;\mathbf{x}_{0:i^*})\cdot\sigma(t)\,dW_t.
+\end{equation}
+This identifies $Z_t$ as a \emph{stochastic integral}: it has no drift and
+its quadratic variation is $d\langle Z\rangle_t = \|\nabla_{x_t}u\|^2\sigma(t)^2\,dt$.
+
+%=======================================================================
+\noindent\textbf{Step 4: Dol\'eans--Dade exponential form.}
+To apply Girsanov's theorem \cite{girsanov1960transforming} we must write $Z_t$ in the specific exponential
+martingale form of Dol\'eans--Dade \cite{doleans1970quelques}.  Apply It\^o's formula to $\log Z_t$
+(valid since $Z_t>0$ by \ref{reg:fullsupport}):
+\begin{equation}\label{eqn:ito_logZ}
+  d\log Z_t
+  = \frac{1}{Z_t}\,dZ_t - \frac{1}{2Z_t^2}(dZ_t)^2
+  = \frac{\nabla_{x_t}u}{u}\cdot\sigma(t)\,dW_t
+    - \frac{1}{2}\left\|\frac{\nabla_{x_t}u}{u}\,\sigma(t)\right\|^2 dt.
+\end{equation}
+Using the chain rule $\nabla_{x_t}u/u = \nabla_{x_t}\log u$ and integrating
+\eqref{eqn:ito_logZ} from $0$ to $t$:
+\begin{equation}\label{eqn:logZ}
+  \log Z_t
+  = \int_0^t \sigma(s)\,\nabla_{x_s}\log u(s,x_s;\mathbf{x}_{0:i^*_s})\cdot dW_s
+  - \frac{1}{2}\int_0^t \|\sigma(s)\,\nabla_{x_s}\log u(s,x_s;\mathbf{x}_{0:i^*_s})\|^2\,ds.
+\end{equation}
+Exponentiating:
+\begin{equation}\label{eqn:doleans}
+  Z_t = \exp\left(
+    \int_0^t Y_s\cdot dW_s
+    - \frac{1}{2}\int_0^t\|Y_s\|^2\,ds
+  \right),
+  \qquad Y_s := \sigma(s)\,\nabla_{x_s}\log u(s,x_s;\mathbf{x}_{0:i^*_s}).
+\end{equation}
+This is the Dol\'eans--Dade exponential (Theorem 3.5.1 of Karatzas--Shreve \cite{karatzas2014brownian})
+with drift process $Y_s$.  By \ref{reg:novikov} (Novikov's condition), $Z_t$
+is a true (not just local) $\PP$-martingale, confirming that the exponential
+in \eqref{eqn:doleans} has mean $1$ and that all subsequent applications of
+Girsanov's theorem are valid.
+
+
+%=======================================================================
+\noindent\textbf{Step 5: Girsanov's theorem — the $\QQ$-Brownian motion.}
+Having written $Z_t$ in the required exponential form \eqref{eqn:doleans}
+with $Y_s = \sigma(s)\nabla_{x_s}\log u$, Girsanov's theorem (\cite{girsanov1960transforming},
+Theorem 3.5.1 of \cite{karatzas2014brownian}) states that
+\begin{equation}\label{eqn:BQ}
+  B_t := W_t - \int_0^t \sigma(s)\,\nabla_{x_s}\log u(s,x_s;\mathbf{x}_{0:i^*_s})\,ds
+\end{equation}
+is a standard Brownian motion under $\QQ$.  Equivalently:
+\begin{equation}\label{eqn:dBrel}
+  dW_t = dB_t + \sigma(t)\,\nabla_{x_t}\log u(t,x_t;\mathbf{x}_{0:i^*})\,dt.
+\end{equation}
+Under the new measure $\QQ$, the $\PP$-driver $W_t$ is no longer a martingale; $B_t$ is the
+process that plays the role of standard Brownian motion, acquiring the additional drift
+$\sigma(t)\nabla_{x_t}\log u$ relative to $W_t$.
+
+%=======================================================================
+\noindent\textbf{Step 6: Substitution into the OU SDE.}
+Substitute \eqref{eqn:dBrel} into the base OU SDE \eqref{eqn:ou}:
+\begin{align}
+  dX_t
+  &= -a(t)X_t\,dt + \sigma(t)\,dW_t \nonumber\\
+  &= -a(t)X_t\,dt
+     + \sigma(t)\left[dB_t + \sigma(t)\,\nabla_{x_t}\log u(t,x_t;\mathbf{x}_{0:i^*})\,dt\right]
+     \nonumber\\
+  &= \Bigl(-a(t)X_t + \sigma(t)^2\,\nabla_{x_t}\log u(t,x_t;\mathbf{x}_{0:i^*})\Bigr)dt
+     + \sigma(t)\,dB_t. \label{eqn:new_sde_derived}
+\end{align}
+This is the claimed SDE \eqref{eqn:new_sde}.  Since $B^{\QQ}$ is a $\QQ$-Brownian
+motion, the SDE \eqref{eqn:new_sde_derived} is driven by Gaussian increments under
+$\QQ$, and by construction its finite dimensional law at times $t_1,\ldots,t_L$ is
+$\pdata(\cdot\mid x_0)$.
+
+%=======================================================================
+\noindent\textbf{Step 7: Analytic form of $\nabla_{x_t}\log u$.}
+It remains to derive the explicit form \eqref{eqn:expanded_score_main} of the score.
+Fix $t\in(t_{i^*},t_{i^*+1})$ and expand $Z_t=u(t,x_t;\mathbf{x}_{0:i^*})$ from its definition
+\eqref{eqn:Zt} by conditioning on the already-realized states
+$\mathcal{F}_{t_{i^*}}=(x_0,x_{t_1},\ldots,x_{t_{i^*}})$:
+
+
+\begin{align}
+  Z_t
+  &= \EE_\PP\left[
+       \frac{\pdata(X_{t_1},\ldots,X_{t_L}\mid X_0)}
+            {\pbase(X_{t_1},\ldots,X_{t_L}\mid X_0)}
+       \,\bigg|\,\FF_t
+     \right] \nonumber\\
+  &= \underbrace{\frac{\pdata(x_{t_1},\ldots,x_{t_{i^*}}\mid x_0)}
+                      {\pbase(x_{t_1},\ldots,x_{t_{i^*}}\mid x_0)}}_{=:\,k,\;\FF_{t_{i^*}}\text{-measurable}} \nonumber \\
+     &*\int
+       \frac{\pdata(x_{t_{i^*+1}},\ldots,x_{t_L}\mid x_0,\ldots,x_{t_{i^*}})}
+            {\pbase(x_{t_{i^*+1}},\ldots,x_{t_L}\mid x_0,\ldots,x_{t_{i^*}})}
+       \,\pbase(x_{t_{i^*+1}},\ldots,x_{t_L}\mid\FF_t)\,dx_{t_{i^*+1}}\cdots dx_{t_L}.
+       \label{eqn:Zt_expand1}
+\end{align}
+By the Markov property \ref{reg:markov}, conditioned on $\FF_t$ the future increments
+of the base process depend only on the current state $x_t$:
+\[
+  \pbase(x_{t_{i^*+1}},\ldots,x_{t_L}\mid\FF_t)
+  = \pbase(x_{t_{i^*+1}}\mid x_t)\prod_{j=i^*+1}^{L-1}\pbase(x_{t_{j+1}}\mid x_{t_j}).
+\]
+Substituting into \eqref{eqn:Zt_expand1} and cancelling the telescoping Markov
+product against the denominator of the data/base ratio (noting the base Markov
+factorisation)
+\begin{equation}\label{eqn:markov_factor}
+  \pbase(x_{t_{i^*+1}},\ldots,x_{t_L}\mid x_{t_{i^*}})
+  = \pbase(x_{t_{i^*+1}}\mid x_{t_{i^*}})\prod_{j=i^*+1}^{L-1}\pbase(x_{t_{j+1}}\mid x_{t_j}),
+\end{equation}
+the product of future base transitions in numerator and denominator telescopes, and
+the integral over $x_{t_{i^*+2}},\ldots,x_{t_L}$ of the normalised data density equals one:
+\begin{equation}\label{eqn:Zt_expand2}
+  Z_t
+  = k\int \pdata(x_{t_{i^*+1}}\mid x_0,\ldots,x_{t_{i^*}})
+          \cdot\frac{\pbase(x_{t_{i^*+1}}\mid x_t)}{\pbase(x_{t_{i^*+1}}\mid x_{t_{i^*}})}
+          \,dx_{t_{i^*+1}}.
+\end{equation}
+Applying Bayes' rule to the base process (we can apply Bayes' rule freely here because the Gaussian structure of the base process makes all conditional densities, whether forward or backward, analytically tractable),
+\begin{equation}\label{eqn:bayes_base}
+  \frac{\pbase(x_{t_{i^*+1}}\mid x_t)}{\pbase(x_{t_{i^*+1}}\mid x_{t_{i^*}})}
+  = \frac{\pbase(x_t\mid x_{t_{i^*}},x_{t_{i^*+1}})}{\pbase(x_t\mid x_{t_{i^*}})},
+\end{equation}
+and collecting:
+\begin{equation}\label{eqn:Zt_final}
+  Z_t
+  = \frac{k}{\pbase(x_t\mid x_{t_{i^*}})}
+    \int \pdata(x_{t_{i^*+1}}\mid x_0,\ldots,x_{t_{i^*}})\,
+         \pbase(x_t\mid x_{t_{i^*}},x_{t_{i^*+1}})\,dx_{t_{i^*+1}}.
+\end{equation}
+Taking $\nabla_{x_t}\log(\cdot)$ of \eqref{eqn:Zt_final}, and noting that $k$
+is constant in $x_t$:
+\begin{align}
+  \nabla_{x_t}\log u(t,x_t;\mathbf{x}_{0:i^*})
+  &= -\nabla_{x_t}\log\pbase(x_t\mid x_{t_{i^*}}) \nonumber\\
+  &\quad+ \nabla_{x_t}\log\int
+      \pdata(x_{t_{i^*+1}}\mid x_0,\ldots,x_{t_{i^*}})\,
+      \pbase(x_t\mid x_{t_{i^*}},x_{t_{i^*+1}})\,
+      dx_{t_{i^*+1}}.\label{eqn:score_derived}
+\end{align}
+This establishes \eqref{eqn:expanded_score_main} in Theorem \ref{thm:new_sde}.
+
+\medskip
+Combining Steps~1--7: the SDE \eqref{eqn:new_sde_derived} is driven by the
+$\QQ$-Brownian motion $B_t$ and has oracle drift $s=\nabla_{x_t}\log u$ as given
+by \eqref{eqn:score_derived}.  Conditionally on $X_0=x_0$ the finite dimensional law
+at $(t_1,\ldots,t_L)$ is $\pdata(\cdot\mid x_0)$ by construction of $\QQ$ in
+Step~1.  Since $X_0\sim\pdata(x_0)$ by assumption,
+\[
+  \mathrm{Law}(X_0,X_{t_1},\ldots,X_{t_L})
+  = \pdata(x_0)\cdot\pdata(x_{t_1},\ldots,x_{t_L}\mid x_0)
+  = \pdata(x_0,x_{t_1},\ldots,x_{t_L}).
+\]
+\end{proof}
+
+
+\section{Learning the Score Function}
+\label{appendix:C}
+
+The oracle score $s(t,x_t;\mathbf{x}_{0:i^*}) = \nabla_{x_t}\log u(t,x_t;\mathbf{x}_{0:i^*})$ from Theorem~\ref{thm:new_sde} is defined implicitly through the Doob $h$-function.  This section makes its structure explicit, shows how it can be learned from data, and proves Theorem~\ref{thm:path_dependent_score}.
+
+%======================================================
+\subsection{Analytic Form of the Score}
+\label{subsec:analytic_score_function}
+
+Taking the log-gradient of the expression for $u$ derived in Step~7 of Appendix~\ref{appendix:B} (equation~\eqref{eqn:Zt_final}), the oracle score decomposes as
+
+\begin{align}
+    s(t, x_t; \mathbf{x}_{0:i^*})
+    \;=\; &\nabla_{x_t}\log u(t, x_t; \mathbf{x}_{0:i^*})\\
+    \;=\;
+    &-\underbrace{\nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}})}_{\text{analytic}}
+    \nonumber \\
+    &+\; \underbrace{\nabla_{x_t}\log \int
+      \pdata(x_{t_{i^*+1}} \mid x_0, \ldots, x_{t_{i^*}})\,
+      \pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})\,
+      dx_{t_{i^*+1}}}_{\text{to be learned}}.
+    \label{eqn:expanded_score}
+\end{align}
+
+The first term is the score of the OU marginal $\pbase(x_t \mid x_{t_{i^*}})$, which is Gaussian and therefore available in closed form at any $t \in (t_{i^*}, t_{i^*+1})$.  The second term is a log-normalizer over the next observation $x_{t_{i^*+1}}$ weighted by the data distribution, and is the term that must be approximated by a neural network.
+
+The difficulty is that the first term diverges as $t \to t_{i^*}^+$: the OU marginal concentrates into a Dirac delta, making the gradient unbounded.  A network that directly targets the sum would need to handle this singularity.  We show below that the singularity cancels algebraically, leaving a well-posed training objective.
+
+\bigskip
+
+\begin{remark}[Boundary interpretation at $t = t_{i^*}$]
+One might worry that when $t = t_{i^*}$ exactly, the gradient $\nabla_{x_t}$ in~\eqref{eqn:expanded_score} accidentally differentiates through $x_{t_{i^*}}$, since the two coincide numerically.  This is not the case for two reasons.  First, $t_{i^*}$ and $t$ are distinct variables that happen to be equal at the boundary; $\nabla_{x_t}$ and $\nabla_{x_{t_{i^*}}}$ remain separate operators (analogous to pass-by-value versus pass-by-reference in programming).  Second, It\^o calculus is non-anticipative: in the Riemann approximation of the It\^o integral, the integrand is evaluated at the left endpoint of each discretisation interval \cite{steele2001stochastic}, so $x_t$ is treated as a fixed value when taking $\nabla_{x_t}$, independently of $x_{t_{i^*}}$, which was already realised in $\mathcal{F}_t$.
+\end{remark}
+
+%======================================================
+\subsection{Bridge Score Matching}
+\label{sec:learn_score}
+
+A natural first learning objective uses the bridge kernel $\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})$ as the noising distribution.  By the denoising score matching identity \cite{vincent2011connection}, the minimizer of the squared-error loss against the bridge score $\nabla_{x_t}\log\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})$ is the conditional expectation of that score given $(x_t, \mathbf{x}_{0:i^*})$, which equals the log-gradient of the mixture $\mathcal{M}(x_t) = \int \pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})\,\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})\,dx_{t_{i^*+1}}$.  Comparing with~\eqref{eqn:expanded_score}, this is $s + \nabla_{x_t}\log\pbase(x_t \mid x_{t_{i^*}})$, i.e.\ the oracle plus the singular term.
+
+For a fixed trajectory segment and a score network $\mathbf{r}_\theta$, define the bridge loss
+
+\begin{align}
+  \mathcal{L}_\text{bridge}&(\theta;\, t,\, \mathbf{x}_{0:t_{i^*}},\, x_{t_{i^*+1}})
+  \;:=\; \nonumber \\
+  &\EE_{\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})}\left[
+    \bigl\|\mathbf{r}_\theta(t, t_{i^*+1}, x_t;\, \mathbf{x}_{0:i^*})
+    - \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})\bigr\|_2^2
+  \right].\label{eqn:dsm_fixed_traj}
+\end{align}
+
+Averaging over all trajectory segments and times gives the joint objective:
+
+\begin{equation}\label{eqn:dsm_joint_conditioned_objective}
+  \mathcal{L}_\text{bridge}^\QQ(\theta)
+  \;:=\;
+  \EE_{t \sim \mathcal{U}(0,\,t_{L-1})}\;
+  \EE_{\pdata(x_0, \ldots, x_{t_{i^*}})}\;
+  \EE_{\pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})}\;
+  \mathcal{L}_\text{bridge}(\theta;\, t,\, \mathbf{x}_{0:t_{i^*}},\, x_{t_{i^*+1}}).
+\end{equation}
+
+This is a valid objective in the sense that its minimizer recovers the oracle (up to the singular additive term).  However, because the target $\nabla_{x_t}\log\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})$ diverges as $t \to t_{i^*}^+$, it is more natural to reparametrize the network so that the diverging term is absorbed analytically.  This is carried out in the proof of Theorem~\ref{thm:path_dependent_score} below.
+
+%======================================================
+\subsection{Proof of Theorem~2}
+\label{sec:proof_thm_2}
+\begin{proof}[Proof of Theorem~\ref{thm:path_dependent_score}]
+
+The proof has two steps.  Step~1 cancels the singularity via a reparametrization that converts the bridge loss into the simplified loss $\mathcal{L}_\text{DSM}$ of the theorem statement.  Step~2 identifies the minimizer of this simplified loss with the oracle score $s$.
+
+\bigskip
+\noindent \textbf{Step 1: Singularity cancellation.}
+
+By Bayes' rule applied to the Markov base process:
+\begin{equation}\label{eqn:bayes_grad}
+  \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})
+  \;=\;
+  \nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)
+  \;+\;
+  \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}}).
+\end{equation}
+
+Define a reparametrized network $\mathbf{f}_\theta$ by
+\begin{equation}\label{eqn:reparam}
+  \mathbf{r}_\theta(t, t_{i^*+1}, x_t;\, \mathbf{x}_{0:i^*})
+  \;:=\;
+  \mathbf{f}_\theta(t, t_{i^*+1}, x_t;\, \mathbf{x}_{0:i^*})
+  \;+\;
+  \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}}),
+\end{equation}
+so that $\mathbf{f}_\theta$ carries no singular term (it contributes the singular term analytically through~\eqref{eqn:reparam}).  Substituting~\eqref{eqn:reparam} into the bridge loss~\eqref{eqn:dsm_fixed_traj} and applying~\eqref{eqn:bayes_grad}:
+\begin{align}
+  &\mathcal{L}_\text{bridge}(\theta) \nonumber \\
+  &= \EE\left[
+      \bigl\|
+        \mathbf{f}_\theta
+        + \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}})
+        - \nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)
+        - \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}})
+      \bigr\|^2
+    \right]
+  \nonumber \\
+  &= \EE\left[
+      \bigl\|
+        \mathbf{f}_\theta(t, t_{i^*+1}, x_t;\, \mathbf{x}_{0:i^*})
+        - \nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)
+      \bigr\|^2
+    \right].
+  \label{eqn:simplified_loss}
+\end{align}
+
+The two $\nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}})$ terms cancel exactly.  The residual target $\nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)$ is non-singular on $(t_{i^*}, t_{i^*+1})$ since $x_{t_{i^*+1}} \ne x_t$ throughout the open interval.  Averaging over all segments gives the full objective
+\begin{align}
+  &\mathcal{L}_\mathrm{DSM}^{\QQ}(\theta) \nonumber \\
+  &\;=\;
+  \EE_{t \sim \mathcal{U}(0,\,t_{L-1})}\;
+  \EE_{\substack{\pdata(x_0, \ldots, x_{t_{i^*+1}}) \\[3pt]
+                 \pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})}}
+  \left[
+    \bigl\|
+      \mathbf{f}_\theta(t, t_{i^*+1}, x_t;\, \mathbf{x}_{0:i^*})
+      - \nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)
+    \bigr\|^2
+  \right],\label{eqn:loss_final}
+\end{align}
+which is $\mathcal{L}_\text{DSM}(\hat{s})$ from Theorem~\ref{thm:path_dependent_score} with $\hat{s} = \mathbf{f}_\theta$.  Both quantities inside the expectation are available in closed form from Lemma~\ref{lem:gaussian_kernels}: the noising kernel provides $x_t$ given $(x_{t_{i^*}}, x_{t_{i^*+1}})$, and the score target is given by~\eqref{eqn:score_target}.
+
+\bigskip
+\noindent \textbf{Step 2: The minimizer of $\mathcal{L}_\mathrm{DSM}^\QQ$ is the oracle score $s$.}
+
+Fix $t \in (t_{i^*}, t_{i^*+1})$ and $\mathbf{x}_{0:i^*}$.  Let
+$p(x_{t_{i^*+1}}, x_t \mid \mathbf{x}_{0:i^*}) := \pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})\,\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})$
+denote the joint sampling distribution.  By the bias-variance decomposition:
+\begin{align}
+  &\EE\left[
+    \bigl\|\mathbf{f}(t, x_t;\, \mathbf{x}_{0:i^*})
+    - \nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)\bigr\|^2
+  \right]
+  \nonumber \\[4pt]
+  &\quad =\;
+  \EE_{x_t}\left[
+    \bigl\|\mathbf{f} - \EE_{x_{t_{i^*+1}} \mid x_t}\bigl[\nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)\bigr]\bigr\|^2
+  \right]
+  +\; \text{const},
+  \label{eqn:bias_var}
+\end{align}
+
+where the constant is independent of $\mathbf{f}$.  The unique minimizer is therefore the conditional mean
+\begin{equation}\label{eqn:minimiser}
+  \mathbf{f}^*(t, x_t;\, \mathbf{x}_{0:i^*})
+  \;=\;
+  \EE_{x_{t_{i^*+1}} \mid x_t,\, \mathbf{x}_{0:i^*}}\bigl[\nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)\bigr],
+\end{equation}
+
+where $p(x_{t_{i^*+1}} \mid x_t, \mathbf{x}_{0:i^*}) \propto \pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})\,\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})$.
+
+It remains to show $\mathbf{f}^* = s$.  Define $$\mathcal{M}(x_t) := \int \pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})\,\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})\,dx_{t_{i^*+1}},$$ the denominator of the conditional.  Writing out~\eqref{eqn:minimiser} explicitly:
+\[
+  \mathbf{f}^*
+  \;=\;
+  \frac{1}{\mathcal{M}(x_t)}
+  \int
+    \pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})\;
+    \pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})\;
+    \nabla_{x_t}\log \pbase(x_{t_{i^*+1}} \mid x_t)\;
+  dx_{t_{i^*+1}}.
+\]
+
+Apply~\eqref{eqn:bayes_grad} to substitute $$\nabla_{x_t}\log\pbase(x_{t_{i^*+1}}\mid x_t) = \nabla_{x_t}\log\pbase(x_t\mid x_{t_{i^*}},x_{t_{i^*+1}}) - \nabla_{x_t}\log\pbase(x_t\mid x_{t_{i^*}}),$$ we get
+\begin{align*}
+  \mathbf{f}^*
+  \;=\;
+  \frac{1}{\mathcal{M}(x_t)}
+  &\int
+    \pdata(x_{t_{i^*+1}} \mid \mathbf{x}_{0:i^*})\;
+    \nabla_{x_t}\pbase(x_t \mid x_{t_{i^*}}, x_{t_{i^*+1}})\;
+  dx_{t_{i^*+1}} \\
+  &\;-\;
+  \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}}).
+\end{align*}
+
+Interchanging $\nabla_{x_t}$ with the integral (justified since $\pbase(\cdot \mid x_{t_{i^*}}, x_{t_{i^*+1}})$ is Gaussian in $x_t$, so dominated convergence applies):
+\begin{equation}\label{eqn:score_equals_f}
+  \mathbf{f}^*
+  \;=\;
+  \frac{\nabla_{x_t}\mathcal{M}(x_t)}{\mathcal{M}(x_t)}
+  \;-\;
+  \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}})
+  \;=\;
+  \nabla_{x_t}\log \mathcal{M}(x_t)
+  \;-\;
+  \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}}).
+\end{equation}
+
+From~\eqref{eqn:Zt_final} in Appendix~\ref{appendix:B},
+$u(t, x_t;\, \mathbf{x}_{0:i^*}) = k\,\mathcal{M}(x_t)/\pbase(x_t \mid x_{t_{i^*}})$ with $k > 0$ independent of $x_t$.  Therefore
+\[
+  s(t, x_t;\, \mathbf{x}_{0:i^*})
+  \;=\;
+  \nabla_{x_t}\log u
+  \;=\;
+  \nabla_{x_t}\log \mathcal{M}(x_t) - \nabla_{x_t}\log \pbase(x_t \mid x_{t_{i^*}})
+  \;=\;
+  \mathbf{f}^*.
+\]
+
+The oracle score $s$ is the unique minimizer of $\mathcal{L}_\mathrm{DSM}^\QQ$ (equivalently, $\mathcal{L}_\text{DSM}(\hat{s})$ with $\hat{s} = \mathbf{f}_\theta$).
+\end{proof}
+
+%======================================================
+\subsection{Non-Singularity and Novikov's Condition}
+\label{sec:tractable_score}
+
+The simplified loss~\eqref{eqn:loss_final} eliminates both practical and theoretical concerns associated with the original two-term score~\eqref{eqn:expanded_score}.
+
+On the practical side, the target $\nabla_{x_t}\log\pbase(x_{t_{i^*+1}} \mid x_t)$ is bounded and smooth on the interval $[t_{i^*}, t_{i^*+1})$ because $x_{t_{i^*+1}} \ne x_t$ by construction, and the singular term with $x_{t_{i^*}}$ got canceled out in \eqref{eqn:loss_final}.  The network $\mathbf{f}_\theta$ therefore has a bounded, non-singular regression target throughout training.
+
+On the theoretical side, the SDE~\eqref{eqn:new_sde} in Theorem~\ref{thm:new_sde} requires Novikov's condition (Regularity~R6 in Appendix~\ref{appendix:B}):
+\[
+  \EE_\PP\left[
+    \exp\left(
+      \tfrac{1}{2}\int_0^{t_L}
+      \|\sigma(s)\,\nabla_{x_s}\log u(s,x_s;\mathbf{x}_{0:i^*_s})\|^2\,ds
+    \right)
+  \right] < \infty.
+\]
+From~\eqref{eqn:reparam} and~\eqref{eqn:bayes_grad}, the learnable part of $\nabla_{x_t}\log u$ is $\mathbf{f}_{\theta^*} = s$, which depends on $x_{t_{i^*+1}} \ne x_t$ and is therefore non-singular on the open interval.  The singular term $\nabla_{x_t}\log\pbase(x_t \mid x_{t_{i^*}})$ is present in the oracle score $s$ analytically (through the reparametrization~\eqref{eqn:reparam}), but its contribution to the It\^o integral is square-integrable on $[t_{i^*}, t_{i^*+1})$ since it got canceled out in \eqref{eqn:loss_final}. %is the score of the Gaussian marginal $\pbase(x_t \mid x_{t_{i^*}})$.
+The integrand is therefore square-integrable on every compact sub-interval, and Novikov's condition is satisfied \cite{novikov1972identity, girsanov1960transforming, steele2001stochastic}.
+
+
+
+%%%%%%%%%%%%%%%%%
+\section{Generic Conditional Diffusion Bridges Cannot Capture the Path Measure}\label{sec:proof_hacky_bridge_bad}
+We prove Theorem \ref{thm:non_bijective_path_measure} here.
+
+\begin{proof}
+Marginal agreement at $(0, t_1, \ldots, t_L)$ holds by hypothesis. To see that the full path laws differ, compare quadratic variations, which are pathwise functionals and hence law-determined.
+
+For $X$, quadratic variation is $\langle X \rangle_t = \int_0^t \sigma(s)^2\,ds$ (drift does not contribute) \cite{ito1944109, ito1951stochastic, karatzas2014brownian}. For $Y$, the deterministic time change on $[t_{i-1}, t_i]$ has rate $1/(t_i - t_{i-1})$, so on this subinterval $Y$ has quadratic variation density
+\[
+  s \;\mapsto\; \tilde{\sigma}\big((s - t_{i-1})/(t_i - t_{i-1})\big)^2 \,/\, (t_i - t_{i-1}).
+\]
+Equality of laws would force this to equal $\sigma(s)^2$ pointwise a.e.\ on every $(t_{i-1}, t_i)$ --- a rigid constraint independent of the marginal-matching hypothesis on $\tilde{\mathbf{f}}_\theta$. Generic choices violate it (\textit{e.g.}, $\tilde{\sigma}$ that does not depend on $i$ when $\exists i:t_i - t_{i-1} \neq t_L/L$, any constant $\tilde{\sigma}$ against a non-constant $\sigma$). So, $\mathrm{Law}(Y) \neq \mathrm{Law}(X)$.
+\end{proof}
+
+This shows that endpoint-matching alone does not identify the correct path law. In particular, unless the bridge volatility schedules are chosen to satisfy a specific time-rescaling compatibility condition, the chained-bridge construction leads to different path laws.
+
+
+\section{Need for Path-Dependent Drift}
+
+\begin{figure}[p]
+    \centering
+
+    % First row
+    \begin{subfigure}{0.47\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/data.png}
+        \caption{Data}
+        \label{fig:sub1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.47\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/base.png}
+        \caption{Base Process}
+        \label{fig:sub2}
+    \end{subfigure}
+    \vspace{0.02\textheight}
+    \begin{subfigure}{0.47\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/markov.png}
+        \caption{Markov}
+        \label{fig:sub3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.47\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/ABC.png}
+        \caption{ABC}
+        \label{fig:sub4}
+    \end{subfigure}
+
+    \caption{We can consider the case where the data process is not Markov. This can happen for several reasons. For example, in a physical system, a snapshot will only reveal the position but not the velocity of the item. Even when the process restricted to the finite observation times is a discrete-time Markov process, we still cannot ensure that the continuous time extension is Markov. Indeed, we can find one that is not possible. This happens since continuous time extension while keeping the Markov structure will enforce some non-flexible temporal correlation. We can see such occurrence in the example provided in (a). This is a mixture of two Markov processes: the red process and the blue process. The mixture itself is non-Markov. In the region around time $t=1.5$, we will see that the drift for the red process tends to be negative, while that of the blue process tends to be positive. Still, we will see that the process restricted to the finite observations (which are at times $0,1,2,$ and $3$) is actually Markov: If $X_1 = 0.5$, then $X_2=X_3=-0.5$, and, if $X_1 = -0.5$, then $X_2=X_3=0.5$. However, we have that $X_1$ and $X_2$ have a correlation of $-1$, while $X_2$ and $X_3$ have a correlation of $1$. We then cannot find \textit{any} continuous-time Markov SDE process such that the correlation structures can be satisfied (even when we allow the volatility schedule to be different from the data process). By trying to match the marginal of the observed data at each observation time, we will introduce positive correlation. We can see that the majority of the red process, which are the processes with $X_1=0.5$, will also have $X_2=0.5$ instead of $-0.5$.
+    %Note that this is similar to how discrete-time autoregressive with negative coefficient cannot be rationalized by a continuous-time SDE.
+    However, we will see that a similar problem also occurs from time $t=2$ to $3$. The value $X_2$ is supposed to be the same as $X_3$ under the data process. However, the volatility we add creates some mixing, thereby violating the joint finite-dimensional distribution matching desiderata. For our ABC, we start from the base process, which is data-independent, but with matching volatility schedule. The path-dependent (on finite time observation) Doob-h transform helps change the base process (b) into our ABC process (d).}
+    \label{fig:nonmarkov}
+
+\end{figure}
+
+\newpage
+\clearpage
+
+\section{Algorithms}
+
+\subsection{Training}
+See Algorithm \ref{alg:train}. For simplicity, we denote it in the non-batched setting, but it is trivial to batch it, and our implementation is batched. We normalize the time horizon such that $t_L = 1$.
+
+\begin{algorithm}
+\caption{Training Procedure}\label{alg:train}
+\begin{algorithmic}[1]
+\Require Time series distribution $p_\text{data}$, SDE parameters $\sigma(t), a(t)$, Waypoint time sampling distribution $p_\text{waypoint\_times}$, Conditioning set size sampling distribution $p_\text{waypoint\_set\_size}$
+% \Ensure
+\State Initialize $\mathbf{f}_\theta(x_t; t, t_{i^*+1}, \mathcal{K})$
+\For{$\texttt{iter} = 1 \rightarrow \texttt{iter}_\text{max}$}
+    \State Sample $|\mathcal{T_W}| \sim p_\text{waypoint\_set\_size}$ \texttt{\ \ //} $|\mathcal{T_W}| \in \mathbb{Z}^{+} \oplus \{0\}$
+    \State $\mathcal{T_W} \gets \{\tau_1, \ldots, \tau_{|\mathcal{T_W}|}\} \sim p_\text{waypoint\_times}$ \texttt{\ \ // ascending order,} $\tau_i \in (0, 1)$
+    % \State $\mathcal{T_K}, \mathcal{T_P} = \text{RandomPartition}(\mathcal{T_W})$ \texttt{\ \ // $\mathcal{T_K}$ is conditioning, $\mathcal{T_P}$ is predicted}
+    \State $\mathcal{T_W} \gets \mathcal{T_W} \oplus \{0, 1\}$ \texttt{\ \ // include initial condition and terminal state}
+    \State $t \sim \mathcal{U}[0, 1)$ \texttt{\ \ // current time (interpolates waypoints)}
+    \State $\mathcal{T_P} \gets \{\tau_i | \tau_i \leq t \cap \tau_i \in \mathcal{T_W}\}$ \texttt{\ \ // observe all past times (causal)}
+    \State $\mathcal{T_K} \gets \mathcal{T_P} \cup \text{RandomSubset}(\mathcal{T_W} \setminus \mathcal{T_P})$ \texttt{\ \ // conditioning can include future}
+    % \State $\mathcal{T_P} = \mathcal{T_P} \oplus \{1\}$ \texttt{\ \ // include terminal state}
+    \State $t_{i^{*}} \gets \text{max}\{\tau_i \in \mathcal{T_K} | \tau_i \leq t\}$ \texttt{\ \ // most recent waypoint time}
+    \State $t_{i^{*} + 1} \gets \text{min}\{\tau_i \in \mathcal{T_W} | \tau_i > t\}$ \texttt{\ \ // next waypoint time}
+    \State $x_0, x_{\tau_1}, \ldots, x_{\tau_{\left|\mathcal{T_W}\right|}}, x_1 \sim p_\text{data}\left(x_0, x_{\tau_1}, \ldots, x_{\tau_{\left|\mathcal{T_W}\right|}}, x_1\right)$ \texttt{\ \ // sample from joint data distribution in continuous time}
+    \State $\mathcal{K} \gets \{(\tau, x_{\tau}) | \tau \in \mathcal{T_K}\}$ \texttt{\ \ // waypoints to condition on (past and future)}
+    \State $x_t | x_{t_{i^*}}, x_{t_{i^*+1}} \overset{\mathbb{P}}{\sim} \mathcal{N}(\mu_{t | t_{i^*}, t_{i^*+1}}(x_{t_{i^*}}, x_{t_{i^*+1}}), \Sigma_{t | t_{i^*}, t_{i^*+1}})$ \texttt{\ \ // sample target, Eq \ref{eqn:sampling_dist_noising_kernel_main}}
+    \State $\nabla_{x_t} \text{log } p_\text{base}(x_{t_{i^*+1}} | x_t) = \frac{\Phi(t, t_{i^*+1})}{C_t(t_{i^*+1}, t_{i^*+1})}(x_{t_{i^*+1}} - \Phi(t, t_{i^*+1})x_{t})$ \texttt{\ \ // score target, Eq \ref{eqn:score_target}}
+    \State $\mathcal{L}(\theta) \gets w(t, t_{i^*}, t_{i^*+1})\|\mathbf{f}_\theta(x_t; t, t_{i^*+1}, \mathcal{K}) - \nabla_{x_t} \text{log } p_\text{base}(x_{t_{i^*+1}} | x_t)\|^2$ \texttt{\ \ // DSM, Eq \ref{eqn:simplified_dsm_main} (can be batched)}
+    \State $\theta \gets \theta - \nabla_{\theta}\mathcal{L}(\theta)$ \texttt{\ \ // update (can be batched)}
+\EndFor
+\\
+\Return $\mathbf{f}_\theta(x_t; t, t_{i^*+1}, \mathcal{K})$ \texttt{\ \ // trained score network}
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Inference}
+See Algorithm \ref{alg:inference}.
+Normally, we would use a constant $\Delta t$ discretization, but this may result in the discretization scheme overshooting the waypoints. As such, when we are near a waypoint, we decrease the timestep to prevent overshooting (Line \ref{alg:line:adjust_timestep}; for numerical stability, we set $\epsilon_t = 10^{-6}$). To ensure that we still maintain the same total number of steps, we add back that difference to the next timestep after crossing the waypoint. (This strategy relies on the distance between waypoints being at least twice as large as the discretization interval, which is generally true in most reasonable SDE simulations.)
+
+This inference procedure applies to both our ABC model (Equation \ref{eqn:new_sde}), and the autoregressively chained diffusion bridge construction from Theorem \ref{thm:non_bijective_path_measure} (Equations \ref{eqn:cond_diffusion_bridge}, \ref{eqn:time_shifted_bridge}).
+For noise-to-data generation, reset $x_t \sim \mathcal{N}(0, I)$ after Line \ref{line:observe_waypoint}, and let $x_0 \sim \mathcal{N}(0, I)$.
+
+\begin{algorithm}
+\caption{Inference Procedure}\label{alg:inference}
+\begin{algorithmic}[1]
+\Require Trained score network $\mathbf{f}_\theta(x_t; t, t_{i^*+1}, \mathcal{K})$, Waypoint times $\mathcal{T_W}$, Observed waypoints $\mathcal{K}$ ($\mathcal{T_K} \subseteq \mathcal{T_W}$, includes $(0, x_0)$ and possibly future conditioning), Number of steps $N$, Waypoint time exceedance threshold $\epsilon_t$, SDE parameters $\sigma(t), a(t)$
+\State $t \leftarrow 0$
+\State $\Delta t_\text{leftover} \leftarrow 0$
+\While{$t < 1$}
+% \For{$t = 0, \Delta t, 2\Delta t, \ldots, 1 - \Delta t$}
+    \State $t_{i^{*}} \gets \text{max}\{\tau_i \in \mathcal{T_K} | \tau_i \leq t\}$ \texttt{\ \ // most recent waypoint time}
+    \State $t_{i^{*} + 1} \gets \text{min}\{\tau_i \in \mathcal{T_W} | \tau_i > t\}$ \texttt{\ \ // next waypoint time}
+    \If{$t + \frac{1}{N} > t_{i^*+1} + \epsilon_t$}\label{alg:line:adjust_timestep}
+        \State $\Delta t \leftarrow t_{i^*+1} - t + \epsilon_t$ \texttt{\ \ // Don't overshoot the waypoint}
+        \State $\Delta t_\text{leftover} \leftarrow 1 / N - \Delta t$ \texttt{\ \ // Give this back later}
+    \Else
+        \State $\Delta t \leftarrow 1 / N + \Delta t_\text{leftover}$ \texttt{\ \ // Recover the leftover simulation time}
+        \State $\Delta t_\text{leftover} \leftarrow 0$
+    \EndIf
+    \State $dB^\mathbb{Q}_t \sim \mathcal{N}(\mu=\mathbf{0}, \Sigma=(\Delta t)I)$ %\texttt{\ \ // Gaussian increment}
+    \State $dB^\mathbb{P}_t \gets dB^\mathbb{Q}_t + \sigma(t)\mathbf{f}_\theta(x_t; t, t_{i^*+1}, \mathcal{K})\Delta t$ \texttt{\ \ // Eq \ref{eqn:dBrel}}
+    \State $dx_t \gets -a(t)x_t\Delta t + \sigma(t) dB^\mathbb{P}_t$ \texttt{\ \ // Eq \ref{eqn:ou}}
+    \State $x_{t + \Delta t} \gets x_t + dx_t$
+    \For{$\tau_i \in \mathcal{T_W} \setminus \mathcal{T_K}$}
+        \If{$\tau_i \leq t < \tau_i + \frac{1}{N}$}
+            \State $\mathcal{K} \gets \mathcal{K} \oplus (t, x_t)$ \texttt{\ \ // we've observed another waypoint, $\tau_i \approx t$}\label{line:observe_waypoint}
+        \EndIf
+    \EndFor
+% \EndFor
+\EndWhile
+\\
+\Return $\mathcal{K}$ \texttt{\ \ // trajectory at waypoints}
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+\clearpage
+
+
+
+
+\section{Comparison to Denoising Diffusion Bridge Models}\label{sec:comparison}
+
+Since our loss function and generative SDE bear some resemblance to the popular denoising diffusion bridge \cite{zhou2023denoising} and denoising diffusion \cite{song2020score} models, we show the similarities and differences.
+We conduct the analysis on denoising diffusion bridge models (DDBM) \cite{zhou2023denoising}, as denoising diffusion models \cite{song2020score} are just a special case of DDBMs with $x_0 \sim \mathcal{N}(0, I)$.
+% Recall that our loss function (Equation \ref{eqn:simplified_dsm_main}) and dynamics (Equation \ref{eqn:new_sde}) are:
+% \begin{equation}
+%     \theta^* = \underset{\theta}{\text{argmin }} \displaystyle \mathbb{E}_{t \sim \mathcal{U}[0, t_{L-1})} \mathbb{E}_{\substack{p_\text{\normalfont data}(x_0, \ldots, x_{t_{i^* + 1}}) \\ p_\text{\normalfont base}(x_t | x_{t_{i^* + 1}}, x_{t_{i^*}})}} \left[\left\|\mathbf{f}_\theta(t,t_{i^*+1},x_t;\mathbf{x}_{0:i^*}) - \nabla_{x_t} \text{\normalfont log }p_\text{\normalfont base}(x_{t_{i^* + 1}} | x_t)\right\|_2^2\right]\nonumber,
+% \end{equation}
+% \begin{equation}
+%     dX(t) = \left(-A(t)X(t) + \sigma(t)^2 \mathbf{f}_\theta(t,t_{i^*+1},x_t;\mathbf{x}_{0:i^*})\right)dt + \sigma(t)dB^\mathbb{Q}(t)\nonumber
+% \end{equation}
+% The loss function (Equation \ref{eqn:trad_diffusion_bridge}) and dynamics (Equation \ref{eqn:trad_dsm}) of diffusion bridge models are:
+% \begin{equation}
+%     \mathbf{\theta^*} = \underset{\mathbf{\theta}}{\text{argmin }}\mathbb{E}_{t \sim \mathcal{U}[0, 1)}\mathbb{E}_{x_0, x_1 \sim p_\text{data}}\mathbb{E}_{x_t \sim p_\text{base}(x_t | x_0, x_1)}[\|\mathbf{s_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p_\text{base}(x_t | x_0, x_1)\|^2]\nonumber,
+% \end{equation}
+% \begin{equation}
+%     dx_t = \left(-a(t)x_t + \sigma(t)^2 \left[\mathbf{s_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p_\text{base}(x_0 | x_t)\right]\right)dt + \sigma(t)dB(t) \nonumber
+% \end{equation}
+
+\subsection{Similarity: Two-Point Case}
+
+Let us consider the case where we only wish to model the marginal: $p_\text{data}(x_1 | x_0)$; that is, a two-point time series where $t_L = 1$.
+Then (omitting the $t_{i^*+1}$ argument, since it is always $1$), our ABC loss function (Equation \ref{eqn:simplified_dsm_main}) and dynamics (Equation \ref{eqn:new_sde}) become:
+\begin{equation}\label{eqn:two_point_loss}
+    \theta^* = \underset{\theta}{\text{argmin }} \displaystyle \mathbb{E}_{t \sim \mathcal{U}[0, 1)} \mathbb{E}_{\substack{p_\text{data}(x_0, \ldots, x_1) \\ p_\text{base}(x_t | x_0, x_1)}} \left[\left\|\mathbf{f}_\theta(t, x_0, x_t) - \nabla_{x_t} \text{log }p_\text{base}(x_1 | x_t)\right\|_2^2\right],
+\end{equation}
+\begin{equation}\label{eqn:two_point_dynamics}
+    dx_t = \left(-a(t)x_t + \sigma(t)^2 \mathbf{f}_\theta(t, x_0, x_t)\right)dt + \sigma(t)dB_t
+\end{equation}
+
+Let us also recall the DDBM equations (Equations \ref{eqn:trad_diffusion_bridge}, \ref{eqn:trad_dsm}):
+\begin{align}
+    dx_t &= \left(-a(t)x_t + \sigma(t)^2 \left[\mathbf{s_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p(x_0 | x_t)\right]\right)dt + \sigma(t)dB(t), x_0 \sim p_\text{data}(x_0) \nonumber \\
+    \mathbf{\theta^*} &= \underset{\mathbf{\theta}}{\text{argmin }}\mathbb{E}_{t \sim \mathcal{U}[0, 1)}\underset{\substack{x_0, x_1 \sim p_\text{data} \\ x_t \sim p_\text{base}(x_t | x_0, x_1)}}{\mathbb{E}}\left[w(t)\|\mathbf{s_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p_\text{base}(x_t | x_0, x_1)\|^2\right] \nonumber
+\end{align}
+
+In that case, the loss functions and dynamics are very similar between ABC and diffusion bridge models. The losses both have the Gaussian noising kernel $p_\text{base}(x_t | x_0, x_1)$.
+The only difference is that diffusion bridge models have (1) doubly-conditioned score target $\nabla_{x_t}\text{log } p_\text{base}(x_t | x_0, x_1)$ and (2) subtracted drift adjustment $\nabla_{x_t}\text{log }p_\text{base}(x_0 | x_t)$ from the score.
+But, if we make the reparameterization to the diffusion bridge score network:
+\begin{align}
+    \mathbf{s}_\theta(t, x_t, x_0) &= \mathbf{b}_\theta(t, x_t, x_0) + \nabla_{x_t} \text{log }p_\text{base}(x_0 | x_t)
+\end{align}
+and apply Bayes' rule (and the Markov property):
+\begin{align}
+    \nabla_{x_t} \text{log }p_\text{base}(x_t | x_0, x_1) &= \nabla_{x_t} \left[\text{log }p_\text{base}(x_t | x_1) + \text{log }p_\text{base}(x_0 | x_t, x_1) - \text{log }p_\text{base}(x_0 | x_1)\right] \\
+    &= \nabla_{x_t} \text{log }p_\text{base}(x_t | x_1) + \nabla_{x_t} \text{log }p_\text{base}(x_0 | x_t)
+\end{align}
+the loss (Eq. \ref{eqn:trad_dsm}, $w(t)$ omitted) and dynamics of diffusion bridge models (Eq. \ref{eqn:trad_diffusion_bridge}) reduce to:
+\begin{equation}\label{eqn:simplified_loss_diffusion_bridge}
+    \mathbf{\theta^*} = \underset{\mathbf{\theta}}{\text{argmin }}\mathbb{E}_{t \sim \mathcal{U}[0, 1)}\mathbb{E}_{x_0, x_1 \sim p_\text{data}}\mathbb{E}_{x_t \sim p_\text{base}(x_t | x_0, x_1)}[\|\mathbf{b_\theta}(t, x_t, x_0) - \nabla_{x_t}\text{log } p_\text{base}(x_t | x_1)\|^2],
+\end{equation}
+\begin{equation}\label{eqn:simplified_dynamics_diffusion_bridge}
+    dx_t = \left(-a(t)x_t + \sigma(t)^2 \mathbf{b_\theta}(t, x_t, x_0)\right)dt + \sigma(t)dB_t
+\end{equation}
+
+The dynamics match (Equations \ref{eqn:two_point_dynamics}, \ref{eqn:simplified_dynamics_diffusion_bridge}), with appropriate choice of $\mathbf{b_\theta}, \mathbf{f_\theta}$.
+Now, the only difference is that the loss target is $\nabla_{x_t}\text{log }p_\text{base}(x_1 | x_t)$ in ABC (Equation \ref{eqn:two_point_loss}), and $\nabla_{x_t}\text{log }p_\text{base}(x_t | x_1)$ in diffusion bridge models (Equation \ref{eqn:simplified_loss_diffusion_bridge}). Intuitively, both of these targets pull the intermediate $x_t$ to be more "aligned" with the data $x_1$, although they represent slightly different things. ABC's $\nabla_{x_t}\text{log }p_\text{base}(x_1 | x_t)$ can be interpreted as pulling an initially unconditioned diffusion towards certain waypoints, while diffusion bridges' (and denoising diffusion models') $\nabla_{x_t}\text{log }p_\text{base}(x_t | x_1)$ can be interpreted as denoising the forward data-to-noise corruption.
+% But, mathematically, they differ by the marginal score:
+% \begin{align}
+%     \nabla_{x_t}\text{log }p_\text{base}(x_t | x_1) &= \nabla_{x_t}\left(\text{log }p_\text{base}(x_1 | x_t) + \text{log }p_\text{base}(x_t) - \text{log }p_\text{base}(x_1)\right) \\
+%     &= \nabla_{x_t} \text{log }p_\text{base}(x_1 | x_t) + \nabla_{x_t} \text{log }p_\text{base}(x_t)\label{eqn:marginal_score_connection}
+% \end{align}
+This comes from the fact that we derive ABC with Girsanov's Theorem and change-of-measure \cite{girsanov1960transforming, doob1984classical} in only one time direction (Section \ref{sec:proof_thm_1}), while the other methods derived their method via Anderson's time-reversal \cite{anderson1982reverse, zhou2023denoising, song2020score}.
+%Equation \ref{eqn:marginal_score_connection} tells us that diffusion bridge and denoising diffusion models actually have a term $\nabla_{x_t} \text{log }p_\text{base}(x_t)$ in their loss representing the diffusion process that is not conditioned to hit data at $t=1$, thereby diluting the pulling strength towards data. That being said, the choice of drift and volatility schedule could neutralize this.
+
+\subsection{Difference: Path-Dependent Conditioning}
+
+Another key difference is that, in general, our ABC has a path-dependent score network $\mathbf{f}_\theta(t,t_{i^*+1},x_t;\mathbf{x}_{0:i^*})$ (where $\mathbf{x}_{0:i^*}$ is a concatenation of states as defined in Equation \ref{eqn:all_states}), as opposed to the diffusion bridge score network that depends only on the current state and the start point: $\mathbf{s}_\theta(t, x_t, x_0)$. Conceptually, this extends the framework from Markovian to \textit{non-Markovian} autoregressive modeling in continuous time, which does not exist in prior work to our knowledge.
+
+This suggests that DDBM will fail to capture the correlation structure, for example between $x_{t_1}$ and $x_{t_2}$, while our approach can do so.
+
+%To our knowledge, prior work has not attempted continuous-time autoregressive models.
+
+% \subsection{Physical Time Inductive Bias}
+
+% One may assert that we could just add time and previous state conditioning to the diffusion bridge model, and then it would supposedly be the same as ABC.
+% \textcolor{red}{proof that this is different}
+
+% \textcolor{red}{(1) volatility argument (2) score is different}
+
+% This is incorrect, because the construction of the score targets and noising kernels in ABC (Equations \ref{eqn:score_target_main}, \ref{eqn:sampling_dist_noising_kernel_main}) actually varies with the physical time difference (Equations \ref{eqn:phi_resolvent_kernel_main}-\ref{eqn:covariance_kernel_main}), and the \textit{simulation time $t$ corresponds to the physical time}. For instance, if $t$ is very close to $t_{i^*+1}$, the sampled $x_t$ (Equation \ref{eqn:sampling_dist_noising_kernel_main}) would be very close to $x_{t_{i^*+1}}$, and the score target would be become very high to reflect the "urgent" pulling force towards $x_{t_{i^*+1}}$.
+
+% \textcolor{red}{diagram}
+
+\subsection{Difference: Time-Adaptive Volatility and Noising Kernels}
+
+Furthermore, even if we were to condition the diffusion bridge model's score network on the physical time, it still would not have the physical time-adaptive volatility that ABC has. The implication of this is that the dynamics of the generation process are fundamentally inconsistent with the underlying real-world dynamics. We showed this in Theorem \ref{thm:non_bijective_path_measure} and Section \ref{sec:proof_hacky_bridge_bad}.
+
+\subsection{Difference: Any-Subset Autoregression}
+
+Finally, the prior work \cite{zhou2023denoising, song2020score} does not consider any-subset autoregression. They only have the ability to bridge between two endpoints. In contrast, our framework allows us to model arbitrarily many finite-dimensional marginals of the SDE's path measure.
+In practical terms, what this means is that our method is naturally suited for handling time-series, especially those that are irregularly sampled or have future conditioning, \text{e.g.}, infilling corrupted video files.
+\newpage
+\clearpage
+
+\section{Comparison to Probabilistic Forecasting with Interpolants}\label{sec:pfi_comparison}
+
+The stochastic interpolant framework is closely related to diffusion bridges and denoising diffusions \cite{albergo2023stochastic, chen2024probabilistic}. %(There are some minor differences, \textit{e.g.}, stochastic interpolants don't rely on Anderson's time reversal \cite{anderson1982reverse}, while diffusion models \cite{song2020score, zhou2023denoising} do).
+PFI (probabilistic forecasting with interpolants) uses state-to-state stochastic interpolants to generate time series data. We review some similarities and key differences.
+
+
+
+\subsection{Difference: Discrete-Time Modeling}
+
+PFI's stated aim is to model the discrete-time, continuous-space process $\{x_{kT}\}_{k \in \mathbb{Z}}$, where $T$ is the sampling interval and $k$ is the discrete time index. This already differs from our setting of \textit{continuous-time} autoregression.
+
+\subsection{Connection: Autoregressive Diffusion Bridge Construction}
+
+PFI generates samples with the auxiliary non-physical SDE (using similar notation to Equation \ref{eqn:cond_diffusion_bridge}):
+\begin{equation}\label{eqn:pfi_sde}
+    d\tilde{X}^{(k)}_{s} = \mathbf{b}^g_\theta\left(s, x_{kT}, \tilde{X}^{(k)}_{s}\right)ds + g(s)dB_s, \tilde{X}^{(k)}_{0} = x_{kT},
+\end{equation}
+where $k$ is the discrete index of the state, $s \in [0, 1]$ is a fake time variable they construct to interpolate between consecutive points in the time series, $\tilde{X}^{(k)}_{s}$ is the value of the auxiliary "bridge" SDE, and $\tilde{X}^{(k)}_{1} \sim p\left(x_{(k+1)T} | x_{kT}\right)$. The superscript $^g$ on $\mathbf{b}^g_\theta\left(s, x_{kT}, \tilde{X}^{(k)}_{s}\right)$ indicates that the drift is dependent on the volatility schedule.
+
+Indeed, this is highly similar to the autoregressive diffusion bridge construction in Equation \ref{eqn:cond_diffusion_bridge}, if we set $\tilde{A}=0$ and assume regular time sampling intervals:
+\begin{equation}\label{eqn:autoregressive_bridge_a_0}
+    d\tilde{X}^{(i)}_{\tau} = \tilde{\sigma}(\tau)^2\tilde{\mathbf{f}}_\theta\left(\tau, \mathbf{x}_{0:i-1}, \tilde{X}^{(i)}_{\tau}\right)d\tau + \tilde{\sigma}(\tau)dB^{(i)}_{\tau}, \tilde{X}^{(i)}_{0}=x_{t_{i-1}}
+\end{equation}
+
+Note the correspondence of variables: $i \leftrightarrow k, \tau \leftrightarrow s, x_{t_{i-1}} \leftrightarrow x_{kT}$.
+As such, to equate Equations \ref{eqn:autoregressive_bridge_a_0} and \ref{eqn:pfi_sde}, we just need:
+\begin{align}
+    \mathbf{x}_{0:i-1} &= x_{t_{i-1}} \texttt{ \ //In Equation \ref{eqn:autoregressive_bridge_a_0}}\\
+    g(s) &= \tilde{\sigma}(\tau) \texttt{ \ //match Eq \ref{eqn:pfi_sde}'s \& \ref{eqn:autoregressive_bridge_a_0}'s volatilities}\\
+    \mathbf{b}^g_\theta\left(s, x_{kT}, \tilde{X}^{(k)}_{s}\right) &= \tilde{\sigma}(\tau)^2\tilde{\mathbf{f}}_\theta\left(\tau, \mathbf{x}_{0:i-1}, \tilde{X}^{(i)}_{\tau}\right) \texttt{ \ //match Eq \ref{eqn:pfi_sde}'s \& \ref{eqn:autoregressive_bridge_a_0}'s drifts} \label{eqn:match_drifts}
+\end{align}
+
+Whether the equality in Equation \ref{eqn:match_drifts} is achieved depends on what PFI's trained network learned (which depends on the choice of interpolant schedule). In principle, however, both learned drifts have the same high-level intuition: they "pull towards" the data at the next waypoint time.
+
+\subsection{Difference to Connection: Constructing ABC-Style Time-Adaptive Volatility}
+
+Considering the correspondence between Equations \ref{eqn:pfi_sde} and \ref{eqn:autoregressive_bridge_a_0}, PFI again runs into the same problem that autoregressively chained diffusion bridges do: the volatility doesn't naturally scale with physical time elapsed (Theorem \ref{thm:non_bijective_path_measure}). So, in the naive application, this leads to incorrect dynamics.
+
+It's worth noting that via the Fokker-Planck equation \cite{risken1989fokker}, they do provide a mechanism for tuning the diffusion coefficient $g(s)$ and adjusting the drift accordingly, such that the single-time marginal laws of the resultant SDE are still the same as the single-time marginal laws of the data-generating SDE they had originally trained. This "trades diffusion for transport" \cite{chen2024probabilistic}.
+
+In principle, we could tune this diffusion coefficient to match ABC's inductive bias that volatility should scale with physical time: \textit{e.g.}, $g(s) = \sqrt{T} * g_\text{const}$ if the model was originally trained with constant volatility. They do not consider this in their work (likely because they used regularly sampled time intervals, which is another limitation of their work).
+
+\subsection{Difference: Markovianization}
+
+Their experiments make the assumption that the transition kernel of the time series is physical time-invariant and Markov, which is not true in many important cases, \textit{e.g.}, stock data driven by fractional Brownian motion. As a consequence, they do not condition their models on the physical time variable, nor comprehensive past history (see Equation \ref{eqn:pfi_sde}). The lack of conditioning on the physical time variable becomes problematic when we have a non-Markov and/or time-varying process, where we need to know the time relations between observed keypoints. For instance, in their video generation experiments, they randomly conditioned their model on a time-stamped previous frame as well as the most recent frame but \textit{without} the timestamp, making it very difficult to ascertain where the previous history frame was in relation to the most recent frame, thereby hindering the estimation of the dynamics.
+
+\subsection{Difference: Any-Subset Modeling}
+
+They do not consider the any-subset inference case. In particular, they only deal with \textit{causal} conditioning on a maximum of three states (previous waypoint, current auxiliary generative state, and sometimes one waypoint from the history, making for $O(N)$ conditions), on a regularly spaced physical time grid. They can also only infer the next waypoint in the regular discretized time grid. In contrast, our method is explicitly designed as an any-subset autoregressive model that can condition on any subset of observations in the time series, even those in the \textit{future}. In the case of regularly spaced grids, we would have $O(2^N)$ capacity, versus their $O(N)$ capacity, but we also allow for irregularly spaced physical time grids. Our inference is also not limited to the immediate next waypoint on a fixed time grid, but is flexible to infer future states at arbitrary timestamps.
+
+\newpage
+\clearpage
+
+\section{Additional Results}\label{sec:more_results}
+
+\input{results_numbers_and_figures/sensitivity_of_sigma}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/ablation_on_conditioning}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/scaling_exploration}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/celeb_hq_non_causal_appendix}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/sky_timelapse_non_causal_appendix}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/sky_timelapse_causal}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/celebv_hq_causal}
+
+\newpage
+\clearpage
+
+\input{results_numbers_and_figures/sevir_appendix}
+
+\newpage
+\clearpage
+
+\input{details/architecture}
+
+\newpage
+\clearpage
+
+\input{details/training_details}
+
+\section{Other Experimental Setups}
+
+\input{toy_experiments/toy_experiment_path_measure}
+
+\input{details/sevir_setup}
+
+\newpage
+\clearpage
+
+\input{details/sde_kernels}
+
+\newpage
+\clearpage
+
+\input{related_works}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newpage
+% \input{checklist.tex}
+
+
+\end{document}

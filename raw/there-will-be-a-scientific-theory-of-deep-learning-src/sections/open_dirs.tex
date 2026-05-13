@@ -1,0 +1,138 @@
+\section{Open directions in learning mechanics}
+\label{sec:open_dirs}
+
+It is important for any field, at any stage of development, to have a sense of its important open questions and goals.
+In this section, we present a curated list of open directions which we expect can be solved by a theory of the mechanics of learning in the next decade.
+These directions are loosely ordered by their connection to the lines of evidence introduced in \cref{sec:reasons_why}.
+We hope this helps sharpen a shared research agenda.
+For a longer catalog and a forum for community discussion, see \url{learningmechanics.pub/openquestions}.
+
+
+\begin{opendirection}
+[\emoji{crystal-ball}]
+[What are simple, solvable models of genuinely deep, nonlinear learning?]
+\label{openquestion:models_of_nonlin_learning}
+
+As discussed in \cref{sec:reason-dynamics}, deep linear networks and kernel methods are the two main workhorse solvable models of learning mechanics.
+The first captures nonlinear dynamics of the parameters, and the second learns nonlinear functions of the data.
+While a few special cases of solvable models with both forms of nonlinearity are known, no unified framework has emerged.
+
+Can we get the best of both worlds while maintaining some level of generality?
+Is there a class of solvable model that captures both deep, nonlinear dynamics and nonlinear function learning?
+Can such models illuminate new things about feature learning, the role of depth, optimization phenomena (e.g. progressive sharpening), and architectural innovations (e.g. normalization layers, residual streams, self-attention, and gated nonlinearities)?
+Can it be usefully applied to modern learning paradigms like self-supervised learning, reinforcement learning, and denoising diffusion?
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{elephant}]
+[What would a theory capable of capturing natural data look like?]
+\label{openquestion:theory_for_real_data}
+
+Deep neural networks find and exploit structure in natural data.
+This means that the structure of the data must somehow enter into our theories.
+What is this structure, and how do we find it?
+
+Despite the complexity of data, in many cases models appear to derive their learning signal from a small set of sufficient statistics.
+What are these minimal data statistics, and how do they enter into a predictive theory of what the model learns?
+Are these statistics different for different models and at different stages of training?
+Can we describe the relevant structure in a dataset in terms of a model with free parameters found via an empirical fit?
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{abacus}]
+[Does deep learning implicitly minimize some notion of functional complexity?]
+\label{openquestion:functional-complexity}
+
+Deep networks trained by conventional optimizers are widely believed to have some sort of bias towards learning simple functions.
+This idea has surfaced many times under different names (e.g. implicit regularization, maximum margin bias, simplicity bias, and spectral bias), but has only been characterized precisely in highly specific settings, and a general picture has not been found.
+Do deep neural networks broadly seek to minimize some precise notion of complexity among functions with low loss?
+
+If so, what is the appropriate notion of complexity --- Kolmogorov, circuit, weight norm, or something else?
+In what settings or limits is this minimization exact, and when is it only approximate?
+Do the sparse features and circuitry studied by mechanistic interpretability naturally emerge as the solution to this minimization problem?
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{microscope}]
+[How do we formally define the \textit{features} learned by neural networks?]
+\label{openquestion:what_are_features}
+
+Mechanistic interpretability seeks to identify and disentangle the \textit{features, circuits, and mechanisms} learned by neural networks.
+Can these concepts be given precise mathematical definitions grounded in first principles?
+What formal structures naturally emerge from such a definition?
+Can we use these notions to evaluate and formalize central assumptions of mechanistic interpretability, including \textit{linear representability, locality, sparsity, }and\textit{ compositionality,} as discussed in \cref{sec:learning_mech_and_mechinterp}?
+How do these ideas connect with the less semantically-meaningful --- but more precise --- rich vs. lazy picture of feature learning discussed in \cref{sec:reason-limits}?
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{infinity}]
+[Are finite neural networks properly understood as approximations to infinite limits?]
+\label{openquestion:discretization}
+
+In \cref{sec:reason-limits}, we articulated the \textit{Discretization Hypothesis,} which states that finite neural networks are simply discretized approximations to infinite networks, analogous to how a spatiotemporal discretization is used to numerically approximate the solution to a differential equation. For network width, the limiting continuous object is the measure of neuron activity in hidden layers, while finite depth in a residual network can be viewed as a discretization of a neural SDE or ODE.
+Small step sizes can render stochastic optimization algorithms approximately equivalent to some kind of flow. In this view, increasing model size (and decreasing learning rate while commensurately increasing step count) serve essentially to improve model performance by decreasing discretization error, at the price of additional computation.
+Is this the right way to understand width, depth, learning rate, and other finite hyperparameters in deep learning?
+What does the limiting continuum system look like?
+
+\end{opendirection}
+
+
+
+\begin{opendirection}
+[\emoji{broom}]
+[Can we understand and eliminate all hyperparameters?]
+\label{openquestion:zero_hyperparameters}
+
+In \cref{sec:reason-limits,sec:reason-hps}, we outlined a research program in which hyperparameters are systematically analyzed, disentangled, and in some cases removed by taking appropriate limits.
+How far can this program go?
+Can we reach zero hyperparameters, or are some hyperparameters irreducible?
+If we eliminate all hyperparameters, what remains?%
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{triangular-ruler}]
+[Can we predict scaling law exponents \textit{a priori}?]
+\label{openquestion:predict_powerlaw_exponents}
+
+As discussed in \cref{sec:reason-measurable}, large models exhibit robust power-law scaling of loss with respect to model size, data, and compute.
+The observed exponents are nontrivial: they do not appear to be simple fractions which might result from elementary dimensionality arguments.
+It is widely believed that these values are driven largely by structure latent in the dataset, but may also depend on details of the architecture and optimizer.
+While many explanations for scaling laws have been proposed, a decisive test of any such theory is its ability to predict these exponents quantitatively from first principles.
+At present, no framework can robustly do so across realistic settings.
+Can we develop a theory of scaling laws that both explains why power laws arise and predicts their exponents \textit{a priori}?
+What measurements of the dataset, architecture, and optimization are required to do so?
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{roller-coaster}]
+[How does loss curvature interplay with architecture, features, and generalization?]
+\label{openquestion:loss-curvature}
+As discussed in \cref{sec:reason-measurable,sec:reason-hps}, a significant feature of deep learning optimization is that the optimizer implicitly regularizes the curvature (i.e. Hessian) along its trajectory, by steering towards regions of the loss landscape with lower curvature.  While progress has been made on formalizing this effect using curvature-penalized gradient flows, it remains unclear how these curvature dynamics relate to other concerns in deep learning theory.  Why does the curvature tend to rise in the absence of any such implicit regularization, and can this ``progressive sharpening'' be attributed to certain properties of the architecture or data distribution?  How does the implicit curvature regularization affect the features that are learned?  Why does it sometimes lead to improved generalization?
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{racing-car}]
+[What makes for a good optimizer in deep learning?]
+\label{openquestion:good-optimizer}
+
+It remains fundamentally unclear why some deep learning optimizers work better than others.
+Why do adaptive methods, such as Adam and Muon, consistently outperform simpler alternatives like SGD when training large language models?
+How does adaptive preconditioning in these optimizers interact with a network's architecture and loss landscape to lead to faster, more stable training?
+Can we identify fundamental principles that explain the success of modern optimizers, predict when they will fail, and guide the design of new ones?
+
+\end{opendirection}
+
+\begin{opendirection}
+[\emoji{dancing-women}]
+[In what sense do large models trained differently learn similar representations?]
+\label{openquestion:comparing-models}
+
+
+In \cref{sec:reason-universal-behavior}, we discussed evidence that large models trained from different random seeds --- and sometimes even with different widths, architectures, data, or objectives --- tend to learn similar internal representations.
+A precise version of this claim would be very powerful: understanding how representation learning is \emph{universal} would give us confidence that theory developed for one model and setting transfers to many others.
+
+
+The central difficulty here is methodological: how do we assess ``similarity''?
+There is no single way to compare high-dimensional representations --- metrics based on kernel alignment, nearest-neighbors, model stitching, and more compare different aspects of representation geometry. Which ones are stable across training regimes? What is the appropriate metric that quantifies this similarity? What is the largest range of experimental settings under which convergence is observed --- what are the representation universality classes?
+
+\end{opendirection}

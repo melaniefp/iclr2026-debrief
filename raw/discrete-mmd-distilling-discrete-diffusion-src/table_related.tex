@@ -1,0 +1,80 @@
+\begin{table}[t]
+    % \resizebox{\textwidth}{!}{
+    \centering
+    \begin{tabular}{l|rrrrrrrrr}
+        \toprule
+         \bfseries Method & NFE & FID \\\midrule
+         Di4C Teacher & 40 & 8.0 \\
+         Di4C (hybrid) & 20 & 9.5 \\
+         Di4C & 10 & 20.6 \\
+         \midrule
+        Uniform Teacher & 512 & 7.6 \\
+         & 64 & 10.7 \\
+        Uniform D-MMD & 8 & 5.0 \\
+        & 16 & 4.1 \\
+        & 32 & 3.7 \\ \midrule
+        Masked Teacher & 512 & 6.7 \\
+         & 64 & 20.0 \\
+        Masked D-MMD & 16 & 5.3 & \\
+        & 32 & 3.8 & \\
+        & 64 & \textbf{3.5} \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Comparison with literature on CIFAR10. D-MMD considerably outperforms existing methods using fewer NFEs.}
+    \label{tab:cifar10_related}
+\end{table}
+
+
+\begin{table}[t]
+    % \resizebox{\textwidth}{!}{
+    \centering
+    \begin{tabular}{l|rrrrrrrrr}
+        \toprule
+         \bfseries Method & NFE & \gge~$\downarrow$ & GPT2 Perplexity $\downarrow$ & Sample entropy \\\midrule
+        Duo + DCD & 4 & & 108.2 & 4.82 \\
+        Duo + Di4C & 4 & & 150.7 & 4.81 \\
+        MDLM + SDTT & 4 & & 339.7 & 5.38 \\
+        MDLM + Di4C & 4 & & 239.3 & 5.40 \\
+        FMLM & 4 & & 76.4 & 5.05 \\ \midrule
+        Masked Teacher  & 256 & 0.275 & 22.5 & 5.13 \\
+         & 128 & 0.295 & 23.9 & 5.17 \\
+         & 64 & 0.307 & 26.0 & 5.19 \\
+        SDTT (reimpl.) & 64 & 0.293 & 26.9 & 5.17 \\
+        & 32 & 0.340  & 30.4 & 5.18 \\
+        Masked D-MMD
+         & 4 & 0.820 & 20.3 & 4.60\\
+         & 16 & 0.236 & \textbf{17.2} & 5.00 \\
+        & 32 & \textbf{0.225} & 19.4 & 5.05 \\ \midrule
+        Data & & 0.000 & 15.4 & 5.44 \\ \midrule
+        \textcolor{gray}{Masked Teacher} & \textcolor{gray}{256} & \textcolor{gray}{0.672} & \textcolor{gray}{85.9} & \textcolor{gray}{5.59} \\
+        \textcolor{gray}{($p=1.0$)} & \textcolor{gray}{128} & \textcolor{gray}{0.711} & \textcolor{gray}{91.1} & \textcolor{gray}{5.61} \\
+        & \textcolor{gray}{64} & \textcolor{gray}{0.781} & \textcolor{gray}{101.0} & \textcolor{gray}{5.63} \\
+        \textcolor{gray}{Masked D-MMD} & \textcolor{gray}{4} & \textcolor{gray}{0.719} & \textcolor{gray}{66.1} & \textcolor{gray}{5.44} \\
+        \textcolor{gray}{($p=1.0$)} & \textcolor{gray}{16} & \textcolor{gray}{0.558} & \textcolor{gray}{67.7} & \textcolor{gray}{5.57} \\
+        & \textcolor{gray}{32} & \textcolor{gray}{0.578} & \textcolor{gray}{72.1} & \textcolor{gray}{5.57} \\
+        \bottomrule
+
+    \end{tabular}
+    % }
+    \caption{Comparison with literature on OWT measured in \gge~(lower is better), generative perplexity (should not be too high) and sample entropy (should not be too low). D-MMD is able to achieve even better results in fewer steps.}
+    \label{tab:text_related}
+\end{table}
+
+\begin{table}[t]
+    % \resizebox{\textwidth}{!}{
+    \centering
+    \begin{tabular}{ll|rrrrrrrrr}
+        \toprule
+         \bfseries D-MMD Masked & & 4 & 8 & 16 & 32 & 64 \\ \midrule
+        without noise & (FID) & 151\textcolor{white}{.0} & 37.0 & 14.7 & 7.7 & 6.0 \\
+        \hspace{.5cm} & (generator output entropy) & 1.26 & 1.37 & 1.57 & 1.86 & 1.91 \\ \midrule
+        with noise & (FID) & 22.3 & 12.7 & 5.3 & 3.8 & \textbf{3.5} \\
+        \hspace{.5cm} &(generator output entropy) & 1.01 & 1.29 & 1.53 & 1.76 & 1.83 \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Noise input conditioning is important for masked distillation. Fewer steps require more generator output collapse, and generators with noise conditioning can collapse their factorized output distribution more.
+    }
+    \label{tab:cifar10_noiseinput}
+\end{table}

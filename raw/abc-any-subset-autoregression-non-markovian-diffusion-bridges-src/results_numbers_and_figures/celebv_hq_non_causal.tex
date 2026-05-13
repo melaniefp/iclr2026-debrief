@@ -1,0 +1,28 @@
+
+\begin{table}[htbp]
+\centering\tiny
+\caption{\textbf{CelebV-HQ Non-Causal FVD ($\downarrow$):} On 2048 videos.}
+\label{tab:celebvhq_NON_causal_fvd}
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+ & \multicolumn{6}{c}{Num Frames = 32} & \multicolumn{6}{c}{Num Frames = 16} \\
+\cmidrule(lr){2-7} \cmidrule(lr){8-13}
+ & \multicolumn{2}{c}{pin\_every = 4} & \multicolumn{2}{c}{pin\_every = 8} & \multicolumn{2}{c}{pin\_every = 16} & \multicolumn{2}{c}{pin\_every = 4} & \multicolumn{2}{c}{pin\_every = 8} & \multicolumn{2}{c}{pin\_every = 16} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
+\textbf{Method} \ \ \ \ \ \ Steps & \multicolumn{1}{c}{250} & \multicolumn{1}{c}{500} & \multicolumn{1}{c}{250} & \multicolumn{1}{c}{500} & \multicolumn{1}{c}{250} & \multicolumn{1}{c}{500} & \multicolumn{1}{c}{250} & \multicolumn{1}{c}{500} & \multicolumn{1}{c}{250} & \multicolumn{1}{c}{500} & \multicolumn{1}{c}{250} & \multicolumn{1}{c}{500} \\
+\midrule
+\rowcolor{gray!20} \multicolumn{13}{l}{\textit{ABC}} \\
+\quad W/ BB: $\sigma$=0.5 & \textbf{\textit{43.9}} & \textbf{\textit{35.4}} & \textbf{107.3} & \textbf{88.7} & 287.9 & 247.8 & \textbf{\textit{106.9}} & \textbf{\textit{96.1}} & 201.3 & \textbf{\textit{169.9}} & 333.6 & \textbf{\textit{278.0}} \\
+\quad No BB: $\sigma$=0.5 & \textbf{40.5} & \textbf{32.7} & \textbf{\textit{111.5}} & \textbf{\textit{93.3}} & 312.2 & 263.1 & \textbf{103.3} & \textbf{91.8} & \textbf{183.5} & \textbf{158.0} & \textbf{\textit{303.3}} & \textbf{263.2} \\
+\rowcolor{gray!20} \multicolumn{13}{l}{\textit{Conditional Diffusion Bridge ($\approx$ DDBM \cite{zhou2023denoising}, PFI \cite{chen2024probabilistic})}} \\
+\quad $\sigma=0.5$ & 260.9 & 181.9 & 389.6 & 264.6 & 841.8 & 420.2 & 230.5 & 169.7 & 311.9 & 248.3 & 433.1 & 320.2 \\
+\quad $\sigma=0.125$ & 57.1 & 41.3 & 119.6 & 97.3 & \textbf{233.8} & \textbf{\textit{217.9}} & 112.9 & 101.7 & \textbf{\textit{186.1}} & 170.3 & \textbf{288.8} & 298.0 \\
+\quad $\sigma=0.09$ & 49.0 & 38.6 & 112.1 & 94.1 & \textbf{\textit{238.5}} & \textbf{201.6} & 120.5 & 110.3 & 205.4 & 191.1 & 339.2 & 369.4 \\
+\rowcolor{gray!20} \multicolumn{13}{l}{\textit{Noise-to-Data Diffusion ($\approx$ DDPM, SMLD \cite{song2020score})}} \\
+\quad Cos: (3.0, 0.04) & 705.5 & 434.2 & 908.6 & 593.7 & 971.0 & 763.1 & 568.1 & 215.9 & 671.3 & 344.1 & 827.2 & 491.9 \\
+\quad Cos: (5.0, 0.05) & 904.9 & 571.9 & 995.4 & 759.7 & 990.1 & 906.6 & 743.8 & 296.2 & 855.8 & 481.6 & 1024.3 & 691.5 \\
+\quad Exp: (4.0, 2.5) & 812.5 & 337.1 & 1020.7 & 496.4 & 1022.3 & 671.4 & 425.5 & 139.8 & 588.1 & 225.8 & 651.4 & 278.1 \\
+\quad Exp: (5.0, 5.0) & 1123.9 & 748.9 & 1206.3 & 957.6 & 1070.6 & 959.0 & 803.3 & 420.8 & 879.3 & 593.3 & 967.4 & 762.6 \\
+\bottomrule
+\end{tabular}
+\end{table}

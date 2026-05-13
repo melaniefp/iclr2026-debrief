@@ -1,0 +1,23 @@
+\begin{table}[t]
+    % \resizebox{\textwidth}{!}{
+    \centering
+    \begin{tabular}{l|rrrrrrrrr}
+        \toprule
+         \bfseries Model & 8 & 16 & 32 & 64 & 128 & 256 & 512 \\\midrule
+        % Traditional Uniform Teacher ($p=0.70$) & & & 0.797 & 0.727 & 0.738 & 0.691 & 0.699 & 0.684  \\
+        % Traditional Uniform D-MMD ($p=0.70$) & 0.797 & 0.688 & \textbf{0.656} & 0.684 \\ \midrule
+        Uniform Teacher ($p=0.50$) & & & 0.375 & 0.326 & 0.330 & 0.324 & 0.313  \\
+        Uniform D-MMD ($p=0.70/0.70$) & 0.337 & 0.310 & 0.307 & 0.316 \\ \midrule
+        Masked Teacher ($p=0.85$) & & & 0.402 & 0.307 & 0.297 & 0.275 & 0.275 & \\
+        Masked D-MMD ($p=0.85$) & 0.456 & 0.236 & \textbf{0.225} & \textbf{0.231} \\ \midrule
+        % Masked Teacher (uncentered sqrt) ($p=0.85$) & & & 0.820 & 0.797 & 0.785 & 0.754 & 0.738 & 0.699 \\
+        % Masked D-MMD (uncentered sqrt) ($p=0.90$) & 0.824 & 0.731 & 0.691 & \textbf{0.688} \\ \midrule
+        AR Baseline & \multicolumn{8}{c}{0.061} \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Text D-MMD generators and base model sample quality for different NFEs measured in \gge~ (see \autoref{sec:gradient_reference_error}).
+    %$||\mathbb{E}_{gen}[g_\mathrm{GPT2}(x)] - \mathbb{E}_{data}[g_\mathrm{GPT2}(x)] ||^2$, computed by splitting batches in two and computing the inner product of their gradients.
+    D-MMD models outperform their teacher at a fraction of the NFEs.}
+    \label{tab:text_mmd_overview}
+\end{table}

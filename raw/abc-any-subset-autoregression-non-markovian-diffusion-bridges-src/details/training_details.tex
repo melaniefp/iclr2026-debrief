@@ -1,0 +1,48 @@
+\section{Video Experimental Setup Details}\label{sec:video_experimental_setup}
+
+\subsection{Dataset Details}\label{subsec:video_dataset}
+
+We train on 178,688 and evaluate on 2,048 clips (disjoint) of 32 frames each from CelebV-HQ \cite{zhu2022celebv}. We train on 17,152 and evaluate on 1,360 clips (disjoint) of 64 frames each from Sky-Timelapse \cite{zhang2020dtvnet}. We diffuse in the Stable Diffusion latent space \cite{rombach2022high} on 32x32x4 codes, corresponding to 256x256x3 images.
+
+\subsection{Training}\label{subsec:training_details}
+
+We sample the time $t \sim \mathcal{U}[0, 1]$, then clip it so that $|t - t_i| > 10^{-4}$, for every finite-dimensional marginal time $t_i$. For the autoregressively conditioned diffusion bridge (and noise-to-data diffusion), we get the auxiliary time $\tau_i = \frac{t - t_{i^*}}{t_{i^*+1} - t_{i^*}}$, as constructed in Equation \ref{eqn:time_shifted_bridge}.
+
+We have cosine decay learning rate, with linear warmup for 10K steps up to rate $10^{-4}$, then decay for 290K steps. Due to compute limits, we evaluate the model from 240K steps. We use Adam \cite{kingma2014adam} without weight decay, and $\beta = (0.9, 0.999)$. We clip the gradient to maximum norm of $5.0$. We use batch size $256$. We run each training run on 4 A100 80GB GPUs, and each run takes about 36 hours.
+
+\subsection{SDE Parameter Selection}\label{subsec:sde_parameter_selection}
+
+There is a very large design space of SDE parameters that could have been used in Equations \ref{eqn:new_sde} and \ref{eqn:cond_diffusion_bridge}. To isolate the effects of \rqref{time_scaling} (impact of time-dependent quadratic variation), \rqref{data_to_data} (impact of data-to-data bridge), we picked relatively simple choices. Future work can explore more complicated parameterizations.
+
+We always set $t_L = 1$, ensuring that the SDE is defined on $[0, 1]$.
+
+We set the base (non-score driven) drift to be $a(t) = 0$. The score network should be able to learn the drift, without need for an explicit specification.
+
+We use constant volatility $\sigma(t) = \sigma$ in ABC and the conditional diffusion bridge baseline.
+This is because a non-constant volatility (say, small at the finite-dimensional marginal times, but large in between them, as is popular in DDBM \cite{zhou2023denoising}) would mean that the generative process would not have physically meaningful intermediate values in between the times at which we observe the finite-dimensional marginals. This is a non-starter for continuous-time modeling, as it kills any hope of generalization to modeling times that were not on the grid that the training data was sampled from.
+In contrast, using a constant volatility decouples the sampling rate of the data from the underlying model of the stochastic process.
+
+We selected the volatility by testing reconstruction fidelity in the Stable Diffusion VAE latent space \cite{rombach2022high} with various Gaussian noise perturbations. We found that perturbations up to $\mathcal{N}(0, 0.1^2 I)$ minimally affected the reconstruction quality. Assuming simulation step sizes up to $\Delta t \leq 0.01$, the upper limit on the volatility introduced from Brownian motion should be $\sigma \sqrt{\Delta t} \leq 0.1 \Rightarrow \sigma \leq 1.0$.
+
+To select volatility for the baseline conditional diffusion bridge, we tried a few options.
+The first, most naive one was to set the volatility coefficient exactly the same as that of ABC's:
+\begin{equation}
+    \sigma_\text{cond bridge} = \sigma_\text{ABC}
+\end{equation}
+Another option was to calculate the volatility coefficient based on the quadratic variation (up to rounding) that would have been introduced by ABC in between frames (given a frame sampling rate):
+\begin{equation}
+    \sigma_\text{cond bridge} = \sqrt{t_{i^*+1} - t_{i^*}} * \sigma_\text{ABC},
+\end{equation}
+in accordance with time-scaling rules for Brownian motion \cite{steele2001stochastic}.
+Finally, when compute resources permitted, we tried a few other volatility values.
+
+For the noise-to-data diffusion baseline, we used exponentially decaying volatility (Section \ref{subsec:exponential_decay_volatility}) and cosine decaying volatility (Section \ref{subsec:cosine_decay_volatility}).
+
+\subsection{Inference}
+
+We also concatenate the final frame from $t = 1$ as a prompt.
+
+\subsection{Evaluation}\label{subsec:evaluation_details}
+
+FVD and FID are computed on the infilled videos (including the prompt frames), with the same number of videos (1360 in Sky Timelapse, 2048 in CelebV-HQ) for each of the ground truth and fake sets. We exclude the final frame ($t=1$) from computations.
+FVD computations use VideoMAE v2 backbone with interpolated time embeddings \cite{wang2023videomae, tong2022videomae, ge2024content}. FID computations use the default Inception net \cite{szegedy2016rethinking}.

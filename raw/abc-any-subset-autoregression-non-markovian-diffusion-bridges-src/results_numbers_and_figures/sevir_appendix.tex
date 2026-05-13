@@ -1,0 +1,13 @@
+\subsection{SEVIR: Additional Results}\label{sec:sevir_additional_results}
+
+%We report the full thresholded SEVIR detection/calibration metrics here, together with a qualitative comparison. ABC Non-Causal remains the strongest method under the pinned non-causal protocol, while ABC Causal is shown separately under the stricter past-only protocol.
+
+\subsubsection{Qualitative Comparison}
+
+\begin{figure}[h]
+    \includegraphics[width=\textwidth]{results_numbers_and_figures/sevir_grid.png}
+    \caption{\textbf{SEVIR qualitative comparison.} ABC Non-Causal, Conditional Diffusion Bridge, and Noise-to-Data Diffusion are evaluated under the pinned non-causal protocol, while ABC Causal is shown separately under the stricter past-only protocol. Individual examples may favor either protocol visually, but the aggregate metrics in Table \ref{tab:sevir_main_metrics} %and \ref{tab:sevir_detection_metrics}
+    favors ABC Non-Causal among the pinned methods.}\label{fig:sevir_timelapse_comparison}
+\end{figure}
+
+\input{results_numbers_and_figures/more_sevir}

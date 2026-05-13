@@ -1,0 +1,117 @@
+\documentclass{article}
+
+
+\hfuzz=30pt  %
+\hbadness=10000  %
+\vbadness=10000  %
+
+\usepackage{silence}
+\WarningFilter{latexfont}{Font shape}
+\WarningFilter{latexfont}{Some font shapes}
+\WarningFilter{latexfont}{Size substitutions}
+\WarningFilter{inputenc}{inputenc package ignored}
+\WarningFilter{tablefootnote}{LuaTeX and hyperref}
+\WarningFilter{hyperref}{Ignoring empty anchor}
+\WarningFilter*{latex}{Command}  %
+
+\usepackage{hyphenat}
+\usepackage{style/macros}
+\usepackage{style/opendir_macro}
+
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+\usepackage{subcaption}
+\usepackage{caption}
+
+
+\usepackage{libertine}
+\usepackage[margin=1in]{geometry}
+
+
+
+
+\usepackage{titling}
+\newcommand{\titlefontsize}{20pt}    %
+\setlength{\droptitle}{-2mm}  %
+\pretitle{\par\centering\fontsize{\titlefontsize}{1.2\titlefontsize}\selectfont}
+\posttitle{\par}
+
+\title{There Will Be a Scientific Theory of Deep Learning}
+\input{sections/authors}
+\date{}
+\begin{document}
+\maketitle
+\vspace{-3mm}
+\input{sections/abstract}
+\setcounter{footnote}{0}
+\newpage
+
+\input{sections/intro}
+
+\input{sections/section_two_subsecs/intro}
+
+\input{sections/section_two_subsecs/dynamics}
+
+\input{sections/section_two_subsecs/limits}
+
+\input{sections/section_two_subsecs/measurable}
+
+\input{sections/section_two_subsecs/hps}
+
+\input{sections/section_two_subsecs/universality}
+
+\input{sections/learning_mech_and_mechinterp}
+
+\input{sections/reasons_for_skepticism}
+
+\input{sections/open_dirs}
+
+\input{sections/how_to_get_involved}
+
+\section*{Acknowledgements}
+We are grateful for feedback on this paper from many people from several overlapping groups: researchers working on the theory of machine learning, researchers working on AI safety and mechanistic interpretability, practitioners and applied deep learning scientists, neuroscientists, and physicists.
+This includes
+Alberto Bietti,
+Alex Infanger,
+Alex Williams,
+Amil Dravid,
+Anthony Thomas,
+Avrajit Ghosh,
+Bin Yu,
+Bruno Loureiro,
+Chandan Singh,
+Clémentine Dominé,
+David Berman,
+David Klindt,
+Denny Wu,
+Ev Gunter,
+Honam Wong,
+Itay Lavie,
+Jacob Yates,
+Jacob Zavatone-Veth,
+Jeff Gore,
+Jesse Hoogland,
+Jiechao Feng,
+Jingfeng Wu,
+Kaden Tro,
+Lauren Greenspan,
+Lenka Zdeborová,
+Lily Stelling,
+Lukas Bongartz,
+Nina Miolane,
+Noa Rubin,
+Peter Bartlett,
+Raymond Fan,
+Samyak Jain,
+Soufiane Hayou,
+Sultan Daniels,
+Wanyu Lei,
+Yasaman Bahri,
+and
+Zohar Ringel.
+
+\newpage
+\bibliography{refs}
+
+\end{document}

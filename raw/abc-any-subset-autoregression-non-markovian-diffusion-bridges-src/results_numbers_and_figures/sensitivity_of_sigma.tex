@@ -1,0 +1,23 @@
+\subsection{Sensitivity of ABC to Volatility Hyperparameter}
+
+Table \ref{tab:sensitivity_sigma} shows what happens when we change ABC's volatility hyperparameter $\sigma$. Although we did not have the computational resources to retrain ABC with a large hyperparameter sweep (each run takes 36 hours on 4 A100 80GB GPUs), we found that there seems to be a tolerable range of hyperparameters, as the alternate choices we tested did not significantly degrade the results.
+
+Additionally, on the strictly causal training runs for CelebV-HQ (Table \ref{tab:celebvhq_causal_CAUSAL_EVAL_fvd}, \ref{tab:celebvhq_causal_CAUSAL_EVAL_fid}), we had the chance to test a few more hyperparameter choices of ABC $\sigma \in \{0.25, 0.5, 0.75\}$. We found that overall, \textit{any} of these choices for ABC beat the best of the conditional diffusion bridge methods (Table \ref{tab:celebvhq_causal_overall_avg_rank}).
+
+\begin{table}[h]
+    \centering
+    \caption{\textbf{Sensitivity of ABC to Volatility:} Infill videos of 32 frames, prompt every 8 frames, sample with 250 SDE steps. No Brownian Bridge.}\label{tab:sensitivity_sigma}
+    \begin{tabular}{l r r}
+        \toprule
+        \textit{Setting} & \textit{FVD} $(\downarrow)$ & \textit{FID} $(\downarrow)$ \\
+        \hline
+        \rowcolor{gray!20}\multicolumn{3}{l}{\textbf{CelebV-HQ}} \\
+        \quad $\sigma=0.4$ & 99.7 & 2.6 \\
+        \quad $\sigma=0.5$ & 111.5 & 2.9 \\
+        \hline
+        \rowcolor{gray!20}\multicolumn{3}{l}{\textbf{Sky-Timelapse}} \\
+        \quad $\sigma=0.3$ & 183.5 & 4.8 \\
+        \quad $\sigma=0.4$ & 162.3 & 4.4 \\
+        \bottomrule
+    \end{tabular}
+\end{table}

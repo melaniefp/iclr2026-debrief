@@ -1,0 +1,53 @@
+\documentclass{article}
+
+\usepackage[preprint]{style}
+
+\input{packages}
+\input{macros}
+\input{math_commands.tex}
+
+\title{Controlled LLM Training on Spectral Sphere}
+
+
+
+\input{authors}
+
+\begin{document}
+\maketitle
+\insertAuthorFootnotes
+\begin{center}
+\vspace{-2.5em}
+\raisebox{-0.6ex}{\includegraphics[height=1.2em]{logo/github-logo.pdf}}
+    \hspace{0.1em}
+    \textbf{Project Page:} \href{https://github.com/Unakar/Spectral-Sphere-Optimizer}{%
+     \texttt{Spectral-Sphere-Optimizer}%
+}
+\vspace{0.5em}
+\end{center}
+
+\input{section/00abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{section/01introduction}
+\input{section/02related}
+\input{section/03Theory}
+\input{section/04Implemention}
+\input{section/05infra}
+\input{section/06Experiments}
+\input{section/07discussion}
+
+\input{acknowledgments}
+
+\newpage
+\nocite{kexuefm-10770,kexuefm-10795,kexuefm-11241,yang2022tensor}
+\bibliographystyle{plainnat}
+\bibliography{ref}
+
+\clearpage
+
+\appendix
+
+\input{section/appendix}
+
+\end{document}

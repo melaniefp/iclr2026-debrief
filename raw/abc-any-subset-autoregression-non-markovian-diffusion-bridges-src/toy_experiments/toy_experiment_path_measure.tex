@@ -1,0 +1,79 @@
+\subsection{Toy Experiment: Incorrect Dynamics in Chained Conditional Bridges}
+\label{sec:stitched-vs-conditioned}
+
+We conduct a toy experiment to empirically illustrate Theorem~\ref{thm:non_bijective_path_measure}.
+Although the finite-dimensional marginals of autoregressively concatenated conditional diffusion bridges can agree with those of an underlying stochastic process, the path measures and volatility in general will not coincide. This underscores the need for one continual SDE, as in our ABC framework.
+
+\paragraph{Reference process.}
+Let $X(t)$ be standard Brownian motion on $[0,1]$ with $X(0)=x_0$, Doob-conditioned \cite{doob1984classical} to satisfy $X(4/5)=-x_0$ and $X(1)=+x_0$. Its SDE is piecewise \cite{karatzas2014brownian, oksendal2003stochastic, steele2001stochastic}
+\begin{equation}
+dX(t) =
+\begin{cases}
+\dfrac{-x_0 - X(t)}{4/5 - t}\,dt + dW(t), & t \in [0,\,4/5],\\[6pt]
+\dfrac{\phantom{-}x_0 - X(t)}{1 - t}\,dt + dW(t), & t \in [4/5,\,1].
+\end{cases}
+\end{equation}
+
+\paragraph{Stitched construction.}
+As an alternative, we build $Y(t)$ from two unit-time Brownian bridges
+defined on their own time variables. Let $Y_0(\tau_0)$ be a Brownian
+bridge on $\tau_0\in[0,1]$ with $Y_0(0)=x_0$, conditioned on
+$Y_0(1)=-x_0$, and let $Y_1(\tau_1)$ be a Brownian bridge on
+$\tau_1\in[0,1]$ with $Y_1(0)=Y_0(1)=-x_0$, conditioned on
+$Y_1(1)=-Y_0(1)=+x_0$. Their SDEs are the standard Brownian-bridge
+forms
+\begin{align}
+dY_0(\tau_0) &= \frac{-x_0 - Y_0(\tau_0)}{1-\tau_0}\,d\tau_0 + dB_0(\tau_0),\\
+dY_1(\tau_1) &= \frac{\phantom{-}x_0 - Y_1(\tau_1)}{1-\tau_1}\,d\tau_1 + dB_1(\tau_1),
+\end{align}
+where $B_0,B_1$ are independent standard Brownian motions in their
+respective time variables. We then define
+\begin{equation}
+Y(t) =
+\begin{cases}
+Y_0\!\left(\tfrac{5}{4}t\right), & t\in[0,\,4/5],\\[4pt]
+Y_1\!\left(5\,(t-4/5)\right),    & t\in[4/5,\,1],
+\end{cases}
+\end{equation}
+so that each unit-time bridge is compressed into its respective
+sub-window.
+
+\paragraph{Derivation of the SDE for $Y(t)$.}
+Consider the first segment $t\in[0,4/5]$ with $\tau_0=\tfrac{5}{4}t$,
+hence $d\tau_0/dt=5/4$. The drift transforms by the chain rule (multiply
+by $d\tau_0/dt$):
+\begin{equation}
+\frac{-x_0 - Y_0(\tau_0)}{1-\tau_0}\cdot\frac{d\tau_0}{dt}
+= \frac{5}{4}\cdot\frac{-x_0 - Y(t)}{1-\tfrac{5}{4}t}
+= \frac{-x_0 - Y(t)}{4/5 - t}.
+\end{equation}
+For the diffusion term, $B_0(\tau_0) \sim \mathcal{N}(0, \tau_0) \overset{\text{dist}}{=} \mathcal{N}\left(0, \frac{5}{4}t\right)$, so the diffusion
+coefficient is $\sqrt{5/4}$ \cite{karatzas2014brownian, oksendal2003stochastic, steele2001stochastic}. An identical argument on the second segment
+with $\tau_1=5(t-4/5)$, $d\tau_1/dt=5$, gives drift
+$(x_0 - Y(t))/(1-t)$ and diffusion coefficient $\sqrt{5}$. Hence
+\begin{equation}
+dY(t) =
+\begin{cases}
+\dfrac{-x_0 - Y(t)}{4/5 - t}\,dt + \sqrt{\tfrac{5}{4}}\,dW(t),
+  & t \in [0,\,4/5],\\[6pt]
+\dfrac{\phantom{-}x_0 - Y(t)}{1 - t}\,dt + \sqrt{5}\,dW(t),
+  & t \in [4/5,\,1].
+\end{cases}
+\label{eq:Y-sde}
+\end{equation}
+The drifts of $X$ and $Y$ coincide, but the diffusion coefficients of
+$Y$ are inflated by $\sqrt{d\tau/dt}$ on each segment---a factor that is
+easy to overlook when ``reusing'' bridges across rescaled
+time windows.
+
+\paragraph{Empirical Results.}
+$X$ and $Y$ have identical finite-dimensional marginals at the checkpoint set
+$\{0,\,4/5,\,1\}$ (all three are point masses at $x_0,-x_0,x_0$), yet
+their path measures do not coincide: their quadratic variations
+differ pathwise, e.g.\ $\langle Y\rangle_t=\tfrac{5}{4}t$ versus
+$\langle X\rangle_t=t$ on the first segment. Figure~\ref{fig:insufficient_stiched_bridge}
+confirms this empirically with $1000$ simulated trajectories ($4000$ discretization steps): the two
+processes coincide in distribution at the pinned times $t\in\{4/5,1\}$
+but differ markedly at intermediate times $t\in\{1/2,9/10\}$, with $Y$
+exhibiting the predicted variance inflation.
+In this experiment, we use the analytic form of the drift (with small $\epsilon$ in denominator to promote numerical stability) to isolate the effect of neural network learning from the fundamental issue of path measures coinciding.

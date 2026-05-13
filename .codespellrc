@@ -1,0 +1,6 @@
+[codespell]
+write-changes =
+count = true
+quiet-level = 3
+ignore-words-list = absolut,aks,aline,aml,bailin,carin,commun,creen,domin,dota,eto,formule,forr,gool,joo,lew,matrics,multline,nam,nd,normale,pich,requestors,shs,teh
+skip = *.drawio,dist,*.lock,CHANGELOG.md,data,outputs

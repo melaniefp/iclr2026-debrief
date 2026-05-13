@@ -1,0 +1,25 @@
+[project]
+authors = []
+license = "MIT"
+requires-python = ">=3.12"
+name = "iclr2026"
+description = ""
+version = "0.0.0"
+readme = "README.md"
+classifiers = ["Private :: Do Not Upload"]
+dependencies = []
+
+[dependency-groups]
+dev = ["codespell"]
+
+[project.urls]
+repository = "https://github.com/msr-cambridge-uk/iclr2026"
+
+[tool.uv]
+default-groups = ["dev"]
+keyring-provider = "subprocess"
+
+[[tool.uv.index]]
+url = "https://__token__@msrcambridge.pkgs.visualstudio.com/_packaging/MI/pypi/simple/"
+name = "mi"
+explicit = true

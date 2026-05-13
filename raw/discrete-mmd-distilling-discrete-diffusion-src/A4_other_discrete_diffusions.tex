@@ -1,0 +1,25 @@
+\section{D-MMD for other discrete diffusion models}
+\label{app:other_diffusions}
+In certain discrete diffusion models, it is (surprisingly) not always true that $E_q[x|z_t]$ is the optimal solution for $x_\theta(z_t)$. An example is the case of uniform diffusion as parametrized in \citep{hoogeboom2021argmaxflows,austin2021structured}. We will discuss how one could do D-MMD for parametrizations such as these.
+
+
+\paragraph{Background Discrete Diffusion}
+It is helpful to study the simplified posterior parametrization as it covers uniform diffusion and any other discrete process that interpolates from data $x$ to a factorized stationary distribution $\pi$ so that $z_t = \mathrm{Cat}\left(z_s | \alpha_t x + (1 - \alpha_t) \pi\right)$. In that case the posterior of this process given $x$ equals \citep{Sahoo2024simpleandeffective}:
+\begin{equation}
+    q(z_s|z_t,x)=\text{Cat}\left(z_s| \frac{[\alpha_{t|s}z_t+(1-\alpha_{t|s})1\pi^\top z_t]\odot[\alpha_s x+(1-\alpha_s)\pi]}{\alpha_t z_t^\top x+(1-\alpha_t)z_t^\top\pi}\right) = \text{Cat}(z_s | \pi_{z_s}(x, z_t)),
+\end{equation}
+for which we define the shorthand probability vector $\pi_{z_s}(x, z_t)$. As a result, writing the loss component for discrete diffusion simplifies to $L_t(x, \hat{x}_\theta(z_t), z_t) = \mathrm{KL}\left(\pi_{z_s}(x, z_t) || \pi_{z_s}(\hat{x}_\theta(z_t), z_t) \right)dt^{-1}$ where $s = t - dt$. One can either simply choose a discretization for which $dt > 0$ or take the limit $dt \to 0$ which requires some subsequent algebraic manipulation.
+
+
+In these cases recall that $L_t(x, \hat{x}_\theta(z_t), z_t) = \mathrm{KL}\left(\pi_{z_s}(x, z_t) || \pi_{z_s}(\hat{x}_\theta(z_t), z_t) \right)dt^{-1}$. In this case the subtraction of the two KL terms cancels out the negative entropy term $\sum \pi_{s-ds}(\hat{x}_\eta) \log \pi_{s-ds}(\hat{x}_\eta)$ leading to the loss:
+\begin{equation}
+     \mathcal{L}_{\text{D-MMD}}(\eta) = L_s(\hat{x}_\eta, \hat{x}_\theta(z_s), z_s) -  L_s(\hat{x}_\eta, \hat{x}_\phi(z_s), z_s) = \sum_c \pi_{s-ds}(\hat{x}_\eta)_c \left( \log \pi_{s-ds}(\hat{x}_\phi(z_s)) - \log \pi_{s-ds}(\hat{x}_\theta(z_s))\right)_c,
+\end{equation}
+A fixed point for this algorithm occurs when $g_\eta(x)$ is distributed as the data (approximated by teacher) distribution $q_\theta(x)$, in which case $\hat{x}_\phi(z_s) = \hat{x}_\theta(z_s)$ and both the generator and the auxiliary model have an update of zero.
+
+For the auxiliary model, flipping signs and ignoring constants the loss can be written as:
+\begin{align}
+     \mathcal{L}_{\text{AUX}}(\phi) &= L_s(\hat{x}_\eta, \hat{x}_\phi(z_s), z_s) + L_s(\hat{x}_\theta(z_s), \hat{x}_\phi(z_s), z_s) \\
+     &\stackrel{c}{=} CE(\pi_{s-ds}(\hat{x}_\eta) | \pi_{s-ds}(\hat{x}_\phi(z_s))) + CE(\pi_{s-ds}(\hat{x}_\theta(z_s)) | \pi_{s-ds}(\hat{x}_\phi(z_s)))
+\end{align}
+This has the optimum $\pi_{s-ds}(\hat{x}_\phi(z_s)) = \frac{1}{2}\left(\mathbb{E}_{g_\eta(x)}[\pi_{s-ds}(x)] + \pi_{s-ds}(\hat{x}_\theta(z_s))\right)$. As a result, when $g_\eta$ is distributed as the data (or the approximation of the teacher) the optimum is $\pi_{s-ds}(\hat{x}_\phi(z_s)) = \pi_{s-ds}(\hat{x}_\theta(z_s))$.

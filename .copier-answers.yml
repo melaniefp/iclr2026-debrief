@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.0.41
+_src_path: gh:msr-cambridge-uk/msr-cookie-doh
+cats: false
+commitizen: false
+documentation: false
+flash_attn: false
+module_name: iclr2026
+organization: msr-cambridge-uk
+precommit: false
+project_name: iclr2026
+rats: false

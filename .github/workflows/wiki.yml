@@ -1,0 +1,237 @@
+name: Publish to GitHub Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wiki/**"
+      - "papers/**"
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  publish-wiki:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v6
+
+      - name: Checkout wiki repo
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: _wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync content to wiki
+        run: |
+          # Clean previously generated pages (preserve manually-created wiki pages starting with _)
+          find _wiki -maxdepth 1 -name '*.md' ! -name '_*' -delete
+
+          # --- wiki/ folder: flatten subfolder structure into prefixed pages ---
+          # wiki/README.md → Home.md (GitHub Wiki home page)
+          if [ -f wiki/README.md ]; then
+            cp wiki/README.md _wiki/Home.md
+          fi
+
+          # wiki/concepts/*.md → concept-<slug>.md
+          for src in wiki/concepts/*.md; do
+            [ -e "$src" ] || continue
+            filename="$(basename "$src")"
+            [ "$filename" = "README.md" ] && continue
+            cp "$src" "_wiki/concept-${filename}"
+          done
+
+          # wiki/summaries/*.md → summary-<slug>.md
+          for src in wiki/summaries/*.md; do
+            [ -e "$src" ] || continue
+            filename="$(basename "$src")"
+            [ "$filename" = "README.md" ] && continue
+            cp "$src" "_wiki/summary-${filename}"
+          done
+
+          # wiki/articles/*.md → article-<slug>.md
+          for src in wiki/articles/*.md; do
+            [ -e "$src" ] || continue
+            filename="$(basename "$src")"
+            [ "$filename" = "README.md" ] && continue
+            cp "$src" "_wiki/article-${filename}"
+          done
+
+          # --- papers/ folder: paper summaries → paper-<slug>.md ---
+          for src in papers/*.md; do
+            [ -e "$src" ] || continue
+            filename="$(basename "$src")"
+            [ "$filename" = "README.md" ] && continue
+            cp "$src" "_wiki/paper-${filename}"
+          done
+
+          # --- Copy referenced images into the wiki repo ---
+          # (private repos can't serve images via raw.githubusercontent.com)
+          mkdir -p _wiki/images
+          grep -roh '!\[[^]]*\]([^)]*\.\(jpg\|jpeg\|png\|gif\|svg\|webp\))' wiki/ 2>/dev/null | \
+            grep -oP '\]\(\K[^)]+' | sort -u | while read -r img_path; do
+              # Resolve relative path from wiki/ subdirectory
+              resolved=$(cd wiki/articles 2>/dev/null && realpath --relative-to=. "$img_path" 2>/dev/null)
+              # Try resolving from wiki root too
+              [ ! -f "wiki/articles/$img_path" ] || resolved="wiki/articles/$img_path"
+              # Find the actual file relative to repo root
+              clean=$(echo "$img_path" | sed 's|\.\./||g; s|^\./||')
+              if [ -f "$clean" ]; then
+                flat_name=$(echo "$clean" | tr '/' '_')
+                cp "$clean" "_wiki/images/$flat_name"
+              fi
+            done
+
+      - name: Rewrite internal links for GitHub Wiki
+        run: |
+          python3 << 'SCRIPT'
+          import re, glob, os
+
+          def make_rewriter(source_file):
+              """Return a link-rewriter function aware of the source file's type prefix."""
+              src_basename = os.path.basename(source_file)
+              if src_basename.startswith('concept-'):
+                  sibling_prefix = 'concept-'
+              elif src_basename.startswith('summary-'):
+                  sibling_prefix = 'summary-'
+              elif src_basename.startswith('article-'):
+                  sibling_prefix = 'article-'
+              elif src_basename.startswith('paper-'):
+                  sibling_prefix = 'paper-'
+              else:
+                  sibling_prefix = ''
+
+              def rewrite(match):
+                  path = match.group(1)
+                  clean = re.sub(r'^(\.\./)*', '', path)
+                  clean = re.sub(r'^\./', '', clean)
+
+                  if clean in ('wiki/README.md', 'README.md'):
+                      return '](Home)'
+                  m = re.match(r'(?:wiki/)?concepts/(.+)\.md$', clean)
+                  if m:
+                      return f'](concept-{m.group(1)})'
+                  m = re.match(r'(?:wiki/)?summaries/(.+)\.md$', clean)
+                  if m:
+                      return f'](summary-{m.group(1)})'
+                  m = re.match(r'(?:wiki/)?articles/(.+)\.md$', clean)
+                  if m:
+                      return f'](article-{m.group(1)})'
+                  m = re.match(r'papers/(.+)\.md$', clean)
+                  if m:
+                      return f'](paper-{m.group(1)})'
+
+                  # Sibling links (e.g., deep-learning-theory.md from a concept page)
+                  m = re.match(r'([a-z0-9-]+)\.md$', clean)
+                  if m:
+                      return f']({sibling_prefix}{m.group(1)})'
+
+                  # raw/ files → absolute GitHub blob URL
+                  repo = os.environ.get('GITHUB_REPOSITORY', '')
+                  if clean.startswith('raw/'):
+                      return f'](https://github.com/{repo}/blob/main/{clean})'
+
+                  # Fallback: strip .md
+                  if clean.endswith('.md'):
+                      return f']({clean[:-3]})'
+                  return match.group(0)
+
+              return rewrite
+
+          for f in glob.glob('_wiki/*.md'):
+              with open(f) as fh:
+                  content = fh.read()
+
+              content = re.sub(r'^---\n.*?\n---\n*', '', content, count=1, flags=re.DOTALL)
+
+              rewriter = make_rewriter(f)
+              content = re.sub(r'\]\(([^)]+\.md)\)', rewriter, content)
+
+              # Rewrite image paths: relative repo paths → local images/ in wiki
+              def rewrite_images(match):
+                  prefix = match.group(1)  # "![alt]("
+                  path = match.group(2)
+                  clean = re.sub(r'^(\.\./)*', '', path)
+                  clean = re.sub(r'^\./', '', clean)
+                  if clean.startswith(('raw/', 'papers/', 'wiki/')):
+                      flat_name = clean.replace('/', '_')
+                      return f'{prefix}images/{flat_name})'
+                  return match.group(0)
+              content = re.sub(
+                  r'(!\[[^\]]*\]\()([^)]+\.(?:jpg|jpeg|png|gif|svg|webp))\)',
+                  rewrite_images, content, flags=re.IGNORECASE
+              )
+
+              with open(f, 'w') as fh:
+                  fh.write(content)
+          SCRIPT
+
+      - name: Generate sidebar
+        run: |
+          python3 << 'SCRIPT'
+          import glob, re, os
+
+          concepts = []
+          summaries = []
+          articles = []
+          papers = []
+
+          for f in sorted(glob.glob('_wiki/*.md')):
+              name = os.path.basename(f)[:-3]  # strip .md
+              if name.startswith('_') or name == 'Home':
+                  continue
+              # Extract title from first H1 heading
+              with open(f) as fh:
+                  content = fh.read()
+              m = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+              title = m.group(1) if m else name.replace('-', ' ').title()
+
+              if name.startswith('concept-'):
+                  concepts.append((title, name))
+              elif name.startswith('summary-'):
+                  summaries.append((title, name))
+              elif name.startswith('article-'):
+                  articles.append((title, name))
+              elif name.startswith('paper-'):
+                  papers.append((title, name))
+
+          lines = ['## [Home](Home)', '']
+          if concepts:
+              lines += ['### Concepts', '']
+              for title, name in concepts:
+                  lines.append(f'- [{title}]({name})')
+              lines.append('')
+          if summaries:
+              lines += ['### Summaries', '']
+              for title, name in summaries:
+                  lines.append(f'- [{title}]({name})')
+              lines.append('')
+          if papers:
+              lines += ['### Papers', '']
+              for title, name in papers:
+                  lines.append(f'- [{title}]({name})')
+              lines.append('')
+          if articles:
+              lines += ['### Articles', '']
+              for title, name in articles:
+                  lines.append(f'- [{title}]({name})')
+              lines.append('')
+
+          with open('_wiki/_Sidebar.md', 'w') as fh:
+              fh.write('\n'.join(lines) + '\n')
+          SCRIPT
+
+      - name: Push to wiki
+        run: |
+          cd _wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "No changes to publish" && exit 0
+          git commit -m "Sync wiki from main @ ${GITHUB_SHA::7}"
+          git push
