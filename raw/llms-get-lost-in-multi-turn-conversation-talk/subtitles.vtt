@@ -1,0 +1,505 @@
+WEBVTT
+
+00:00:04.480 --> 00:00:09.600
+Hello. My name is Philippe, and I'm excited to present to you this paper called LMs get lost in
+
+00:00:09.600 --> 00:00:10.960
+multiturn conversation.
+
+00:00:11.120 --> 00:00:15.345
+This is in collaboration with my dear friends and colleague, Hiroaki
+
+00:00:15.345 --> 00:00:18.225
+Hayashi at Salesforce and Jennifer Neville at MSR.
+
+00:00:19.505 --> 00:00:25.105
+So let me walk you through a little bit of what the motivation of this work is, which is a conversation
+
+00:00:25.105 --> 00:00:28.110
+Hiro and I had in September 2024,
+
+00:00:28.350 --> 00:00:30.750
+we were talking about programming language benchmarks
+
+00:00:30.910 --> 00:00:35.790
+and how they were sort of saturated. Like, if you looked at benchmarks like human eval,
+
+00:00:37.230 --> 00:00:40.270
+you know, a lot of models were getting 90 plus accuracy on them,
+
+00:00:41.155 --> 00:00:46.355
+and we felt like, okay, the models at the time were not not very good yet at programming
+
+00:00:46.355 --> 00:00:47.475
+language tasks.
+
+00:00:48.035 --> 00:00:48.675
+And
+
+00:00:49.075 --> 00:00:54.275
+I wasn't sure why I'm not a programming language person, and Hero is an expert on this topic, so we we
+
+00:00:54.275 --> 00:00:55.955
+kind of, like, looked at some examples together.
+
+00:00:57.460 --> 00:01:01.700
+And if you're not familiar with human eval, it's an OpenAI dataset,
+
+00:01:02.020 --> 00:01:07.140
+and it has samples like here on the left where, basically, you're given a docstring of
+
+00:01:07.140 --> 00:01:12.265
+a function. Here, the example is a function called below zero where you'll be given a list of
+
+00:01:12.265 --> 00:01:13.785
+deposits with withdrawals
+
+00:01:14.345 --> 00:01:19.385
+and the bank account that starts with zero, and then your task is to detect if at any point the balance goes below zero
+
+00:01:19.385 --> 00:01:24.505
+and return true. Otherwise, it should return false. Right? And when you look at this problem, you
+
+00:01:24.505 --> 00:01:25.465
+might have two intuitions.
+
+00:01:25.910 --> 00:01:31.350
+The AI intuition is that, you know, okay. Like, the reason why this benchmark is easy is because the task is too simple,
+
+00:01:31.350 --> 00:01:35.910
+and that real coding tasks are actually, you know, harder than this in terms of complexity.
+
+00:01:36.550 --> 00:01:40.230
+And then if you're more of an HCI minded person, you might think, oh,
+
+00:01:41.205 --> 00:01:46.245
+but is this actually how people would write a prompt? Perhaps, like, there's just a misalignment between how this
+
+00:01:46.245 --> 00:01:48.805
+benchmark is set up and how actual people would use it.
+
+00:01:49.845 --> 00:01:55.045
+And we started playing around with, you know, okay. How would people actually, you know, wanna implement this function approach
+
+00:01:55.045 --> 00:01:59.050
+this, you know, if they went to, you know, their favorite chat conversational interface?
+
+00:01:59.610 --> 00:02:02.250
+And we came up with this idea of a sharded instruction.
+
+00:02:02.570 --> 00:02:07.610
+The sharded instruction here on the right is an equivalent instruction that has the exact same information as
+
+00:02:07.610 --> 00:02:09.370
+the instruction here on the left that you can see,
+
+00:02:10.125 --> 00:02:12.605
+except that it's been split into six shards here.
+
+00:02:12.845 --> 00:02:15.245
+And each shard essentially is a piece of information
+
+00:02:15.485 --> 00:02:16.205
+that,
+
+00:02:16.365 --> 00:02:20.365
+you know, you might reveal in a single turn such that when you simulate a conversation,
+
+00:02:20.445 --> 00:02:25.520
+you're not gonna reveal all the information needed to do the task at the start, but you might, you know, start by
+
+00:02:25.520 --> 00:02:30.560
+saying, hey. I need to write a function called below zero that finds if accounts are ever negative. And
+
+00:02:30.560 --> 00:02:35.600
+then, you know, the model might answer, and then you might say, oh, by the way, the input is a list of ints that represent transaction
+
+00:02:35.600 --> 00:02:35.920
+amounts.
+
+00:02:36.435 --> 00:02:41.155
+And then in the third turn, you might say, oh, by the way, we let's assume that the initial balance is zero,
+
+00:02:41.395 --> 00:02:45.395
+etcetera. And you can kind of see that, like, if you do this, you kind of underspecify
+
+00:02:45.395 --> 00:02:50.880
+the problem at the start, and you slowly refine the problem, which is realistic because that sometimes users,
+
+00:02:50.880 --> 00:02:51.520
+you know,
+
+00:02:52.400 --> 00:02:57.360
+don't know exactly all of what they want as they start the conversation, and they have to refine their intent over time.
+
+00:02:58.800 --> 00:03:00.800
+So we applied this idea
+
+00:03:00.960 --> 00:03:04.845
+of, you know, sharding of instructions not only to code problems
+
+00:03:05.085 --> 00:03:10.205
+based on human eval, but also on other kinds of tasks that people might want might wanna do.
+
+00:03:10.205 --> 00:03:14.765
+So we did database task and actions around, you know,
+
+00:03:15.245 --> 00:03:19.740
+tool calling, and then we did math problems, data to text, and summarization.
+
+00:03:19.740 --> 00:03:24.700
+And these, like, you know, span from programming language to natural language tasks, all generation tasks.
+
+00:03:25.580 --> 00:03:31.260
+And basically, we took these instructions that exist that are high quality from existing datasets, and then we
+
+00:03:30.655 --> 00:03:33.135
+implemented the sharding process here shown in yellow.
+
+00:03:34.575 --> 00:03:38.495
+And from there, we, you know, implemented what we call a simulation
+
+00:03:38.895 --> 00:03:41.055
+environment that, you know, takes in
+
+00:03:41.375 --> 00:03:42.575
+a sharded instruction
+
+00:03:42.790 --> 00:03:45.270
+and can simulate a multi turn conversation
+
+00:03:45.350 --> 00:03:50.390
+by leveraging a small language model at the time we use GPT four o mini to kind of decide, okay. At
+
+00:03:50.390 --> 00:03:53.110
+each point in the conversation when the assistant has responded,
+
+00:03:53.270 --> 00:03:58.435
+we have a little decider that can choose, okay. Which shard should I reveal next? And, essentially, the
+
+00:03:58.435 --> 00:04:03.635
+idea is to reveal at most one one new chart of information per turn so that the conversations are multi
+
+00:04:03.635 --> 00:04:05.075
+turn and underspecified.
+
+00:04:06.355 --> 00:04:07.075
+Alright.
+
+00:04:07.315 --> 00:04:12.470
+So with this in mind, you know, you might be wondering, okay. Like, I think I know where this is
+
+00:04:12.470 --> 00:04:17.590
+going. You're gonna tell me that the, you know, sharded multi turn performance in the underspecified setting is gonna
+
+00:04:17.590 --> 00:04:22.710
+perform worse than the fully specified single turn. And one idea you might have is
+
+00:04:22.710 --> 00:04:25.590
+maybe this loss is due to the actual sharding process.
+
+00:04:26.045 --> 00:04:31.085
+When you shard the information in, you know, an instruction into multiple shards, if you're not
+
+00:04:31.085 --> 00:04:34.045
+careful, you might lose some information during the sharding,
+
+00:04:34.125 --> 00:04:39.005
+and that might make the task infeasible in the multi turn setting. Right? So we have to be careful about this.
+
+00:04:39.720 --> 00:04:45.080
+And because of this, we implemented what we call the concat experiment, and let me show you what that looks like.
+
+00:04:46.120 --> 00:04:49.640
+The idea is we're gonna simulate know, given a fully specified instruction
+
+00:04:49.720 --> 00:04:51.320
+and its sharded equivalent,
+
+00:04:51.400 --> 00:04:53.400
+we're gonna have three ways of conducting,
+
+00:04:54.435 --> 00:04:56.675
+you know, a simulated conversation.
+
+00:04:57.155 --> 00:05:02.435
+The full conversation is just the we just provide the, you know, single instruction at the start,
+
+00:05:02.435 --> 00:05:05.235
+the original one, and then let the assistant complete the task.
+
+00:05:05.810 --> 00:05:09.810
+Sharded is as we said. You know, we're gonna shard the converse the the instruction
+
+00:05:09.890 --> 00:05:15.090
+and then give one shard per turn. And then concat, the idea is we're
+
+00:05:15.090 --> 00:05:16.690
+gonna take the shards
+
+00:05:16.850 --> 00:05:22.225
+of the sharded instructions, put them in a bullet list, and provide all of that information in a single turn.
+
+00:05:22.305 --> 00:05:27.425
+So now, hopefully, you'll see that, like, the concat versus full, they're both single turn,
+
+00:05:27.425 --> 00:05:30.705
+and the only difference is the rephrasing that has occurred during sharding.
+
+00:05:30.945 --> 00:05:32.385
+And then concat versus sharding
+
+00:05:32.880 --> 00:05:36.880
+sharded, they're exactly the same words, the same paraphrasing,
+
+00:05:36.960 --> 00:05:39.520
+except the only difference now is single versus multiturn.
+
+00:05:39.520 --> 00:05:45.120
+So, hopefully, concat is gonna, you know, kind of separate the the the effect from the sharding rephrasing
+
+00:05:45.120 --> 00:05:45.760
+that has occurred.
+
+00:05:47.645 --> 00:05:52.685
+This is the main results of the paper, and, hopefully, you can see that, you know, there's the long story short is that
+
+00:05:52.685 --> 00:05:57.885
+we find that, you know, given the performance here on the left of, you know, one model per row
+
+00:05:57.885 --> 00:06:03.020
+and on the six tasks that we that we experimented with, you know, we can see that the full
+
+00:06:03.020 --> 00:06:08.140
+performance and the concat performance are mostly the same. You can see the colors are mostly white. Some of the
+
+00:06:08.140 --> 00:06:13.420
+older and and smaller models perform a little worse in concat, but the top models that we tested
+
+00:06:13.740 --> 00:06:18.845
+do pretty good and pretty similarly in full and concat. On the other hand, there's large degradation that
+
+00:06:18.845 --> 00:06:23.645
+we that we observe when we go into the sharded, you know, underspecified multi return setup.
+
+00:06:25.165 --> 00:06:29.565
+Okay? And then let me now get into why do models get lost in conversation.
+
+00:06:30.690 --> 00:06:35.730
+So we actually for each, you know, simulates for each instruction that we have,
+
+00:06:35.730 --> 00:06:37.890
+we actually ran 10 simulations
+
+00:06:37.890 --> 00:06:39.010
+instead of one.
+
+00:06:39.570 --> 00:06:44.530
+And what we're interested in in seeing, you know, not only the average performance, which is what we saw in the table above,
+
+00:06:44.855 --> 00:06:50.135
+but also two new metrics that we came up with. One is called aptitude, and it corresponds to basically
+
+00:06:50.135 --> 00:06:54.615
+the best case performance for any given instruction, which is the ninetieth percentile performance,
+
+00:06:55.815 --> 00:06:57.175
+and also unreliability,
+
+00:06:57.175 --> 00:06:59.015
+which is the the gap between
+
+00:06:59.255 --> 00:07:03.700
+best and worst case performance. So the gap between ninetieth and tenth percentile.
+
+00:07:04.980 --> 00:07:09.780
+And the observation that we have is that, you know, the degradation in performance that we observe
+
+00:07:10.740 --> 00:07:12.980
+from blue to yellow here
+
+00:07:13.455 --> 00:07:14.815
+mostly occurs
+
+00:07:14.895 --> 00:07:19.855
+as a small drop in aptitude, meaning the best case performance drops a little bit, but an
+
+00:07:19.935 --> 00:07:22.175
+a very large increase in unreliability,
+
+00:07:22.175 --> 00:07:24.495
+meaning that the worst case and
+
+00:07:24.655 --> 00:07:26.815
+worst case to best case performance has dropped a lot.
+
+00:07:27.470 --> 00:07:33.070
+So the way we phrase this is that when LLMs take a wrong turn in a conversation, they get lost and do not recover.
+
+00:07:33.070 --> 00:07:38.110
+It's not that in multi turn settings, the models become incapable of completing certain tasks.
+
+00:07:38.190 --> 00:07:43.310
+It's just that there is more room for the models to get things wrong, which means that the unreliability has increased a lot
+
+00:07:43.365 --> 00:07:44.245
+of the system.
+
+00:07:44.885 --> 00:07:45.525
+Okay.
+
+00:07:45.925 --> 00:07:48.325
+Some additional experiments that we conducted.
+
+00:07:48.885 --> 00:07:54.165
+One is you might be thinking, okay. But what if we implement an agent that has memory and
+
+00:07:54.165 --> 00:07:55.285
+that can, like, say,
+
+00:07:55.765 --> 00:08:00.860
+recap the information that has occurred so far in the conversation, would that help reduce the amount
+
+00:08:00.860 --> 00:08:04.220
+of, you know, information loss and degradation in performance?
+
+00:08:04.380 --> 00:08:09.500
+So we implemented two new kinds of simulations that you can see here in the diagram. One is called
+
+00:08:09.500 --> 00:08:10.940
+recap and one is called snowball.
+
+00:08:11.265 --> 00:08:16.305
+And both of them, essentially, you know, as we introduce new shards of information in the conversation, we also
+
+00:08:16.305 --> 00:08:18.465
+implement a system to, you know,
+
+00:08:18.865 --> 00:08:21.745
+repeat the information that has occurred so far in the conversation.
+
+00:08:22.225 --> 00:08:27.680
+And the finding from our experiment here on the right is what you can see is that, you know, that does improve
+
+00:08:27.680 --> 00:08:33.200
+performance compared to just plain sharded simulation, but it doesn't quite close the gap. So agents
+
+00:08:33.200 --> 00:08:37.920
+help a little bit, but they don't fundamentally solve the problem, at least the way we set it up.
+
+00:08:39.465 --> 00:08:42.025
+Another thing you might be thinking is what about temperature?
+
+00:08:42.185 --> 00:08:42.985
+Reliability
+
+00:08:42.985 --> 00:08:47.545
+of AI systems can sometimes be related to temperature because these systems are stochastic.
+
+00:08:47.865 --> 00:08:52.425
+So we tried reducing the temperature of both the assistant, this is on the columns,
+
+00:08:52.950 --> 00:08:54.470
+and also the
+
+00:08:54.790 --> 00:08:56.870
+the user simulator
+
+00:08:57.270 --> 00:08:59.430
+here in the in the rows.
+
+00:08:59.670 --> 00:09:02.310
+And we find that in the singleton scenario,
+
+00:09:02.710 --> 00:09:07.110
+so this is concat in full, blowing temperature does help reduce unreliability.
+
+00:09:07.895 --> 00:09:13.095
+On the other hand, it has almost no effect in the multi turn setting. And that's because in multi turn
+
+00:09:13.095 --> 00:09:18.135
+setting, even a small token divergence in an early turn basically cascades and becomes entirely
+
+00:09:18.135 --> 00:09:19.175
+different conversations.
+
+00:09:19.575 --> 00:09:24.580
+So we find that decreasing temperature even to zero does not lead to reduced
+
+00:09:24.580 --> 00:09:26.660
+unreliability in multiturn setups.
+
+00:09:27.860 --> 00:09:29.780
+We have some additional information
+
+00:09:30.100 --> 00:09:33.860
+in the paper about what are the reasons that models get lost.
+
+00:09:34.180 --> 00:09:39.255
+One of them is that the models make answer attempts too early even if they don't have all the elements
+
+00:09:39.255 --> 00:09:44.695
+of the problem. We find that, you know, the the later that the model makes an attempt,
+
+00:09:44.695 --> 00:09:45.895
+the better the performance.
+
+00:09:46.615 --> 00:09:51.670
+We we also find that there is this concept of answer blow that as the model goes deeper and deeper in the
+
+00:09:51.670 --> 00:09:52.390
+conversation,
+
+00:09:52.710 --> 00:09:57.750
+the models aren't very good at invalidating bad assumptions, and so their answers sort of tend to bloat.
+
+00:09:57.750 --> 00:10:02.870
+So even if you get a correct answer at the end of a multi turn conversation, it's bloated by 30 to 40% compared
+
+00:10:02.870 --> 00:10:03.590
+to single turn.
+
+00:10:04.565 --> 00:10:10.005
+We also find that there is a loss in middle turns phenomenon where basically
+
+00:10:10.005 --> 00:10:15.285
+the the models pay more attention to early information or late information but not
+
+00:10:15.285 --> 00:10:16.085
+middle information.
+
+00:10:17.030 --> 00:10:20.390
+And that models tend to produce overly verbose answers,
+
+00:10:20.550 --> 00:10:25.590
+which tends to confuse them later in the conversation because they get confused with prior assumptions that they
+
+00:10:25.590 --> 00:10:27.030
+made that were incorrect.
+
+00:10:27.830 --> 00:10:29.510
+That's it. Thanks for listening.
+
+00:10:30.150 --> 00:10:31.590
+The TLDR is that, you know,
+
+00:10:32.425 --> 00:10:36.425
+sharding instructions in a is a, you know, seemingly benign way
+
+00:10:37.305 --> 00:10:42.345
+that leads to catastrophic degradation in LLM performance on both natural language and programming language
+
+00:10:42.345 --> 00:10:43.545
+generation tasks.
+
+00:10:43.865 --> 00:10:46.825
+This manifests as a loss of reliability specifically,
+
+00:10:47.380 --> 00:10:50.420
+and that means that models can still do everything sometimes,
+
+00:10:50.660 --> 00:10:55.780
+and, of course, this is bad for users. So the what we want you to remember is that when LLMs take a wrong
+
+00:10:55.780 --> 00:10:59.540
+turn, they get lost and do not recover. Thank you for listening.

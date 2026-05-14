@@ -1,0 +1,29 @@
+%Optimizability: given a transformer, does there exist a (descriptionally) smaller one 
+%
+%\fix{Maybe we need to define it as a function problem and then show that equivalence is hard.}
+
+As a consequence of our results, we can show that reasoning about languages of UHATs (e.g.
+equivalence, emptiness, universality, etc.) is provably intractable. 
+Contrast this to deterministic finite automata, where all these problems can be done in
+polynomial time (cf. \citep{Kozen}). In the following,
+%Using our previous results, 
+we show the precise complexity for the \emph{equivalence problem}, 
+i.e., the problem of checking whether two given UHATs recognize the same 
+language.
+That the universality problem is $\EXPSPACE$-complete can be proven similarly.
+
+\begin{theorem}
+Equivalence of UHATs is $\EXPSPACE$-complete.
+\end{theorem}
+\begin{proof}
+To prove the lower bound, we reduce from the non-emptiness problem for UHATs, 
+which by \cref{thm:UHAT-emptiness} is $\EXPSPACE$-complete.
+To this end, let $\mathcal{T}$ be a given UHAT and fix a UHAT $\mathcal{T}_0$ that recognizes the empty language. 
+Then we have that $\mathcal{T}$ and $\mathcal{T}_0$ are equivalent if and only if $\mathcal{T}$ recognizes the empty language.
+
+For the upper bound let the UHATs $\mathcal{T}_1$ and $\mathcal{T}_2$ be given.
+We apply \cref{prop:UHAT-LTL} to turn $\mathcal{T}_1$ and $\mathcal{T}_2$ in exponential time
+into LTL formulas $\varphi_1$ and $\varphi_2$, respectively.
+Now, $\mathcal{T}_1$ and $\mathcal{T}_2$ are equivalent if and only if $\varphi_1$ and $\varphi_2$ are equivalent.
+The latter can be decided in polynomial space \citep{SistlaC85}, which results in an exponential-space algorithm in total.
+\end{proof}

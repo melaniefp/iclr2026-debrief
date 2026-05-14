@@ -1,0 +1,328 @@
+\begin{thebibliography}{37}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Barcel{\'{o}} et~al.(2024)Barcel{\'{o}}, Kozachinskiy, Lin, and
+  Podolskii]{barcelo2024logical}
+Pablo Barcel{\'{o}}, Alexander Kozachinskiy, Anthony~Widjaja Lin, and
+  Vladimir~V. Podolskii.
+\newblock Logical languages accepted by transformer encoders with hard
+  attention.
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations, {ICLR} 2024, Vienna, Austria, May 7-11, 2024}.
+  OpenReview.net, 2024.
+\newblock URL \url{https://openreview.net/forum?id=gbrHZq07mq}.
+
+\bibitem[Bergstr{\"{a}}{\ss}er et~al.(2024)Bergstr{\"{a}}{\ss}er, K{\"{o}}cher,
+  Lin, and Zetzsche]{uhat-data}
+Pascal Bergstr{\"{a}}{\ss}er, Chris K{\"{o}}cher, Anthony~Widjaja Lin, and
+  Georg Zetzsche.
+\newblock The power of hard attention transformers on data sequences: {A}
+  formal language theoretic perspective.
+\newblock In Amir Globersons, Lester Mackey, Danielle Belgrave, Angela Fan,
+  Ulrich Paquet, Jakub~M. Tomczak, and Cheng Zhang (eds.), \emph{Advances in
+  Neural Information Processing Systems 38: Annual Conference on Neural
+  Information Processing Systems 2024, NeurIPS 2024, Vancouver, BC, Canada,
+  December 10 - 15, 2024}, 2024.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2024/file/af58a33861ac45472ea1cc5860d2b13e-Paper-Conference.pdf}.
+
+\bibitem[Brix et~al.(2024)Brix, Bak, Johnson, and Wu]{vnn-result24}
+Christopher Brix, Stanley Bak, Taylor~T. Johnson, and Haoze Wu.
+\newblock The fifth international verification of neural networks competition
+  (vnn-comp 2024): Summary and results, 2024.
+\newblock URL \url{https://arxiv.org/abs/2412.19985}.
+
+\bibitem[Chiang \& Cholak(2022)Chiang and Cholak]{CC22}
+David Chiang and Peter Cholak.
+\newblock Overcoming a theoretical limitation of self-attention.
+\newblock In Smaranda Muresan, Preslav Nakov, and Aline Villavicencio (eds.),
+  \emph{Proceedings of the 60th Annual Meeting of the Association for
+  Computational Linguistics (Volume 1: Long Papers), {ACL} 2022, Dublin,
+  Ireland, May 22-27, 2022}, pp.\  7654--7664. Association for Computational
+  Linguistics, 2022.
+\newblock \doi{10.18653/V1/2022.ACL-LONG.527}.
+\newblock URL \url{https://doi.org/10.18653/v1/2022.acl-long.527}.
+
+\bibitem[Clarke et~al.(2018)Clarke, Grumberg, Kroening, Peled, and
+  Veith]{model-checking-book}
+E.M. Clarke, O.~Grumberg, D.~Kroening, D.~Peled, and H.~Veith.
+\newblock \emph{Model Checking, second edition}.
+\newblock Cyber Physical Systems Series. MIT Press, 2018.
+\newblock ISBN 9780262038836.
+\newblock URL \url{https://books.google.de/books?id=ps-MEAAAQBAJ}.
+
+\bibitem[Grohe \& Schweikardt(2004)Grohe and Schweikardt]{GS04}
+Martin Grohe and Nicole Schweikardt.
+\newblock The succinctness of first-order logic on linear orders.
+\newblock In \emph{19th {IEEE} Symposium on Logic in Computer Science {(LICS}
+  2004), 14-17 July 2004, Turku, Finland, Proceedings}, pp.\  438--447. {IEEE}
+  Computer Society, 2004.
+\newblock \doi{10.1109/LICS.2004.1319638}.
+\newblock URL \url{https://doi.org/10.1109/LICS.2004.1319638}.
+
+\bibitem[Gu \& Dao(2023)Gu and Dao]{mamba}
+Albert Gu and Tri Dao.
+\newblock Mamba: Linear-time sequence modeling with selective state spaces.
+\newblock \emph{CoRR}, abs/2312.00752, 2023.
+\newblock \doi{10.48550/ARXIV.2312.00752}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2312.00752}.
+
+\bibitem[Hahn(2020)]{hahn20}
+Michael Hahn.
+\newblock Theoretical limitations of self-attention in neural sequence models.
+\newblock \emph{Trans. Assoc. Comput. Linguistics}, 8:\penalty0 156--171, 2020.
+\newblock \doi{10.1162/TACL\_A\_00306}.
+\newblock URL \url{https://doi.org/10.1162/tacl\_a\_00306}.
+
+\bibitem[Hao et~al.(2022)Hao, Angluin, and Frank]{Hao22}
+Yiding Hao, Dana Angluin, and Robert Frank.
+\newblock Formal language recognition by hard attention transformers:
+  Perspectives from circuit complexity.
+\newblock \emph{Trans. Assoc. Comput. Linguistics}, 10:\penalty0 800--810,
+  2022.
+\newblock \doi{10.1162/TACL\_A\_00490}.
+\newblock URL \url{https://doi.org/10.1162/tacl\_a\_00490}.
+
+\bibitem[Huang et~al.(2020)Huang, Kroening, Ruan, Sharp, Sun, Thamo, Wu, and
+  Yi]{survey-explainable}
+Xiaowei Huang, Daniel Kroening, Wenjie Ruan, James Sharp, Youcheng Sun, Emese
+  Thamo, Min Wu, and Xinping Yi.
+\newblock A survey of safety and trustworthiness of deep neural networks:
+  Verification, testing, adversarial attack and defence, and interpretability.
+\newblock \emph{Computer Science Review}, 37:\penalty0 100270, 2020.
+\newblock ISSN 1574-0137.
+\newblock \doi{https://doi.org/10.1016/j.cosrev.2020.100270}.
+\newblock URL
+  \url{https://www.sciencedirect.com/science/article/pii/S1574013719302527}.
+
+\bibitem[Huang et~al.(2025)Huang, Yang, Bhattamishra, Sarrof, Krebs, Zhou,
+  Nakkiran, and Hahn]{framework}
+Xinting Huang, Andy Yang, Satwik Bhattamishra, Yash~Raj Sarrof, Andreas Krebs,
+  Hattie Zhou, Preetum Nakkiran, and Michael Hahn.
+\newblock A formal framework for understanding length generalization in
+  transformers.
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations, {ICLR} 2025, Singapore, April 24-28, 2025}. OpenReview.net,
+  2025.
+\newblock URL \url{https://openreview.net/forum?id=U49N5V51rU}.
+
+\bibitem[Jerad et~al.(2025)Jerad, Svete, Li, and Cotterell]{tale}
+Selim Jerad, Anej Svete, Jiaoda Li, and Ryan Cotterell.
+\newblock Unique hard attention: {A} tale of two sides.
+\newblock In Wanxiang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad~Taher
+  Pilehvar (eds.), \emph{Proceedings of the 63rd Annual Meeting of the
+  Association for Computational Linguistics (Volume 2: Short Papers), {ACL}
+  2025, Vienna, Austria, July 27 - August 1, 2025}, pp.\  977--996. Association
+  for Computational Linguistics, 2025.
+\newblock \doi{10.18653/V1/2025.ACL-SHORT.76}.
+\newblock URL \url{https://doi.org/10.18653/v1/2025.acl-short.76}.
+
+\bibitem[Kozen(1997)]{Kozen}
+Dexter Kozen.
+\newblock \emph{Automata and computability}.
+\newblock Undergraduate texts in computer science. Springer, 1997.
+\newblock ISBN 978-0-387-94907-9.
+\newblock \doi{10.1007/978-1-4612-1844-9}.
+
+\bibitem[Li \& Cotterell(2025)Li and Cotterell]{LC25}
+Jiaoda Li and Ryan Cotterell.
+\newblock Characterizing the expressivity of transformer language models.
+\newblock \emph{CoRR}, abs/2505.23623, 2025.
+\newblock \doi{10.48550/ARXIV.2505.23623}.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2505.23623}.
+
+\bibitem[Libkin(2004)]{libkin-book}
+Leonid Libkin.
+\newblock \emph{Elements of finite model theory}, volume~41.
+\newblock Springer, 2004.
+
+\bibitem[Maler \& Pnueli(1990)Maler and Pnueli]{MalerP90}
+Oded Maler and Amir Pnueli.
+\newblock Tight bounds on the complexity of cascaded decomposition of automata.
+\newblock In \emph{31st Annual Symposium on Foundations of Computer Science,
+  St. Louis, Missouri, USA, October 22-24, 1990, Volume {II}}, pp.\  672--682.
+  {IEEE} Computer Society, 1990.
+\newblock \doi{10.1109/FSCS.1990.89589}.
+\newblock URL \url{https://doi.org/10.1109/FSCS.1990.89589}.
+
+\bibitem[McNaughton \& Papert(1971)McNaughton and Papert]{counter-free-book}
+Robert McNaughton and Seymour Papert.
+\newblock \emph{Counter‐free Automata}.
+\newblock M.I.T. Press, Cambridge, Mass., 1971.
+\newblock ISBN 0262130769.
+
+\bibitem[Merrill et~al.(2020)Merrill, Weiss, Goldberg, Schwartz, Smith, and
+  Yahav]{RNN-hierarchy}
+William Merrill, Gail Weiss, Yoav Goldberg, Roy Schwartz, Noah~A. Smith, and
+  Eran Yahav.
+\newblock A formal hierarchy of {RNN} architectures.
+\newblock In Dan Jurafsky, Joyce Chai, Natalie Schluter, and Joel~R. Tetreault
+  (eds.), \emph{Proceedings of the 58th Annual Meeting of the Association for
+  Computational Linguistics, {ACL} 2020, Online, July 5-10, 2020}, pp.\
+  443--459. Association for Computational Linguistics, 2020.
+\newblock \doi{10.18653/V1/2020.ACL-MAIN.43}.
+\newblock URL \url{https://doi.org/10.18653/v1/2020.acl-main.43}.
+
+\bibitem[Merrill et~al.(2024)Merrill, Petty, and Sabharwal]{ssm-will}
+William Merrill, Jackson Petty, and Ashish Sabharwal.
+\newblock The illusion of state in state-space models.
+\newblock In \emph{Forty-first International Conference on Machine Learning,
+  {ICML} 2024, Vienna, Austria, July 21-27, 2024}. OpenReview.net, 2024.
+\newblock URL \url{https://openreview.net/forum?id=QZgo9JZpLq}.
+
+\bibitem[P{\'{e}}rez et~al.(2021)P{\'{e}}rez, Barcel{\'{o}}, and
+  Marinkovic]{perez}
+Jorge P{\'{e}}rez, Pablo Barcel{\'{o}}, and Javier Marinkovic.
+\newblock Attention is turing-complete.
+\newblock \emph{J. Mach. Learn. Res.}, 22:\penalty0 75:1--75:35, 2021.
+\newblock URL \url{https://jmlr.org/papers/v22/20-302.html}.
+
+\bibitem[Pnueli(1977)]{pnueli-ltl}
+Amir Pnueli.
+\newblock The temporal logic of programs.
+\newblock In \emph{18th Annual Symposium on Foundations of Computer Science
+  ({SFCS} 1977)}, pp.\  46--57, 1977.
+\newblock \doi{10.1109/SFCS.1977.32}.
+\newblock URL \url{https://doi.org/10.1109/SFCS.1977.32}.
+
+\bibitem[S{\"{a}}lzer et~al.(2025)S{\"{a}}lzer, Alsmann, and Lange]{SAL25}
+Marco S{\"{a}}lzer, Eric Alsmann, and Martin Lange.
+\newblock Transformer encoder satisfiability: Complexity and impact on formal
+  reasoning.
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations, {ICLR} 2025, Singapore, April 24-28, 2025}. OpenReview.net,
+  2025.
+\newblock URL \url{https://openreview.net/forum?id=VVO3ApdMUE}.
+
+\bibitem[Schwarzentruber(2019)]{Schwarzentruber19}
+Fran{\c{c}}ois Schwarzentruber.
+\newblock The complexity of tiling problems.
+\newblock \emph{CoRR}, abs/1907.00102, 2019.
+\newblock URL \url{http://arxiv.org/abs/1907.00102}.
+
+\bibitem[Siegelmann \& Sontag(1995)Siegelmann and Sontag]{SS95}
+Hava~T. Siegelmann and Eduardo~D. Sontag.
+\newblock On the computational power of neural nets.
+\newblock \emph{J. Comput. Syst. Sci.}, 50\penalty0 (1):\penalty0 132--150,
+  1995.
+\newblock \doi{10.1006/JCSS.1995.1013}.
+\newblock URL \url{https://doi.org/10.1006/jcss.1995.1013}.
+
+\bibitem[Sipser(1997)]{Sipser97}
+Michael Sipser.
+\newblock \emph{Introduction to the theory of computation}.
+\newblock {PWS} Publishing Company, 1997.
+\newblock ISBN 978-0-534-94728-6.
+
+\bibitem[Sistla \& Clarke(1985)Sistla and Clarke]{SistlaC85}
+A.~Prasad Sistla and Edmund~M. Clarke.
+\newblock The complexity of propositional linear temporal logics.
+\newblock \emph{J. {ACM}}, 32\penalty0 (3):\penalty0 733--749, 1985.
+\newblock \doi{10.1145/3828.3837}.
+\newblock URL \url{https://doi.org/10.1145/3828.3837}.
+
+\bibitem[Stockmeyer(1974)]{Stockmeyer-thesis}
+Larry~Joseph Stockmeyer.
+\newblock \emph{The complexity of decision problems in automata theory and
+  logic}.
+\newblock PhD thesis, Massachusetts Institute of Technology, 1974.
+
+\bibitem[Straubing(1994)]{straubing-book}
+Howard Straubing.
+\newblock \emph{Finite Automata, Formal Logic, and Circuit Complexity}.
+\newblock Progress in Theoretical Computer Science. Birkhäuser Boston, MA, 1
+  edition, 1994.
+\newblock ISBN 978-0-8176-3719-4.
+\newblock \doi{10.1007/978-1-4612-0289-9}.
+\newblock URL \url{https://doi.org/10.1007/978-1-4612-0289-9}.
+
+\bibitem[Strobl et~al.(2024)Strobl, Merrill, Weiss, Chiang, and
+  Angluin]{transformers_survey}
+Lena Strobl, William Merrill, Gail Weiss, David Chiang, and Dana Angluin.
+\newblock What formal languages can transformers express? {A} survey.
+\newblock \emph{Trans. Assoc. Comput. Linguistics}, 12:\penalty0 543--561,
+  2024.
+\newblock \doi{10.1162/TACL\_A\_00663}.
+\newblock URL \url{https://doi.org/10.1162/tacl\_a\_00663}.
+
+\bibitem[van Emde~Boas(1997)]{Boas97}
+Peter van Emde~Boas.
+\newblock The convenience of tilings.
+\newblock In \emph{Complexity, Logic, and Recursion Theory}, pp.\  331--363.
+  CRC Press, 1997.
+\newblock \doi{10.1201/9780429187490}.
+\newblock URL \url{https://doi.org/10.1201/9780429187490}.
+
+\bibitem[Vardi \& Wolper(1994)Vardi and Wolper]{VardiW94}
+Moshe~Y. Vardi and Pierre Wolper.
+\newblock Reasoning about infinite computations.
+\newblock \emph{Inf. Comput.}, 115\penalty0 (1):\penalty0 1--37, 1994.
+\newblock \doi{10.1006/INCO.1994.1092}.
+\newblock URL \url{https://doi.org/10.1006/inco.1994.1092}.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
+  Kaiser, and Polosukhin]{Vaswani17}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+  Aidan~N. Gomez, Lukasz Kaiser, and Illia Polosukhin.
+\newblock Attention is all you need.
+\newblock In Isabelle Guyon, Ulrike von Luxburg, Samy Bengio, Hanna~M. Wallach,
+  Rob Fergus, S.~V.~N. Vishwanathan, and Roman Garnett (eds.), \emph{Advances
+  in Neural Information Processing Systems 30: Annual Conference on Neural
+  Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA,
+  {USA}}, pp.\  5998--6008, 2017.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html}.
+
+\bibitem[Weiss et~al.(2018)Weiss, Goldberg, and Yahav]{WGY18}
+Gail Weiss, Yoav Goldberg, and Eran Yahav.
+\newblock On the practical computational power of finite precision rnns for
+  language recognition.
+\newblock In Iryna Gurevych and Yusuke Miyao (eds.), \emph{Proceedings of the
+  56th Annual Meeting of the Association for Computational Linguistics, {ACL}
+  2018, Melbourne, Australia, July 15-20, 2018, Volume 2: Short Papers}, pp.\
+  740--745. Association for Computational Linguistics, 2018.
+\newblock \doi{10.18653/V1/P18-2117}.
+\newblock URL \url{https://aclanthology.org/P18-2117/}.
+
+\bibitem[Weiss et~al.(2024)Weiss, Goldberg, and Yahav]{WGY24}
+Gail Weiss, Yoav Goldberg, and Eran Yahav.
+\newblock Extracting automata from recurrent neural networks using queries and
+  counterexamples (extended version).
+\newblock \emph{Mach. Learn.}, 113\penalty0 (5):\penalty0 2877--2919, 2024.
+\newblock \doi{10.1007/S10994-022-06163-2}.
+\newblock URL \url{https://doi.org/10.1007/s10994-022-06163-2}.
+
+\bibitem[Yang et~al.(2024)Yang, Chiang, and Angluin]{YangCA24}
+Andy Yang, David Chiang, and Dana Angluin.
+\newblock Masked hard-attention transformers recognize exactly the star-free
+  languages.
+\newblock In Amir Globersons, Lester Mackey, Danielle Belgrave, Angela Fan,
+  Ulrich Paquet, Jakub~M. Tomczak, and Cheng Zhang (eds.), \emph{Advances in
+  Neural Information Processing Systems 38: Annual Conference on Neural
+  Information Processing Systems 2024, NeurIPS 2024, Vancouver, BC, Canada,
+  December 10 - 15, 2024}, 2024.
+\newblock URL
+  \url{http://papers.nips.cc/paper\_files/paper/2024/hash/13d7f172259b11b230cc5da8768abc5f-Abstract-Conference.html}.
+
+\bibitem[Zhou et~al.(2024)Zhou, Bradley, Littwin, Razin, Saremi, Susskind,
+  Bengio, and Nakkiran]{raspl}
+Hattie Zhou, Arwen Bradley, Etai Littwin, Noam Razin, Omid Saremi, Joshua~M.
+  Susskind, Samy Bengio, and Preetum Nakkiran.
+\newblock What algorithms can transformers learn? {A} study in length
+  generalization.
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations, {ICLR} 2024, Vienna, Austria, May 7-11, 2024}.
+  OpenReview.net, 2024.
+\newblock URL \url{https://openreview.net/forum?id=AssIuHnmHX}.
+
+\bibitem[Zipf(1935)]{zipf35}
+George~Kingsley Zipf.
+\newblock \emph{The Psychobiology of Language: An Introduction to Dynamic
+  Philology}.
+\newblock Houghton Mifflin, Boston, MA, 1935.
+
+\end{thebibliography}

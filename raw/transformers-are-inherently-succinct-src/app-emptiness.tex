@@ -1,0 +1,188 @@
+\subsection{Proof of Proposition \ref{prop:hardness}}
+We reduce the $2^n$-tiling problem to the non-emptiness problem for \mbox{B-RASP}.
+To this end, we use the following encoding of the function $\tau$ 
+as a word over the alphabet $\Sigma := T \cup \{0,1,\#\}$.
+We define $\mathit{enc}_\tau \colon \{1,\dots,2^n\} \times \{1,\dots,m\} \to \Sigma^*$ such that
+\begin{equation*}\label{eq:enc}
+\mathit{enc}_\tau(i,j) := \langle i-1 \rangle \tau(i,j) \#
+\end{equation*}
+for all $i \in [1,2^n]$ and $j \in [1,m]$, where $\langle i-1 \rangle$ denotes the binary encoding of $i-1$ with $n$ bits
+and most significant bit first.
+Then 
+\[\mathit{enc}(\tau) := \mathit{enc}_\tau(1,1) \dots \mathit{enc}_\tau(2^n,1) \mathit{enc}_\tau(2,1) \dots \mathit{enc}_\tau(m,2^n).\]
+We construct a B-RASP program that accepts $\mathit{enc}(\tau)$ if and only if $\tau$ satisfies the conditions above.
+
+Let $n >0$, a finite set $T$ of tiles, and $t_\mathit{fin} \in T$ be given.
+The B-RASP program first checks whether the input is a word from
+$(\{0,1\}^n T \#)^*$ using the following Boolean vectors:
+\begin{align*}
+A_T(i) :=&\ \maxatt_j[j<i,1]\ \bigvee_{t \in T} Q_t(j) : 0\\
+A_{C,1}(i) :=&\ \maxatt_j[j<i,1]\ Q_0(j) \vee Q_1(j) : 0\\
+A_{C,k}(i) :=&\ \maxatt_j[j<i,1]\ A_{C,k-1}(j) : 0 \qquad \text{for } k = 2,\dots,n\\
+A_{\#,1}(i) :=&\ \maxatt_j[j<i,1]\ Q_\#(j) : 1\\
+A_{\#,k}(i) :=&\ \maxatt_j[j<i,1]\ A_{\#,k-1}(j) : 1 \qquad \text{for } k = 2,\dots,n+1\\
+A_{\mathit{enc}}(i) :=&\ \big(Q_\#(i) \to A_T(i)\big) \wedge
+\Big(\big(\bigvee_{t \in T} Q_t(i)\big) \to \big(\bigwedge_{k=1}^n A_{C,k}(i)\big) \wedge A_{\#,n+1}(i)\Big)
+\end{align*}
+We use the vector
+\[A(i) :=\ \maxatt_j [j<i,\neg A_\mathit{enc}(j)]\ 0 : A_\mathit{enc}(i)\]
+to check that $A_\mathit{enc}(i) = 1$ at every position $i$,
+which is the case if and only if $A(\ell) = 1$
+where $\ell$ is the length of the input.
+Note that we still have to check that the symbol at position $\ell$ is $\#$.
+But before that, we ensure that for every two consecutive binary numbers separated by $\#$ the encoded value increases by 1
+or is set to 0 if $2^n-1$ is reached.
+\begin{align*}
+C_1(i) :=&\ \maxatt_j[j<i,Q_0(j) \vee Q_1(j)]\ Q_1(j) : 0\\
+C_k(i) :=&\ \maxatt_j[j<i,Q_0(j) \vee Q_1(j)]\ C_{k-1}(j) : 0 \qquad \text{for } k=2,\dots,n\\
+C_{+1}(i) :=&\ \maxatt_j[j<i,Q_\#(j)]\ \bigvee_{k=1}^n \big(\bigwedge_{r=1}^{k-1} \neg C_r(i) \wedge C_r(j)\big) \wedge
+C_k(i) \wedge \neg C_k(j)\ \wedge\\ &\ \big(\bigwedge_{r=k+1}^{n} C_r(i) \leftrightarrow C_r(j)\big) : 0\\
+C_{1 \to 0}(i) :=&\ \maxatt_j[j<i,Q_\#(j)]\ \bigwedge_{k=1}^n \neg C_k(i) \wedge C_k(j) : \bigwedge_{k=1}^n \neg C_k(i)\\
+C(i) :=&\ \maxatt_j[j<i,Q_\#(j) \wedge \neg C_{1 \to 0}(j) \wedge \neg C_{+1}(j)]\ 0 : C_{1 \to 0}(i) \wedge C_{+1}(i)
+\end{align*} 
+Now, $C(\ell) = 1$ if and only if the binary numbers are as required.
+
+Next, we check that the input ends with $1^n t_\mathit{fin} \#$.
+\begin{align*}
+B_{t}(i) :=&\ \maxatt_j[j<i,\bigvee_{t' \in T} Q_{t'}(j)]\ Q_{t}(j) : 0 \qquad \text{for all } t \in T\\
+F(i) :=&\ Q_\#(i) \wedge B_{t_\mathit{fin}}(i) \wedge \bigwedge_{k=1}^n C_k(i)
+\end{align*}
+Then $F(\ell) = 1$ if and only if the input ends with $1^n t_\mathit{fin} \#$.
+
+We continue by verifying conditions \ref{itm:bot-top} and \ref{itm:first-last} of $\tau$. 
+\begin{align*}
+E_\bot(i) :=&\ \maxatt_j[j<i,Q_\#(j) \wedge \bigwedge_{k=1}^n C_k(i) \leftrightarrow C_k(j)]\ 1 : 
+\bigvee_{t \in T \colon \tdown(t) = 0} B_t(i)\\
+E_\top(i) :=&\ \maxatt_j[j<i,Q_\#(j) \wedge 
+\big((\bigvee_{t \in T \colon \tup(t) \ne 0} B_t(j)) \vee \bigwedge_{k=1}^n \neg C_k(j)\big)]\ 
+\big(\bigvee_{t \in T \colon \tup(t) = 0} B_t(j)\big)\ \wedge\\&\ \big(\bigvee_{t \in T \colon \tup(t) = 0} B_t(i)\big) : 0\\
+E_\vdash(i) :=&\ \big(\bigwedge_{k=1}^n \neg C_k(i)\big) \to \big(\bigvee_{t \in T \colon \tleft(t) = 0} B_t(i)\big)\\
+E_\dashv(i) :=&\ \big(\bigwedge_{k=1}^n C_k(i)\big) \to \big(\bigvee_{t \in T \colon \tright(t) = 0} B_t(i)\big)\\
+E(i) :=&\ \maxatt_j[j<i, Q_\#(j) \wedge \neg(E_\bot(j) \wedge E_\vdash(j) \wedge E_\dashv(j))]\ 0 :
+E_\bot(i) \wedge E_\top(i) \wedge E_\vdash(i) \wedge E_\dashv(i)
+\end{align*}
+Now, conditions \ref{itm:bot-top} and \ref{itm:first-last} hold if and only if $E(\ell) = 1$.
+
+Finally, we ensure that conditions \ref{itm:right-left} and \ref{itm:up-down} are satisfied.
+\begin{align*}
+M_\downarrow(i) :=&\ \maxatt_j[j<i,Q_\#(j) \wedge \bigwedge_{k=1}^n C_k(i) \leftrightarrow C_k(j)]\ 
+\bigvee_{t,t' \in T \colon \tdown(t) = \tup(t')} B_t(i) \wedge B_{t'}(j) : 1\\
+M_\leftarrow(i) :=&\ \maxatt_j[j<i,Q_\#(j)]\ \big(\bigvee_{k=1}^n C_k(i)\big) \to 
+\big(\bigvee_{t,t' \in T \colon \tleft(t) = \tright(t')} B_t(i) \wedge B_{t'}(j)\big) : 1\\
+M(i) :=&\ \maxatt_j[j<i, Q_\#(j) \wedge \neg(M_\downarrow(j) \wedge M_\leftarrow(j))]\ 0 : M_\downarrow(i) \wedge M_\leftarrow(i)
+\end{align*}
+Then $M(\ell) = 1$ if and only if conditions \ref{itm:right-left} and \ref{itm:up-down} hold.
+
+Thus, if we define the output vector to be the conjunction
+\[Y(i) := A(i) \wedge C(i) \wedge F(i) \wedge E(i) \wedge M(i)\]
+and say that the B-RASP program accepts if and only if $Y(\ell) = 1$,
+then the B-RASP program recognizes the set of all $\mathit{enc}(\tau)$ where $\tau$ satisfies the conditions above.
+Hence, the language recognized by the B-RASP program is non-empty if and only if the $2^n$-tiling problem has a solution.
+
+
+\subsection{Proof of Lemma \ref{lem:equality}}
+As affine transformations $A$ and $B$ we use the identity, i.e.,
+\[S(\bm v_i,\bm v_j) := \langle \bm v_i, \bm v_j \rangle = \sum_{r=1}^d \big(b_{i,r} b_{j,r} + (1-b_{i,r})(1-b_{j,r})\big)\]
+which is equal to $|\{r \in [1,d] \mid b_{i,r} = b_{j,r}\}|$ since
+\[b_{i,r} b_{j,r} + (1-b_{i,r})(1-b_{j,r}) = \begin{cases}
+1, &\text{if } b_{i,r} = b_{j,r}\\
+0, &\text{otherwise.}
+\end{cases}\]
+Thus, the score is maximized (equal to $d$) if $b_{i,r} = b_{j,r}$ for all $r \in [1,d]$.
+
+
+\subsection{Proof of Proposition \ref{prop:UHAT-LTL}}
+Let $\mathcal{T}$ be a UHAT that recognizes a language $L \subseteq \Sigma^*$ and 
+$F$ be a set of binary representations of rational numbers
+that may occur during the computation of $\mathcal{T}$ from \cref{lem:UHAT-values}. 
+Our goal is to define for the $\ell$-th layer of $\mathcal{T}$ and every vector $\bm v \in F^s$,
+where $s$ is the output dimension of layer $\ell$,
+an LTL formula $\varphi_{\bm v}^\ell$ such that if $\mathcal{T}$ is applied on input $w \in \Sigma$,
+then the $\ell$-th layer outputs at position $i \in [1,|w|]$ the vector $\bm v$ if and only if
+$w,i \models \varphi_{\bm v}^\ell$.
+We define this formula inductively on the layer number $\ell$.
+Let $\emb \colon \Sigma \to (\Q^d)^*$ be the token embedding of $\mathcal{T}$.
+For all $\bm v \in F^d$ let
+\[\varphi_{\bm v}^0 := \begin{cases}
+\bigvee_{a \in \emb^{-1}(\bm v)} Q_a, &\text{if } \emb^{-1}(\bm v) \ne \emptyset\\
+\bot, &\text{otherwise.}
+\end{cases}\]
+We now define the formula for layer $\ell+1$.
+In case of a ReLU layer of width $r$, that applies ReLU to the $k$-th coordinate, we can simply define
+\[\varphi_{\bm v}^{\ell+1} := \bigvee_{u \in F \colon \max\{0,u\} = \bm v[k]} \varphi_{(\bm v[1,k-1],u,\bm v[k+1,r])}^\ell\]
+for all $\bm v \in F^r$.
+If layer $\ell+1$ is an attention layer with strict future masking and rightmost tie-breaking defined by the affine transformation
+$C \colon \Q^{2r} \to \Q^s$ and score function $S \colon \Q^{2r} \to \Q^r$, we let
+\[\varphi_{\bm v}^{\ell+1} := \bigvee_{\substack{\bm u,\bm a \in F^r \colon\\ C(\bm u,\bm a) = \bm v}} \varphi_{\bm u}^\ell \wedge
+\big((\bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) < S(\bm u,\bm a)}} \varphi_{\bm b}^\ell) \since
+(\varphi_{\bm a}^\ell \wedge \neg\past \bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) > S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell)\big)\]
+for all $\bm v \in F^s$.
+To account for the special case, where the set of unmasked positions is empty, we take the disjunction of the previous formula and
+$(\neg\past\top) \wedge \bigvee_{\bm u \in F^r \colon C(\bm u,\bm 0) = \bm v} \varphi_{\bm u}^\ell$.
+We omit this special case in the following.
+If the layer uses leftmost tie-breaking, we adapt the formula as follows:
+\[\varphi_{\bm v}^{\ell+1} := \bigvee_{\substack{\bm u,\bm a \in F^r \colon\\ C(\bm u,\bm a) = \bm v}} \varphi_{\bm u}^\ell \wedge
+\big(\past (\varphi_{\bm a}^\ell \wedge \neg\past \bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) \ge S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell)\big) \wedge
+\big(\neg\past \bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) > S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell)\big)\]
+The case of strict past masking is similar, where we use $\until$ instead of $\since$ and $\future$ instead of $\past$.
+If the layer uses no masking and rightmost tie-breaking, we distinguish three situations:
+the attention vector is at the current position, the attention vector is strictly to the left of the current position,
+or the attention vector is strictly to the right of the current position.
+For the situation, where the attention vector is at the current position, we use
+\begin{equation}\label{eq:no-masking1}
+\bigvee_{\substack{\bm u \in F^r \colon\\ C(\bm u,\bm u) = \bm v}} \varphi_{\bm u}^\ell \wedge
+\big(\neg\past\bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) > S(\bm u,\bm u)}} 
+\varphi_{\bm b}^\ell\big) \wedge
+\big(\neg\future\bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) \ge S(\bm u,\bm u)}} 
+\varphi_{\bm b}^\ell\big)
+\end{equation}
+For the situation, where the attention vector is strictly to the left of the current position, we use
+\begin{equation}\label{eq:no-masking2}
+\begin{split}
+\bigvee_{\substack{\bm u,\bm a \in F^r \colon\\ 
+C(\bm u,\bm a) = \bm v \wedge S(\bm u,\bm a) > S(\bm u,\bm u)}} &\varphi_{\bm u}^\ell \wedge
+\big(\neg\future\bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) \ge S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell\big) \\&\wedge
+\big((\bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) < S(\bm u,\bm a)}} \varphi_{\bm b}^\ell) \since
+(\varphi_{\bm a}^\ell \wedge \neg\past \bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) > S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell)\big).
+\end{split}
+\end{equation}
+Similarly, for the situation, where the attention vector is strictly to the right of the current position, we use
+\begin{equation}\label{eq:no-masking3}
+\begin{split}
+\bigvee_{\substack{\bm u,\bm a \in F^r \colon\\ 
+C(\bm u,\bm a) = \bm v \wedge S(\bm u,\bm a) \ge S(\bm u,\bm u)}} &\varphi_{\bm u}^\ell \wedge
+\big(\neg\past\bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) > S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell\big) \\&\wedge
+\big(\future (\varphi_{\bm a}^\ell \wedge \neg\future \bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) \ge S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell)\big) \wedge
+\big(\neg\future \bigvee_{\substack{\bm b \in F^r \colon\\ S(\bm u,\bm b) > S(\bm u,\bm a)}} 
+\varphi_{\bm b}^\ell)\big).
+\end{split}
+\end{equation}
+Thus, in the case of no masking and rightmost tie-breaking, we define $\varphi_{\bm v}^{\ell+1}$ 
+as the disjunction of \cref{eq:no-masking1,eq:no-masking2,eq:no-masking3}.
+The case where the layer uses no masking and leftmost tie-breaking is analogous.
+
+Finally, if there are $m$ layers, where the last layer outputs vectors of dimension $s$, 
+and $\bm t \in \Q^s$ is the acceptance vector of $\mathcal{T}$, we define the formula
+\[\varphi := \bigvee_{\bm v \in F^s \colon \\ \langle \bm t,\bm v\rangle > 0} \varphi_{\bm v}^m.\]
+Then $w,k \models \varphi$ if and only if $w \in L$, where $k$ is the output position of $\mathcal{T}$.
+
+It remains to argue that $\varphi$ can be computed in exponential time.
+By \cref{lem:UHAT-values}, $|F|$ is exponential in the size of $\mathcal{T}$ 
+and every representation in $F$ is of polynomial size.
+Moreover, $F$ can be computed in exponential time.
+The formulas $\varphi_{\bm v}^{\ell+1}$ at every layer $\ell+1$ of width $r$
+depends on $|F|^{O(r)}$ many formulas from layer $\ell$.
+Moreover, $\varphi_{\bm v}^{\ell+1}$ can be computed in time polynomial in $|F|^r \cdot |\mathcal{T}|$,
+since we only have to compute affine transformations on vectors from $F^r$,
+where each component is of size polynomial in $|\mathcal{T}|$.
+The formulas $\varphi_{\bm v}^{m}$ at the last layer $m$ depend on $|F|^{O(r'm)}$ many formulas from layer 0,
+where $r'$ is the maximum width of all layers.
+Thus, $\varphi_{\bm v}^{m}$ has size exponential in $|\mathcal{T}|$ and can be computed in exponential time.
+Therefore, also $\varphi$ can be computed in exponential time.

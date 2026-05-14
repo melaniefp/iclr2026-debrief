@@ -11,6 +11,7 @@ related:
 sources:
   - "raw/iclr-2026-workshop-sci4dl/README.md"
   - "raw/learningmechanics-pub.md"
+---
 
 # Edge of Stability
 

@@ -7,6 +7,7 @@ tags:
   - neural-networks
 related:
   - "wiki/concepts/deep-learning-theory.md"
+  - "wiki/articles/wimhf-human-feedback-talk.md"
 sources:
   - "raw/iclr-2026-workshop-sci4dl/README.md"
 ---

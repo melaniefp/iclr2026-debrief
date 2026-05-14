@@ -1,0 +1,113 @@
+Transformers \citep{Vaswani17} are the underlying model behind the recent 
+success of Large Language Models (LLMs). The past few years saw a large amount
+of theoretical development explaining the expressive power of transformers
+\citep{transformers_survey,barcelo2024logical,YangCA24,hahn20,perez,CC22,tale},
+their trainability and length generalizability \citep{raspl,framework,CC22}, 
+and the extent to which one can formally verify them \citep{SAL25}. 
+Interestingly, it is known that transformers with fixed (finite) precision
+\citep{YangCA24,barcelo2024logical,tale,LC25} recognize a well-known subclass of regular languages called
+\emph{star-free languages}. Fixed-precision transformers are especially 
+pertinent to real-world transformers, which are implemented on hardware with 
+fixed (finite) precision.
+
+Star-free languages form a rather small subclass of regular languages. More
+precisely, a star-free regular expression allows the intersection and 
+complementation operators instead of the Kleene star. For this reason, the 
+regular language $a^*b^*$ is star-free because it can be defined as
+$\overline{\bar{\emptyset}.b.a.\bar{\emptyset}}$. On the other hand, it is known
+that regular languages like $(aa)^*$ are not star-free (cf. see
+\citep{straubing-book}). This is in contrast to Recurrent Neural Networks (RNN), which can recognize all 
+regular languages \citep{SS95,RNN-hierarchy}. Thus, expressivity as language
+recognizers per se is perhaps not the most useful criterion for an LLM 
+architecture.
+
+In this paper, we propose \emph{succinctness} as an alternative angle in 
+understanding the ``expressivity'' of transformers. More precisely, the
+succinctness of a language $L$ with respect to a class $\mathcal{C}$ of 
+language recognizers (e.g.  transformers, automata, etc.) measures the smallest 
+(denotational) size of $T \in \mathcal{C}$ that recognizes $L$, i.e., how many
+symbols are used to describe $T$. Succinctness has been studied in logic in
+computer science (e.g. \citep{GS04,Stockmeyer-thesis}) as an alternative (and 
+more computational)
+measure of expressiveness, and has direct consequence in how computationally
+difficult it is to analyze a certain expression. For example, Linear Temporal
+Logic (LTL) \citep{pnueli-ltl} is expressively equivalent to star-free regular
+languages (e.g. see \citep{libkin-book}), as well as a subclass of deterministic
+finite automata called \emph{counter-free automata} \citep{counter-free-book}.
+Despite this, it is known that LTL can be exponentially more succinct than
+finite automata \citep{SistlaC85}.
+%, whereas star-free regular expressions can be
+%\emph{nonelementarily}\footnote{Means: cannot be founded by any towers of 
+%exponentials of any fixed height} more succinct than finite automata
+%(\cite{Stockmeyer-thesis}). 
+In other words, certain concepts can be described considerably more succinctly 
+by LTL formulas as by finite automata. This has various consequences, e.g.,
+analyzing LTL formulas (e.g. checking whether they describe a trivial concept)
+is provably computationally more difficult than analyzing finite automata
+\citep{SistlaC85}. 
+
+%In linguistics, succinctness has also been correlate
+
+\paragraph{Contributions.} Our main result can be summarized as follows: 
+\begin{quotation}
+\emph{Transformers can describe concepts extremely succinctly.}
+\end{quotation}
+More precisely, we show that transformers are \emph{exponentially} more succinct than
+LTL and RNN (so including state-of-the-art State-Space Models (SSMs), e.g., see
+\citep{mamba,ssm-will}), and \emph{doubly exponentially} more succinct than finite automata. 
+This means that, with the same descriptional size, transformers can encode
+complex patterns that require exponentially (resp. doubly exponentially) larger 
+descriptional sizes for LTL and RNN (resp. automata). 
+As a by-product of this expressivity, one may surmise that analyzing
+transformers must be computationally challenging. We show this to be the case.
+That is, verifying simple properties about transformers (e.g. whether it 
+recognizes a trivial language) is computationally difficult: $\EXPSPACE$-complete. 
+That is, with standard complexity-theoretic assumptions, this cannot be done
+in better than \emph{double exponential time}. 
+
+In fact, we also show matching upper bound on the succinctness gap for LTL
+(exponential) and automata (double exponential). %This is done by proving
+%an $\EXPSPACE$ upper bound, 
+That is, we provide a translation from fixed-precision transformers to
+exponential-sized LTL formulas. % that runs in exponential time.
+This significantly improves the previously shown doubly exponential translation by \cite{YangCA24}.
+As a consequence, for any fixed-precision transformer, there is an LTL formula 
+(resp.\ finite automaton) of (doubly) exponential size recognizing the same 
+language. %This shows that the succinctness gaps are precise.
+
+In proving our succinctness results, we show how transformers can count from
+0 up to $2^{2^n}$, i.e., the so-called ``(doubly exponentially) large 
+counters''. This
+requires a subtle encoding of large counters using attention. We then prove that
+the resulting languages using LTL and RNN (resp. finite automata) require
+exponentially (resp. doubly exponentially) larger description.
+
+What assumptions do we use in our results? We assume that transformers
+and RNN are of a \emph{fixed (finite) precision}. This assumption is faithful to 
+real-world implementations, which use only fixed-precision arithmetics. 
+We also use \emph{Unique-Hard Attention Transformers (UHAT)}, which are known 
+to be expressively the weakest class of transformers \citep{Hao22}, e.g., their 
+languages are
+known to be in a very low complexity class $\ACzero$, whereas other classes of
+transformers (e.g. average-hard attention or softmax) can recognize languages
+beyond $\ACzero$ (e.g. majority). Additionally, UHATs have also been used as
+transformer models in theoretical works of transformers (cf.
+\citep{YangCA24,tale,transformers_survey,Hao22,LC25,hahn20,barcelo2024logical,uhat-data}). 
+
+\paragraph{Organization.} We recall some formal concepts (transformers,
+automata, and logic) in \cref{sec:prelim}. We show in 
+\cref{sec:emptiness} how transformers can encode an exponential tiling
+problem. We show in \cref{sec:succinctness} how this implies succinctness
+of UHATs relative to other representations. Applications of our results for
+reasoning about transformers are discussed in \cref{sec:apps}. We
+conclude the paper in \cref{sec:related}.
+
+%One possible explanation
+%to the success of transformers as LLM architecture --- despite 
+%the seemingly lack of expressivity --- is that star-free languages can express 
+%\emph{any} finite language. 
+%
+%Star-free languages are
+%actually sufficiently powerful to describe \emph{any subset} $S$ of any 
+%language $L$ containing words of length at most some given number $N$. Thus,
+%star-free languages are as powerful for describing finite languages. 

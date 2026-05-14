@@ -1,0 +1,77 @@
+We now study how succinctly transformers can represent languages compared to standard models from formal language theory.
+
+%\subsection{Succinctness against linear temporal logic}
+We first compare transformers to LTL.
+One indication that transformers may be more succinct than LTL comes from \cref{thm:UHAT-emptiness},
+which shows that the non-emptiness problem for UHATs is $\EXPSPACE$-complete, 
+whereas for LTL the corresponding problem is known to be $\PSPACE$-complete.
+The following result shows that this exponential gap also manifests in terms of succinctness.
+
+\begin{theorem}\label{thm:ltl-succinct}
+UHATs can be exponentially more succinct than LTL.
+\end{theorem}
+\begin{proof}
+We give a family $\{L_n\}_{n \ge 1}$ of languages such that $L_n$ is recognized by a UHAT of size polynomial in $n$
+but any LTL formula recognizing $L_n$ has size exponential in $n$.
+Let $\mathcal{M}_n$ be a (deterministic) Turing machine that implements a binary counter with $2^n$ bits,
+i.e., when initialized with $0^{2^n}$, it increments the binary number until it has written $1^{2^n}$ on its tape and accepts.
+Clearly, $\mathcal{M}_n$ is of size polynomial in $n$, 
+it uses an exponential number of tape cells in $n$, and the unique accepting run has length at least $2^{2^n}$.
+In \citep{Boas97} a reduction from Turing machines to tiling problem instances is presented 
+that encodes configurations of Turing machines in its rows and 
+a correct tiling corresponds to a valid execution of the Turing machine.
+We observe that the $2^n$-tiling problem instance $\mathcal{I}_n$ constructed from $\mathcal{M}_n$ has size polynomial in $n$ 
+and it has the property that the smallest correct tiling has at least $2^{2^n}$ many rows.
+In the proof of \cref{prop:UHAT-hardness} we showed 
+that there is a UHAT $\mathcal{T}_n$ of size polynomial in the size of $\mathcal{I}_n$ 
+that recognizes encodings of correct tilings of $\mathcal{I}_n$.
+Thus, $\mathcal{T}_n$ is of size polynomial in $n$ and the smallest accepted word has length at least $2^{2^n}$.
+We let $L_n$ be the language recognized by $\mathcal{T}_n$.
+Let $\varphi_n$ be an LTL formula that recognizes $L_n$.
+Since the smallest accepted word by any LTL formula has length at most exponential in the formula size
+(using an exponential conversion from LTL to finite automata similar to \citep{VardiW94}),
+it follows that the size of $\varphi_n$ is at least exponential in $n$.
+\end{proof}
+
+Conversely, we can show that there is no language than can be represented by LTL significantly more succinct than by UHATs.
+Thus, we may even say that UHATs \emph{are} exponentially more succinct than LTL.
+
+\begin{proposition}\label{lem:ltl-uhat}
+Given an LTL formula $\varphi$, one can construct in polynomial time a UHAT that recognizes the same language as $\varphi$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+From $\varphi$ we construct a UHAT $\mathcal{T}$ that on input $w$ outputs in a dedicated component at position $1 \le i \le |w|$
+a 1 if $w,i \models \varphi$ and a 0 otherwise.
+Then the claim can be proven by induction.
+If $\varphi$ is an atomic formula or a Boolean combination, we can easily define $\mathcal{T}$.
+If $\varphi = \varphi_1 \since \varphi_2$, 
+we can assume by induction hypothesis that we already computed the truth value of $\varphi_1$ and $\varphi_2$ at every position,
+which we use to compute the truth value of $\neg\varphi_1 \vee \varphi_2$.
+We then use an attention layer with strict future masking and rightmost tie-breaking 
+to get for every position $i$ the maximal position $j < i$ where $\neg\varphi_1 \vee \varphi_2$ holds and
+output at position $i$ the truth value of $\varphi_2$ from position $j$.
+The case where $\varphi = \varphi_1 \until \varphi_2$ is similar using strict past masking and leftmost tie-breaking.
+\end{proof}
+
+%\subsection{Succinctness against automata}
+We show next that compared to finite automata, UHATs can be even doubly exponentially more succinct.
+To see this, take the UHAT $\mathcal{T}_n$ from the proof of \cref{thm:ltl-succinct}
+that is of size polynomial in $n$ and the smallest accepted word has length at least $2^{2^n}$.
+Since any automaton recognizing a non-empty language accepts a word of length at most linear in the automaton size,
+the smallest automaton that recognizes the same language as $\mathcal{T}_n$ has size at least doubly exponential in $n$.
+
+\begin{theorem}\label{thm:automata-succinct}
+UHATs can be doubly exponentially more succinct than finite automata.
+\end{theorem}
+
+Conversely, the best known construction from counter-free automata (that are equally expressive as LTL) to LTL
+incurs an exponential blow-up \citep{MalerP90}.
+Thus, together with \cref{lem:ltl-uhat}, we obtain an exponential-time translation from counter-free automata to UHATs.
+Note that also the translation in \citep{YangCA24} from counter-free automata to UHATs increases the size exponentially,
+when using the results by \cite{MalerP90}.
+
+Finally, we combine \cref{thm:automata-succinct} and \cref{prop:rnn-dfa} 
+to obtain the following succinctness gap between UHATs and RNNs.
+\begin{corollary}
+    UHATs can be exponentially more succinct than RNNs.
+\end{corollary}

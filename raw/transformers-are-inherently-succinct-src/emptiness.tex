@@ -1,0 +1,196 @@
+In this section we consider the problem of checking whether the language
+recognized by a UHAT or B-RASP program is non-empty. In particular, the
+technique is essentially a simulation of a Turing machine with an
+$2^{O(n)}$-sized tape (for a given $n$). As we will see later, 
+there are Turing machines such that
+the smallest (i.e.\ shortest) accepted string 
+by the constructed UHAT
+is of length at least $2^{2^{\Omega(n)}}$.
+
+\begin{example}\label{ex:tiling}
+To illustrate the idea, we describe a B-RASP program that accepts strings of the form
+\[0000a_1 \# 0001a_2 \# 0010a_3 \# \dots \# 1111a_{2^4} \#\]
+where $a_i \in \{a,b,c\}$ such that $(a_j,a_{j+1}) \in H$ for all $1 \le j < 2^4$.
+Here, $H := \{(a,b),(b,c),(b,a),(c,b)\}$ is a set of constraints specifying which symbols can be next to each other.
+%Assume for simplicity that the input has already the right format, i.e., is contained in $(\{0,1\}^4\{a,b,c\}\#)^*$.
+%Moreover, it is easy to see that a B-RASP program can succinctly check that the first bit sequence is 0000 and the last is 1111.
+For simplicity, we concentrate on the two main conditions: (i) checking that the bit counter is incremented and 
+(ii) checking that the successive symbols are in $H$.
+To check (i), we use the following attention operation:
+\begin{multline*}
+C_{+1}(i) :=\ \maxatt_j[j<i,Q_\#(j)]\ \bigvee_{k=1}^4 \big(\bigwedge_{r=1}^{k-1} \neg C_r(i) \wedge C_r(j)\big) \wedge
+C_k(i) \wedge \neg C_k(j)\ \wedge\\ \ \big(\bigwedge_{r=k+1}^{4} C_r(i) \leftrightarrow C_r(j)\big) : 1
+\end{multline*}
+Assume $i$ is a $\#$-position.
+Attention selects the rightmost $\#$-position $j$ left of position $i$.
+Let $b_1^i \dots b_4^i$ and $b_1^j \dots b_4^j$ be the bit strings directly left of position $i$ and $j$, respectively.
+We assume that we already defined $C_k(i) = b_k^i$ and $C_k(j) = b_k^j$ for all $k \in [1,4]$.
+Then the above value predicate checks that the binary number $b_1^i \dots b_4^i$ is the number $b_1^j \dots b_4^j$ incremented by 1.
+To check (ii), we can use the attention operation
+\begin{equation*}
+M_{\leftarrow}(i) :=\ \maxatt_j[j<i,Q_a(j) \vee Q_b(j) \vee Q_c(j)]\ \bigvee_{(h,h') \in H} Q_h(j) \wedge Q_{h'}(i) : 1.
+\end{equation*}
+If $i$ is a position of a symbol $a_i$, attention picks the rightmost position $j$ of a symbol $a_j$ to the left of $i$ and 
+checks with the value predicate that $(a_j,a_i) \in H$.
+
+This allows us to succinctly recognize a language whose smallest string has length exponential 
+in the number of bits of the binary counter.
+By stacking multiple such strings vertically and 
+introducing vertical constraints in addition to the horizontal constraints $H$,
+we can even succinctly recognize languages whose smallest string has doubly exponential length. 
+\end{example}
+
+We prove the following precise complexity bounds:
+\begin{theorem}\label{thm:UHAT-emptiness}
+The non-emptiness problem for UHATs and B-RASP programs is $\EXPSPACE$-complete.
+\end{theorem}
+
+We start with the lower bound and show it first for B-RASP programs.
+\begin{proposition}\label{prop:hardness}
+The non-emptiness problem for B-RASP programs is $\EXPSPACE$-hard.
+\end{proposition}
+For the proof we use the techniques illustrated in \cref{ex:tiling} and reduce from a so-called \emph{tiling problem}.
+A \emph{tile} is a quadruple $t \in \N_0^4$, where we write $t = \langle\tleft(t),\tup(t),\tright(t),\tdown(t)\rangle$.
+The \emph{$2^n$-tiling problem} is defined as follows:
+
+\begin{description}
+\item[Given:] An integer $n > 0$ in unary, a finite set $T$ of tiles, and a tile $t_\mathit{fin} \in T$
+\item[Question:] Do there exist $m > 0$ and a function $\tau \colon \{1,\dots,2^n\} \times \{1,\dots,m\} \to T$ such that
+\begin{enumerate}
+\item $\tau(2^n,m) = t_\mathit{fin}$, \label{itm:t-fin}
+\item $\tdown(\tau(i,1)) = \tup(\tau(i,m)) = 0$ for all $1 \le i \le 2^n$, \label{itm:bot-top}
+\item $\tleft(\tau(1,j)) = \tright(\tau(2^n,j)) = 0$ for all $1 \le j \le m$, \label{itm:first-last}
+\item $\tright(\tau(i,j)) = \tleft(\tau(i+1,j))$ for all $1 \le i < 2^n$ and $1 \le j \le m$, and \label{itm:right-left}
+\item $\tup(\tau(i,j)) = \tdown(\tau(i,j+1))$ for all $1 \le i \le 2^n$ and $1 \le j < m$? \label{itm:up-down}
+\end{enumerate}
+\end{description}
+The following is shown in \citep{Schwarzentruber19}:
+\begin{proposition}\label{prop:tiling}
+The $2^n$-tiling problem is $\EXPSPACE$-complete.
+\end{proposition}
+
+The reduction to B-RASP uses an encoding of the function $\tau$ as a sequence of strings 
+which are of a similar form as in \cref{ex:tiling}, but is substantially more
+involved.
+The key observation is that strict future masking with rightmost tie-breaking 
+enables us to check conditions between successive tiles (condition~\ref{itm:right-left}) 
+but also between the current tile and the tile at the most recent past occurrence of the same counter value
+(condition~\ref{itm:up-down}).
+The full proof can be found in \cref{app:emptiness}.
+
+We observe that the B-RASP program constructed in the proof of \cref{prop:hardness} can easily be converted to UHAT,
+which yields the $\EXPSPACE$ lower bound also for UHAT.
+\begin{proposition}\label{prop:UHAT-hardness}
+The non-emptiness problem for UHAT is $\EXPSPACE$-hard.
+\end{proposition}
+\begin{proof}[Proof sketch]
+We show that the B-RASP program constructed in the proof of \cref{prop:hardness} can be converted to a UHAT in polynomial time.
+To this end, note that Boolean operations can easily be simulated using affine transformations and ReLU.
+For the attention operations we use an attention layer.
+The value predicates $V(i,j)$ can be simulated by copying the required components of the $j$-th vector,
+that was selected by attention, to the $i$-th vector using the affine transformation whose result is forwarded 
+and computing the result of the Boolean combination with additional ReLU layers.
+For the score predicates $S(i,j)$ we note that they either only depend on $j$ 
+or they check whether some binary numbers at positions $i$ and $j$ are equal.
+The former can be simulated using an additional preliminary layer that already computes the result of $S(j)$ for every position $j$.
+For the latter we use \cref{lem:equality}.
+\end{proof}
+
+The proof of the following Lemma can be found in \cref{app:emptiness}.
+\begin{lemma}\label{lem:equality}
+Given a mask predicate $M$ and tie-breaking function $\tau$,
+there is an attention layer using $M$ and $\tau$ that on every sequence $\bm v_1,\dots,\bm v_n \in \{0,1\}^{2d}$
+with $\bm v_k = (b_{k,1},1-b_{k,1},\dots,b_{k,d},1-b_{k,d})$ for all $k \in [1,n]$
+and for every $i \in [1,n]$ picks attention vector $\bm a_i = \bm v_j$ such that
+$b_{i,r} = b_{j,r}$ for all $r \in [1,d]$
+if such an unmasked position $j$ exists.
+\end{lemma}
+
+We observe that the B-RASP program constructed in the proof of \cref{prop:hardness} 
+only uses strict future masking and rightmost tie-breaking.
+Thus, the $\EXPSPACE$ lower bound already holds for UHATs that only use strict future masking and rightmost tie-breaking
+(similar for strict past masking and leftmost tie-breaking).
+\begin{corollary}
+The non-emptiness problem for UHATs, where every layer uses strict future masking and rightmost tie-breaking
+(resp.\ strict past masking and leftmost tie-breaking), is already $\EXPSPACE$-hard.
+\end{corollary}
+
+We now prove the upper bounds in \cref{thm:UHAT-emptiness}.
+To this end, we first note that any B-RASP program can be converted in exponential time into an LTL formula
+using the construction from \citep{YangCA24}.
+In \cref{prop:UHAT-LTL} we prove that the same is true for UHATs,
+which improves the doubly exponential construction in \citep{YangCA24} that translates UHATs to B-RASP programs first.
+This suffices to prove the exponential-space upper bounds in \cref{thm:UHAT-emptiness} since
+non-emptiness of languages given by LTL formulas can be checked in polynomial space \citep{SistlaC85}.
+
+%\begin{proposition}\label{prop:UHAT-BRASP}
+%Given a UHAT that recognizes a language $L$, one can construct in polynomial time a B-RASP program recognizing $L$.
+%\end{proposition}
+%\begin{proof}[Proof sketch]
+%We first observe that the values produced by a UHAT are exponentially bounded, 
+%since only the result of linear transformations can be forwarded by each layer.
+%Here, note that even in an attention layer the dot product is only used to compute the scores, which cannot be forwarded.
+%Thus, a polynomial number of bits suffice to encode any value in the UHAT, 
+%i.e., the number $B$ in Lemma~22 of \citep{YangCA24} is polynomial.
+%We then use the ``smaller version'' of the construction in \citep{YangCA24}.
+%Here, we have to show that the score functions can be converted to polynomially sized Boolean expressions
+%as opposed to the construction in Lemma~23 of \citep{YangCA24}.
+%\end{proof}
+
+For the translation from UHAT to LTL, we first have to make the crucial observation 
+that the values occurring during the computation of a UHAT are not ``too large''.
+
+\begin{proposition}\label{lem:UHAT-values}
+The values occurring in the computation of a UHAT $\mathcal{T}$ 
+can be represented with only a polynomial number of bits in the size of $\mathcal{T}$.
+Thus, rational numbers with fixed precision, that is polynomial in the size of $\mathcal{T}$, are sufficient.
+\end{proposition}
+\begin{proof}
+Clearly, ReLU layers do not increase the amount of bits needed since only the maximum with 0 is taken.
+Since our UHAT model is defined over rational numbers, 
+we can represent each value with a binary number for the numerator and a binary number for the denominator. 
+By taking the LCM, we can further assume that the denominators of the numbers in $\emb(\Sigma)$ are all equal.
+Note that the LCM of linearly many numbers of linear bit size can be represented with polynomially many bits.
+Similarly, for each attention layer we can assume that the denominators of all coefficients of the affine transformation,
+whose result is forwarded, are equal.
+This ensure that in the input sequence and after each layer the values have the same denominator.
+Next we argue that the numerators and denominators of all values that occur in the computation
+can be represented with a polynomial number of bits.
+The output of an attention layer is an affine transformation involving two input vectors.
+Here, the input values are only multiplied with constants, i.e., the values in the output only depend linearly on input values.
+Since the denominators of the values after multiplication with coefficients are all equal,
+addition does not incur an increase in bit length of the denominators.
+Therefore, a repeated application of linearly many attention layers can only lead to numerators and denominators
+whose values are at most exponential in the number of layers, i.e., can be represented with polynomially many bits. 
+For the score function we observe that the dot product after an affine transformation only involves two input vectors.
+Thus, the number of bits needed to represent the result of the score function is still polynomial.
+A crucial observation is that the results after applying the score function are not forwarded to the next layer,
+which would introduce an exponential increase in size in the number of layers.
+\end{proof}
+
+By \cref{lem:UHAT-values}, we can already compute the results of the affine transformations and score functions 
+during the construction of the LTL formula.
+This means that the LTL formula only has to simulate the position-wise behavior of attention layers, i.e.,
+masking and selecting the position of the attention vector,
+but not the actual computation of values.
+The proof of the following proposition can be found in \cref{app:emptiness}.
+\begin{proposition}\label{prop:UHAT-LTL}
+Given a UHAT that recognizes a language $L$, one can construct in exponential time an LTL formula recognizing $L$.
+\end{proposition}
+
+
+We remark that if we start with a UHAT, where every attention layer uses strict future masking and leftmost tie-breaking
+(resp.\ strict past masking and rightmost tie-breaking),
+then the LTL formula constructed in the proof of \cref{prop:UHAT-LTL} only uses the $\past$ (resp.\ $\future$) operator.
+It was shown in \citep{SistlaC85} that the non-emptiness problem for the fragments of LTL 
+that only allow $\past$ or $\future$ is $\NP$-complete.
+Thus, we obtain an improved complexity upper bound for such restricted UHATs.
+\begin{corollary}
+The non-emptiness problem for UHATs, where every attention layer uses strict future masking and leftmost tie-breaking
+(resp.\ strict past masking and rightmost tie-breaking), is in $\NEXP$.
+\end{corollary}
+
+Note that it was already shown in \citep{tale} that such restricted UHATs 
+are equally expressive as the LTL fragment with only $\past$ (resp.\ $\future$).
+However, the construction by \cite{tale} from UHAT to the LTL fragments incurs a doubly exponential blow-up, 
+as opposed to our singly exponential translation.

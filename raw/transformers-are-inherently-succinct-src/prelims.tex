@@ -1,0 +1,211 @@
+We often denote vectors by boldface letters and for a vector $\bm v = (v_1,\dots,v_d)$ we write $\bm v[i,j] := (v_i,\dots,v_j)$
+for all $1 \le i \le j \le d$ and if $i=j$, we simply write $\bm v(i)$.
+We also write $\bm n$ for a number $n$ to denote a vector $(n,\dots,n)$ of appropriate dimension.
+
+An \emph{alphabet} is a finite set $\Sigma$ of \emph{symbols} (a.k.a.\ \emph{tokens}).
+We write $\Sigma^*$ for the set of all \emph{words} (a.k.a.\ \emph{sequences}, \emph{strings}) of the form 
+$a_1\dots a_n$, where $n \ge 0$ and $a_i \in \Sigma$ for all $i \in [1,n]$.
+A \emph{language} is a subset $L \subseteq \Sigma^*$.
+We assume familiarity with basic concepts in formal language theory and
+complexity theory (see e.g.\ \citep{Kozen,Sipser97}). In particular, we will 
+deal with finite automata. We will also use the following complexity classes:
+\[
+    \P \subseteq \NP \subseteq \PSPACE \subseteq \EXP \subseteq \NEXP \subseteq 
+\EXPSPACE.
+\]
+The complexity classes $\P$ and $\NP$ correspond to problems solvable in
+polynomial (resp. nondeterminsitic polynomial) time, and are well-known.
+The complexity classes $\EXP$ and $\NEXP$ are similar to $\P$ and $\NP$, but
+we allow the algorithm to use exponential time. The complexity classes 
+$\PSPACE$ and $\EXPSPACE$ correspond to problems solvable
+in polynomial (resp. exponential) space. The above inclusions are well-known
+(cf. \citep{Sipser97}).
+
+
+\subsection{Linear Temporal Logic}
+A formula in Linear Temporal Logic (LTL) over the finite alphabet $\Sigma$ has the following syntax:
+\[\varphi ::= \top \mid \bot \mid  Q_a (\text{for all } a \in \Sigma) \mid 
+\varphi \wedge \varphi \mid \varphi \vee \varphi \mid \neg\varphi \mid
+\varphi \since \varphi \mid \varphi \until \varphi\] 
+We define satisfaction of an LTL formula $\varphi$ on a word $w = a_1\dots a_n \in \Sigma^*$ at position $i \in [1,n]$,
+written $w,i \models \varphi$, inductively (omitting $\top$ (true) and $\bot$ (false)):
+
+\begin{center}
+\begin{tabular}{l l l}
+$w,i \models Q_a$ & iff & $a_i = a$ \qquad (for all $a \in \Sigma$)\\
+$w,i \models \varphi_1 \wedge \varphi_2$ & iff & $w,i \models \varphi_1$ and $w,i \models \varphi_2$\\
+$w,i \models \varphi_1 \vee \varphi_2$ & iff & $w,i \models \varphi_1$ or $w,i \models \varphi_2$\\
+$w,i \models \neg\varphi_1$ & iff & $w,i \not\models \varphi_1$\\
+$w,i \models \varphi_1 \since \varphi_2$ & iff & for some $j$ with $1 \le j < i$ we have $w,j \models \varphi_2$ and \\
+&& for all $k$ with $j < k < i$ we have $w,k \models \varphi_1$\\
+$w,i \models \varphi_1 \until \varphi_2$ & iff & for some $j$ with $i < j \le n$ we have $w,j \models \varphi_2$ and \\
+&& for all $k$ with $i < k < j$ we have $w,k \models \varphi_1$
+\end{tabular}
+\end{center}
+
+Moreover, we define the shortcuts 
+\[\past\varphi := \top \since \varphi \qquad \future\varphi := \top \until \varphi \qquad
+\next\varphi := \bot \until \varphi \qquad \Global\varphi := \varphi \wedge \neg\future\neg\varphi.\]
+An LTL formula recognizes the language $L(\varphi)$ of all words $w \in \Sigma^*$ such that $w,k \models \varphi$,
+where $k$ is either $1$ or $|w|$ depending on whether the first or last position 
+is regarded the \emph{output position} of $\varphi$.
+
+\begin{example}
+    The star-free language $(ab)^*$ can be defined in LTL as
+    \[
+        \Global( Q_a \to \next Q_b ) \wedge \Global( Q_b \wedge \next \top \to \next Q_a
+        ).
+    \]
+    In words, at any $a$-position, the next letter is $b$. At any $b$-position
+    that has a successor, the next letter is $a$.
+\end{example}
+
+\subsection{Masked unique hard-attention transformers}
+Let $\Sigma$ be a finite alphabet of tokens.
+A \emph{token embedding} is a function $\emb \colon \Sigma \to \Q^d$ for some $d > 0$.
+A token embedding naturally extends to a homomorphism $\Sigma^* \to (\Q^d)^*$, 
+where $\emb(a_1\dots a_n) = \emb(a_1)\dots\emb(a_n)$ for $a_1,\dots,a_n \in \Sigma$.
+
+\begin{remark}
+In the following we define transformers over arbitrary rational numbers since our upper bounds even hold in this setting.
+We remark that all of our results also hold for the special case of fixed-precision real numbers,
+i.e., with a constant number of bits for a fixed transformer regardless of the input length.
+In fact, the lower bounds already hold for integers of fixed precision.
+\end{remark}
+
+\paragraph{Attention layer.}
+A \emph{masked unique hard-attention} (UHA) layer of width $r > 0$ is defined by 
+\begin{itemize}
+\item three affine transformations $A,B \colon \Q^r \to \Q^r$ and $C \colon \Q^{2r} \to \Q^s$ with rational valued coefficients
+(i.e., each is of the form $Q\bm x + \bm b$ where matrix $Q$ and vector $\bm b$ have only rational entries),
+\item a mask predicate $M \colon \N \times \N \to \{\top,\bot\}$, which is defined by
+$M(i,j) := \top$ (no masking), $M(i,j) := (j < i)$ (strict future masking), or $M(i,j) := (j > i)$ (strict past masking), and
+\item a tie-breaking function $\tau$ selecting one element of a finite non-empty subset of $\N$, 
+which is either defined as $\min$ (leftmost tie-breaking) or $\max$ (rightmost tie-breaking).
+\end{itemize}
+We now show how a UHA layer works on a sequence $\bm v_1,\dots,\bm v_n \in \Q^r$ with $n \ge 1$.
+The \emph{score function} is defined as the dot product 
+$S(\bm v_i,\bm v_j) := \langle A(\bm v_i), B(\bm v_j) \rangle$ for all $i,j \in [1,n]$.
+For $i \in [1,n]$ let $U_i := \{j \in [1,n] \mid M(i,j)\}$ be the set of unmasked positions and
+$B_i := \{j \in U_i \mid \forall j' \in U_i \colon S(\bm v_i,\bm v_j) \ge S(\bm v_i,\bm v_{j'})\}$
+be the set of unmasked positions that maximize the score function.
+We define the \emph{attention vector} at position $i \in [1,n]$ as 
+$\bm a_i := \bm v_{\tau(B_i)}$ if $U_i \ne \emptyset$ and $\bm a_i := \bm 0$ otherwise.
+The layer outputs the sequence $C(\bm v_1,\bm a_1),\dots,C(\bm v_n,\bm a_n)$.
+
+\paragraph{ReLU layer.}
+A ReLU layer of width $r > 0$ on input $\bm v_1,\dots,\bm v_n \in \Q^r$ 
+applies for some $k \in [1,r]$ the ReLU function to the $k$-th coordinate of each $\bm v_i$, i.e.,
+it outputs the sequence $\bm v'_1,\dots,\bm v'_n$ where 
+$\bm v'_i := (\bm v_i[1,k-1],\max\{0,\bm v_i(k)\},\bm v_i[k+1,n])$. 
+[Equivalently, one could instead allow a feed-forward network at the end of an encoder layer 
+(see \citep{Hao22,barcelo2024logical}).]
+
+\paragraph{Transformer.}
+A \emph{masked unique hard-attention transformer} (UHAT) is a length-preserving function
+$\mathcal{T} \colon \Sigma^* \to (\Q^s)^*$
+defined by application of a token embedding followed 
+by application of a fixed sequence of UHA layers and ReLU layers of matching width.
+%Clearly, using an alternation of standard layers and ReLU layers, we can assume that the output of a UHAT layer 
+%is an arbitrary composition of affine transformations and component-wise ReLU application.
+%In particular, these compositions may use the functions $\max$ and $\min$.
+
+\paragraph{Languages accepted by UHATs.}
+To view a UHAT $\mathcal{T} \colon \Sigma^* \to (\Q^s)^*$ as a language recognizer, 
+we assume that $\mathcal{T}$ is given together with an \emph{acceptance vector} $\bm t \in \Q^s$.
+The recognized language $L(\mathcal{T})$ is then the set of words on which $\mathcal{T}$ outputs a sequence
+$\bm v_1,\dots,\bm v_n \in \Q^s$ with $\langle \bm t,\bm v_k \rangle > 0$,
+where $k \in [1,n]$ is either 1 or $n$ depending on whether the fist or last position 
+is regarded the \emph{output position} of $\mathcal{T}$.
+
+\subsection{Boolean RASP}
+As an intermediate step to prove $\EXPSPACE$-hardness for UHATs,
+we use Boolean RASP (\mbox{B-RASP}) as introduced by \cite{YangCA24},
+who showed that B-RASP is expressively equivalent to UHATs. 
+A B-RASP program is defined as follows.
+Let $w = a_1 \dots a_n \in \Sigma^*$ with $n \ge 1$ be an input word.
+For every $a \in \Sigma$ there is an \emph{initial} Boolean vector 
+$Q_a \in \{0,1\}^n$ with $Q_a(i) = 1$ iff $a_i = a$ for all $i \in [1,n]$.
+We number the initial vectors and call them $P_1,\dots,P_{|\Sigma|}$.
+We now describe how vector $P_{t+1}$ can be defined from vectors $P_1,\dots,P_t$ for $t \ge |\Sigma|$.
+
+\paragraph{Position-wise operation.} 
+The vector $P_{t+1}$ can be defined by $P_{t+1}(i) := R(i)$ for some Boolean combination $R(i)$ of $\{P_1(i),\dots,P_t(i)\}$.
+
+\paragraph{Attention operation.} 
+The vector $P_{t+1}$ can be defined by either of
+\begin{gather*}
+P_{t+1}(i) :=\ \minatt_j [M(i,j), S(i,j)]\ V(i,j) : D(i)\\
+P_{t+1}(i) :=\ \maxatt_j [M(i,j), S(i,j)]\ V(i,j) : D(i)
+\end{gather*}
+where
+\begin{itemize}
+\item $M(i,j)$ is a \emph{mask predicate} as in the definition of a UHAT,
+\item $S(i,j)$ and $V(i,j)$ are Boolean combinations of $\{P_1(i),\dots,P_t(i)\} \cup \{P_1(j),\dots,P_t(j)\}$, 
+called \emph{score predicate} and \emph{value predicate}, respectively,
+\item $D(i)$ is a Boolean combination of $\{P_1(i),\dots,P_t(i)\}$, called \emph{default value predicate}.
+\end{itemize}
+The semantics of an attention operation is as follows.
+For every $i \in [1,n]$, let 
+\[j_i := \begin{cases}
+\min\{j \in [1,n] \mid M(i,j) \text{ and } S(i,j) = 1\}, &\text{for } \minatt\\
+\max\{j \in [1,n] \mid M(i,j) \text{ and } S(i,j) = 1\}, &\text{for } \maxatt.
+\end{cases}\]
+We then define $P_{t+1}(i) := V(i,j_i)$ if $j_i$ exists and $P_{t+1}(i) := D(i)$ otherwise.
+Observe that $\minatt$ (resp.\ $\maxatt$) corresponds to leftmost (resp.\ rightmost) tie-breaking in UHATs.
+
+A B-RASP program is given by an alphabet $\Sigma$ and a sequence of position-wise and attention operations.
+We can view a B-RASP program as a language recognizer by designating one Boolean vector $Y$ as the \emph{output vector}
+and either the first or last position as the \emph{output position}.
+Then an input word $w = a_1 \dots a_n$ is accepted if and only if $Y(k) = 1$,
+where $k$ is the output position, i.e., $k=1$ or $k=n$.
+
+\subsection{Recurrent Neural Networks (RNN)} We use RNN as language acceptors,
+as in the work of \cite{RNN-hierarchy,WGY24,WGY18}. In particular,
+a \emph{Recurrent Neural Network (RNN)} $M$ can be viewed as a function 
+$g: (\R^d \times \ialphabet) \to \R^d$. As in the case of transformers,
+$\ialphabet$ is also mapped into $\R^k$ (for some $k$) through a token embedding
+function $\emb$ (e.g. one-hot encoding) and the function $g$ actually has domain
+$\R^d \times \R^k$. We have an input vector $\bar x_0 \in \R^d$ and a final 
+function $f: \R^d \to \{Acc,Rej\}$, to decide whether a vector $\bar x \in \R^d$
+is accepting. The semantics of acceptance is the same as that of automata, i.e.,
+given $w = a_1\cdots a_n \in \ialphabet^*$, we compute $d$-vectors 
+$\bar x_1, \ldots, \bar x_n$ such that $g(\bar x_i,a_{i+1}) = \bar x_{i+1}$
+for each $i = 0,\ldots,n-1$. The string $w$ is \emph{accepted} by $M$ if $f(a_n)
+= Acc$. 
+
+As a computational model, it is realistic to assume RNNs with a fixed precision,
+i.e., computation is always done over real numbers that can be represented with
+a constant $k$ number of bits. The details of the actual representation are 
+not important for our analysis. Therefore, the state-space $Q$ of the above 
+RNN can be mapped to $d$-vectors over $\{0,1\}^k$ (instead of $\R$). The
+following proposition is now immediate.
+\begin{proposition}
+    An RNN $g: (\R^d \times \ialphabet) \to \R^d$ with fixed precision $k$
+    can be represented by a finite automaton with $2^{kd}$ many states.
+    \label{prop:rnn-dfa}
+\end{proposition}
+
+\subsection{Size measures and succinctness}
+Let $\mathcal{R}$ be a finite representation of a language, i.e., 
+in our case a UHAT, LTL formula, finite automaton, RNN, or B-RASP program.
+We define the size of $\mathcal{R}$, denoted by $|\mathcal{R}|$, as the length of its usual binary encoding.
+In measuring succinctness of RNN, we put the precision $k$ in unary also as part of the 
+size measure; since we do not want to compare a transformer that uses a
+fixed precision $k$ and allow an RNN that uses a fixed precision $2^k$.
+Let $\mathcal{C}_1, \mathcal{C}_2$ be classes of finite representations of languages.
+We say that $\mathcal{C}_1$ can be \emph{exponentially more succinct} than $\mathcal{C}_2$ if
+for every function $f \in 2^{o(n)}$ 
+there is an $\mathcal{R}_1 \in \mathcal{C}_1$ such that
+any $\mathcal{R}_2 \in \mathcal{C}_2$ representing the same language as $\mathcal{R}_1$ has size
+$|\mathcal{R}_2| > f(|\mathcal{R}_1|)$.
+Similarly, we define \emph{doubly exponentially more succinct} using functions $f \in 2^{2^{o(n)}}$ instead.
+Intuitively, this means that any translation from $\mathcal{C}_1$ to $\mathcal{C}_2$ incurs, in the worst-case, 
+an (doubly) exponential increase in size.
+%We say that $\mathcal{C}_1$ is \emph{at least as succinct as} $\mathcal{C}_2$
+%if there exists a polynomial $p$ such that for every $\mathcal{R}_1 \in \mathcal{C}_1$ 
+%there is an $\mathcal{R}_2 \in \mathcal{C}_2$ representing the same language as $\mathcal{R}_1$ 
+%with $|\mathcal{R}_2| \le p(|\mathcal{R}_1|)$. 
+%In the case that $\mathcal{C}_1$ is at least as succinct as $\mathcal{C}_2$ and
+%additionally can be (doubly) exponentially more succinct, 
+%we just say that $\mathcal{C}_1$ \emph{is} (doubly) exponentially more succinct than $\mathcal{C}_2$.

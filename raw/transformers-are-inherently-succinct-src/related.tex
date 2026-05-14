@@ -1,0 +1,31 @@
+\paragraph{Related work.} Our work was inspired by the works of 
+\cite{YangCA24,barcelo2024logical,tale,LC25}, which exhibit a close connection
+between unique-hard attention transformers and star-free regular languages.
+In particular, these works also exploited the connection to LTL. However,
+none of these results investigated neither the issue of succinctness nor
+computational complexity of verification, which we establish in this
+paper.
+
+\cite{SAL25} investigated the issue of verifying transformers of various
+precisions. In particular, it was shown that transformers of fixed precision
+are at least $\NEXP$-hard (i.e. hard for the class of problems solvable by
+nondeterministic algorithms that run in exponential time). The technique there
+implies that transformers are (singly) exponentially more succinct than finite
+automata. However, no conclusion can be derived as to their succinctness
+relative to representations like LTL or RNN. Our result substantially improve
+this by showing that transformers are doubly exponentially more succinct than 
+automata, and exponentially more succinct than LTL and RNN. In addition, our
+work assumes a much simpler model in comparison to the results in \citep{SAL25}. 
+In particular, we use unique-hard attention, 
+whereas in \citep{SAL25} a combination of softmax and hardmax is employed.
+Finally, our results use positional masking (as employed in
+\citep{YangCA24,tale,LC25}) --- as a simple class of Positional Embeddings 
+(PEs) --- in contrast to \citep{SAL25}, which admits arbitrary PEs of fixed precision.
+
+Succinctness has also been studied in the context of linguistics. For example,
+according to Zipf's law of abbreviation \citep{zipf35}, frequently occuring
+concepts tend to have a succinct description. In particular, Hindu-Arabic
+numeral system --- which evolves into our modern numeral system --- allows
+an exponentially more succinct description than the Roman numeral system.
+According to Zipf's law, the former potentially enables mathematics and computer
+science as we see today.
